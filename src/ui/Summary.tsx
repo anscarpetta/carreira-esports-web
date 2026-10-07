@@ -7,6 +7,7 @@ import { AchievementsButton } from './AchievementsDialog.tsx'
 import { Flag } from './Flag.tsx'
 import { OvrBadge } from './OvrBadge.tsx'
 import { SharePanel } from './SharePanel.tsx'
+import { Sparkles } from './Sparkles.tsx'
 import { TeamBadge } from './TeamBadge.tsx'
 
 function groupCount(names: readonly string[]): { name: string; count: number }[] {
@@ -38,6 +39,7 @@ export function Summary({
   }
   const awards = groupCount(s.awards.map(awardLabel))
   const years = s.firstYear !== null && s.lastYear !== null ? `${s.firstYear}–${s.lastYear}` : '—'
+  const worlds = s.titles.filter((t) => t.kind === 'worlds').length
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8">
@@ -48,6 +50,13 @@ export function Summary({
           {ROLE_LABEL[player.role]} · <Flag code={player.nationality} /> · {years}
           {career.retirement && ` · ${retirementText(career.retirement.reason)} aos ${career.retirement.age} anos`}
         </p>
+        {worlds > 0 && (
+          <p className="mt-3 text-lg font-black text-gold-soft">
+            <Sparkles count={10} className="px-3 py-1">
+              🏆 {worlds > 1 ? `${worlds}× campeão mundial` : 'Campeão mundial'}
+            </Sparkles>
+          </p>
+        )}
       </header>
 
       <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">

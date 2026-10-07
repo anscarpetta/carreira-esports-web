@@ -3,6 +3,7 @@ import { CATALOG } from '../../data/catalog.ts'
 import { ageOf, decide, retire } from '../../engine/career.ts'
 import { of } from '../../engine/grammar.ts'
 import type { CareerState } from '../../engine/types.ts'
+import { celebrate, partyFor } from '../celebrate.ts'
 import { DecisionPanel, type PanelStage } from './DecisionPanel.tsx'
 import { PlayerCard } from './PlayerCard.tsx'
 import { Toasts, type Toast } from './Toasts.tsx'
@@ -29,6 +30,16 @@ function prefersReducedMotion(): boolean {
   } catch {
     return false
   }
+}
+
+// Confete quando os splits novos trazem título, na cor do time campeão.
+function party(prev: CareerState, next: CareerState) {
+  const kind = partyFor(prev, next)
+  if (!kind) return
+  const champion = next.history
+    .slice(prev.history.length)
+    .findLast((r) => r.titles.length > 0 || (r.international?.titles.length ?? 0) > 0)
+  celebrate(kind, champion?.teamId ? CATALOG.teams[champion.teamId]?.color : undefined)
 }
 
 function celebrations(prev: CareerState, next: CareerState): Toast[] {
@@ -101,6 +112,7 @@ export function CareerScreen({
       delay = OVR_MS
       advance = () => {
         setToasts(celebrations(reveal.prev, reveal.next))
+        party(reveal.prev, reveal.next)
         setReveal(null)
       }
     }

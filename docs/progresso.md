@@ -415,3 +415,19 @@ Aposentadoria média aos ~29 anos.
   - A linha "Escolhendo o próximo passo…" mostra a idade e o OVR atuais enquanto a decisão está em aberto.
 - **Propostas em grade:** cards verticais em 2 colunas, com o verbo ("Assinar com", "Ficar na", "Subir para"…), o nome, o logo grande, a liga e o tier, a força com a tendência e os selos. Com um número ímpar de cards, o último fica centralizado.
 - **Vitrine de títulos** no cartão do jogador, com os títulos agrupados e os internacionais primeiro (ex.: "🏆 2× CBLOL").
+
+## Redesign 3 (out/2026): efeitos
+
+Inspirados em componentes do 21st.dev (Magic UI e Motion Primitives, licença MIT), adaptados ao jogo. Bibliotecas novas: `motion` (animações com mola) e `canvas-confetti`.
+
+| Efeito | Onde |
+|---|---|
+| **Contador de OVR** | O OVR do cartão conta até o novo valor depois de cada decisão e dá um pulo quando muda de faixa de cor |
+| **Confete** | No fim da revelação com título: pouco na liga (na cor do time), mais no First Stand e no MSI, e canhões dourados dos dois lados no Worlds |
+| **Borda com brilho** | Linhas de título na trajetória (dourada) e card escolhido (branca) |
+| **Holofote** | Brilho na cor do time que segue o mouse nos cards de proposta |
+| **Lista animada** | As linhas novas da trajetória entram deslizando com mola |
+| **Cartão 3D** | Cartão do jogador e card de compartilhar inclinam com o mouse, com reflexo de luz |
+| **Brilhos** | "Campeão mundial" no resumo e conquistas lendárias concluídas |
+
+Tudo respeita "reduzir movimento" do sistema: sem animação, sem confete e sem inclinação.

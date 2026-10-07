@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { ACHIEVEMENTS } from '../engine/achievements.ts'
 import { loadUnlocked } from './achievementsStore.ts'
+import { Sparkles } from './Sparkles.tsx'
+
+// Conquistas lendárias: ganham brilho quando concluídas.
+const LEGENDARY = new Set(['world_champion', 'impossible', 'grand_slam', 'golden_year', 'brazilian_in_lck'])
 
 type Filter = 'all' | 'done' | 'pending'
 
@@ -13,7 +17,7 @@ export function AchievementsButton({ className = '' }: { className?: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`rounded-xl border border-line px-4 py-2 text-sm font-bold hover:border-white/40 ${className}`}
+        className={`rounded-full border border-white/30 px-4 py-2 text-sm font-bold hover:bg-white/5 ${className}`}
       >
         🏅 Conquistas ({done}/{ACHIEVEMENTS.length})
       </button>
@@ -82,7 +86,15 @@ function AchievementsDialog({ onClose }: { onClose: () => void }) {
               >
                 <span className={`text-2xl ${date ? '' : 'grayscale'}`}>{achievement.icon}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold">{achievement.title}</p>
+                  <p className="font-bold">
+                    {date && LEGENDARY.has(achievement.id) ? (
+                      <Sparkles count={5} className="text-gold-soft">
+                        {achievement.title}
+                      </Sparkles>
+                    ) : (
+                      achievement.title
+                    )}
+                  </p>
                   <p className="text-sm text-muted">{achievement.description}</p>
                   {date && (
                     <p className="text-xs text-gold-soft">Conquistada em {new Date(date).toLocaleDateString('pt-BR')}</p>

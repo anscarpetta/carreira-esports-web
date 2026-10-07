@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CareerState } from '../engine/types.ts'
 import { canvasToBlob, drawCareerCard, GAME_URL } from './shareCard.ts'
+import { TiltCard } from './TiltCard.tsx'
 
 type Status = { tone: 'ok' | 'error'; text: string } | null
 
@@ -78,13 +79,15 @@ export function SharePanel({ career }: { career: CareerState }) {
     <section className="rounded-2xl border border-line bg-panel p-4" aria-label="Compartilhar">
       <h2 className="text-sm font-bold tracking-wide text-muted uppercase">Compartilhe sua carreira</h2>
       <div className="mt-3 flex flex-col gap-4 sm:flex-row">
-        <div className="mx-auto w-56 shrink-0 overflow-hidden rounded-xl border border-line bg-night sm:mx-0">
-          {preview ? (
-            <img src={preview} alt="Card da carreira" className="block w-full" />
-          ) : (
-            <div className="grid aspect-[4/5] place-items-center text-xs text-muted">Preparando imagem…</div>
-          )}
-        </div>
+        <TiltCard max={14} className="mx-auto w-56 shrink-0 sm:mx-0">
+          <div className="overflow-hidden rounded-2xl border border-line bg-night">
+            {preview ? (
+              <img src={preview} alt="Card da carreira" className="block w-full" />
+            ) : (
+              <div className="grid aspect-[4/5] place-items-center text-xs text-muted">Preparando imagem…</div>
+            )}
+          </div>
+        </TiltCard>
         <div className="flex flex-1 flex-col gap-2">
           <button type="button" onClick={share} disabled={!preview} className="rounded-full bg-white px-4 py-2.5 font-black text-night disabled:opacity-50">
             Compartilhar

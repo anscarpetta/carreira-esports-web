@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties, type PointerEvent } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
 import { ageOf, isImportIn } from '../../engine/career.ts'
 import { art, of } from '../../engine/grammar.ts'
@@ -99,6 +99,13 @@ function optionTitle(option: DecisionOption, career: CareerState): string {
   return 'Aposentar-se'
 }
 
+// Guarda a posição do mouse para o holofote do card (classe .spotlight).
+function spotlight(event: PointerEvent<HTMLElement>) {
+  const box = event.currentTarget.getBoundingClientRect()
+  event.currentTarget.style.setProperty('--spot-x', `${event.clientX - box.left}px`)
+  event.currentTarget.style.setProperty('--spot-y', `${event.clientY - box.top}px`)
+}
+
 function OptionCard({
   career,
   option,
@@ -122,11 +129,16 @@ function OptionCard({
       type="button"
       disabled={busy}
       onClick={() => onChoose(option.id)}
-      className={`h-full w-full rounded-xl border p-3 transition ${teamColor ? 'text-center' : 'text-left'} ${chosen ? 'ring-2 ring-white' : 'hover:brightness-125'} ${teamColor ? '' : 'border-line bg-raised'} ${dimmed ? 'opacity-35' : ''} focus-visible:outline-2 focus-visible:outline-white disabled:cursor-default`}
+      onPointerMove={spotlight}
+      className={`spotlight h-full w-full rounded-xl border p-3 transition ${teamColor ? 'text-center' : 'text-left'} ${chosen ? 'shine-border ring-1 ring-white/60' : 'hover:-translate-y-0.5'} ${teamColor ? '' : 'border-line bg-raised'} ${dimmed ? 'opacity-35' : ''} focus-visible:outline-2 focus-visible:outline-white disabled:cursor-default`}
       style={
-        teamColor
-          ? { background: `linear-gradient(135deg, ${tint(teamColor, 0.24)}, ${tint(teamColor, 0.08)})`, borderColor: tint(teamColor, 0.4) }
-          : undefined
+        {
+          ...(teamColor
+            ? { background: `linear-gradient(135deg, ${tint(teamColor, 0.24)}, ${tint(teamColor, 0.08)})`, borderColor: tint(teamColor, 0.4) }
+            : {}),
+          '--spot-color': teamColor ? tint(teamColor, 0.45) : 'rgb(255 255 255 / 0.1)',
+          '--shine-color': '#ffffff',
+        } as CSSProperties
       }
     >
       {teamId ? (
