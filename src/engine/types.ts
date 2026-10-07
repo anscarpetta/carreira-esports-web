@@ -51,6 +51,8 @@ export interface LeagueData {
   // "swap": os 2 piores trocam de lugar com os 2 melhores de baixo.
   readonly promotion?: 'guest_series' | 'swap'
   readonly guestTeamIds?: readonly string[]
+  // Ligas de onde sai o desafiante da vaga de convidado (padrão: só a liga de baixo).
+  readonly challengerLeagueIds?: readonly string[]
   // Nome feminino ("a Qualificatória Aberta"), para os textos.
   readonly feminine?: boolean
   // Liga franqueada: times não saem nem são rebaixados.
@@ -92,6 +94,8 @@ export interface Catalog {
   readonly countries: Readonly<Record<string, Country>>
   // Chance relativa de contratar um importado: MOBILITY[origem][destino].
   readonly mobility: Readonly<Record<string, Readonly<Record<string, number>>>>
+  // Dupla residência dos latino-americanos (regra de 2026).
+  readonly latamDualResidency?: { readonly regions: readonly string[]; readonly untilYear: number }
   readonly startYear: number
 }
 

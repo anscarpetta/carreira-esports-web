@@ -59,6 +59,8 @@ export const CBLOL: LeagueData = {
   lowerLeagueId: 'circuito-desafiante',
   promotion: 'guest_series',
   guestTeamIds: ['los'],
+  // O desafiante sai do Desafiante ou da Liga Regional Sur.
+  challengerLeagueIds: ['circuito-desafiante', 'lrs'],
 }
 
 export const CIRCUITO_DESAFIANTE: LeagueData = {
@@ -85,6 +87,6 @@ export const QUALIFICATORIA_ABERTA: LeagueData = {
   splitNames: ['Qualificatória Aberta 1', 'Qualificatória Aberta 2', 'Qualificatória Aberta 3'],
   ratingRange: [50, 64],
   teamIds: ['barulhinhos', 'marere', 'kuma', 'flamengo', 'rampage', 'liberty', 'rensga', 'vorax'],
-  reserveTeamIds: ['netshoes-miners', 'isurus'],
+  reserveTeamIds: ['netshoes-miners'],
   format: { regularBestOf: 1, playoffTeams: 4, playoffBestOf: 3 },
 }

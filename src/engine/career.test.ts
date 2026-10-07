@@ -202,7 +202,7 @@ describe('carreira completa', () => {
 })
 
 describe('regiões', () => {
-  const START: Record<string, string> = { BR: 'BR', KR: 'KR', CN: 'CN', FR: 'EU', US: 'NA' }
+  const START: Record<string, string> = { BR: 'BR', KR: 'KR', CN: 'CN', FR: 'EU', US: 'NA', AR: 'LATAM', MX: 'LATAM' }
 
   it('cada nacionalidade começa nos tiers de base da própria região', () => {
     for (const [nationality, region] of Object.entries(START)) {
@@ -210,7 +210,9 @@ describe('regiões', () => {
         const state = createCareer({ ...INPUT, nationality, seed: `regiao-${nationality}-${i}` }, CATALOG)
         for (const option of state.decision!.options) {
           const league = CATALOG.leagues[state.teams[teamOf(option)!].leagueId!]
-          expect(league.region).toBe(region)
+          // Latino-americanos também podem começar no Brasil ou na América do Norte (dupla residência).
+          const allowed = region === 'LATAM' ? ['LATAM', 'BR', 'NA'] : [region]
+          expect(allowed).toContain(league.region)
           expect(league.tier).toBeGreaterThan(1)
         }
       }
@@ -224,6 +226,17 @@ describe('regiões', () => {
     expect(residentRegions(resident, CATALOG)).toContain('NA')
     expect(isImportIn(resident, CATALOG, 'lcs')).toBe(false)
     expect(isImportIn(state, CATALOG, 'cblol')).toBe(false)
+  })
+
+  it('latino-americanos têm dupla residência (CBLOL e LCS) até 2027', () => {
+    const state = createCareer({ ...INPUT, nationality: 'AR' }, CATALOG)
+    expect(isImportIn(state, CATALOG, 'cblol')).toBe(false)
+    expect(isImportIn(state, CATALOG, 'lcs')).toBe(false)
+    expect(isImportIn(state, CATALOG, 'lck')).toBe(true)
+    // Em 2028 a regra acaba: fica a região onde mais jogou.
+    const later = { ...state, next: { year: 2028, index: 0 as const }, residency: { BR: 4, NA: 1 } }
+    expect(isImportIn(later, CATALOG, 'cblol')).toBe(false)
+    expect(isImportIn(later, CATALOG, 'lcs')).toBe(true)
   })
 
   it('chineses quase nunca jogam fora da China', () => {

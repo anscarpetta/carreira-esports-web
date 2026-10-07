@@ -174,3 +174,24 @@ Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito
 ### Decisões que tomei sozinho (para revisar)
 - **Worlds com 16 vagas** (a LEC ficou com 4 para fechar a conta). Quando a LCP entrar (fatia 6), as vagas serão redistribuídas.
 - **First Stand com 1 vaga por região** (regra de 2026 para LCS e CBLOL, estendida às outras).
+
+## Fatia 5: LATAM (tier 2) ✅
+
+### O que mudou no jogo
+- **Liga Regional Sur** (9z, Docta, Malvinas Gaming, Golden Lions, Maze, Seven Dark, Volticons e ZEN) e **Liga Regional Norte** (LYON Academy, SDM Tigres, Kits, Fuego, NCG, Polar Squad, Zeu5 e 3V), com os times do Split 2 de 2026.
+- **Nacionalidades latino-americanas:** Argentina, Chile, México, Colômbia e Peru.
+- **Dupla residência (regra real de 2026):** até 2027, latino-americanos jogam CBLOL e LCS (e os tiers de baixo dessas regiões) sem ocupar vaga de importado. A partir de 2028, ficam residentes só na região (Brasil ou América do Norte) onde mais jogaram.
+- **Acesso ao CBLOL pela Liga Regional Sur:** o desafiante da vaga de convidado sai do Desafiante ou da Liga Regional Sur (o melhor dos dois). O convidado rebaixado vai para a liga de onde veio o desafiante.
+- A Liga Regional Norte é fechada (sem acesso), porque a LCS é franqueada.
+
+### Calibração (argentinos, modo normal)
+- 40% não se firmam no tier 1 · 35% sólidos · 22% craques · 4% lendas.
+- 82% das carreiras passam pelo Brasil e 23% pela LCS, reflexo da dupla residência (como os argentinos que hoje jogam o CBLOL).
+
+### Testes: 66
+- Novo teste da dupla residência: não é importado no CBLOL nem na LCS até 2027, é importado na LCK, e depois de 2028 fica só na região onde mais jogou.
+
+### Decisões que tomei sozinho (para revisar)
+- **Nomes dos splits da LATAM:** Apertura, Split 1 e Split 2 (Apertura é um nome comum na região).
+- **Força dos times da LATAM estimada** (na faixa do Desafiante).
+- **Isurus e WAP Esports** ficam como reservas da Liga Regional Sur.

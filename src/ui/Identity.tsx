@@ -12,6 +12,8 @@ const REGION_START: Record<string, string> = {
   CN: 'Começa na LDL; o topo é a LPL. Chineses quase nunca saem da China.',
   EU: 'Começa na EMEA Masters; o topo é a LEC.',
   NA: 'Começa na NACL; o topo é a LCS.',
+  LATAM:
+    'Começa na Liga Regional Sur ou Norte. Até 2027, a dupla residência deixa jogar CBLOL e LCS sem ocupar vaga de importado.',
 }
 
 const ROLE_HINT: Record<Role, string> = {

@@ -9,6 +9,7 @@ export const REGIONS: readonly Region[] = [
   { id: 'CN', name: 'China' },
   { id: 'EU', name: 'Europa' },
   { id: 'NA', name: 'América do Norte' },
+  { id: 'LATAM', name: 'América Latina' },
 ]
 
 export const COUNTRIES: readonly Country[] = [
@@ -30,7 +31,16 @@ export const COUNTRIES: readonly Country[] = [
   { code: 'NL', name: 'Países Baixos', region: 'EU' },
   { code: 'TR', name: 'Turquia', region: 'EU' },
   { code: 'GR', name: 'Grécia', region: 'EU' },
+  { code: 'AR', name: 'Argentina', region: 'LATAM' },
+  { code: 'CL', name: 'Chile', region: 'LATAM' },
+  { code: 'MX', name: 'México', region: 'LATAM' },
+  { code: 'CO', name: 'Colômbia', region: 'LATAM' },
+  { code: 'PE', name: 'Peru', region: 'LATAM' },
 ]
+
+// Regra de 2026: jogadores latino-americanos (exceto brasileiros) têm dupla residência,
+// CBLOL e LCS, nas temporadas 2026 e 2027. A partir de 2028 ficam com a região onde mais jogaram.
+export const LATAM_DUAL_RESIDENCY = { regions: ['BR', 'NA'], untilYear: 2027 } as const
 
 // Chance relativa de um time de tier 1 da região de destino (coluna) contratar
 // um importado nascido na região de origem (linha). 1 = sem barreira.
@@ -42,4 +52,5 @@ export const MOBILITY: Readonly<Record<string, Readonly<Record<string, number>>>
   EU: { NA: 0.15, KR: 0.004, CN: 0.006, BR: 0.006 },
   NA: { EU: 0.03, KR: 0.004, CN: 0.004, BR: 0.006 },
   BR: { NA: 0.012, EU: 0.004, KR: 0.002, CN: 0.002 },
+  LATAM: { BR: 0.15, NA: 0.1, EU: 0.008, KR: 0.002, CN: 0.002 },
 }

@@ -113,7 +113,18 @@ export function residentRegions(state: CareerState, catalog: Catalog): string[] 
   const earned = Object.entries(state.residency)
     .filter(([region, splits]) => region !== home && splits >= RESIDENCY_SPLITS)
     .map(([region]) => region)
-  return [home, ...earned]
+  const regions = [home, ...earned]
+  // Latino-americanos: dupla residência (CBLOL e LCS) até o fim da regra; depois,
+  // ficam com a região onde mais jogaram.
+  const dual = catalog.latamDualResidency
+  if (home === 'LATAM' && dual) {
+    if (state.next.year <= dual.untilYear) regions.push(...dual.regions)
+    else {
+      const best = [...dual.regions].sort((a, b) => (state.residency[b] ?? 0) - (state.residency[a] ?? 0))[0]
+      if ((state.residency[best] ?? 0) > 0) regions.push(best)
+    }
+  }
+  return [...new Set(regions)]
 }
 
 export function isImportIn(state: CareerState, catalog: Catalog, leagueId: string | null): boolean {
