@@ -17,6 +17,18 @@ const POTENTIAL_BANDS: readonly { item: readonly [number, number]; weight: numbe
   { item: [84, 90], weight: 2 },
 ]
 
+// Profundidade da base de talentos de cada região: soma ao potencial de quem nasceu lá.
+// O Brasil é a referência (0); o topo da LCK e da LPL fica nos 90 altos, então o craque coreano
+// ou chinês precisa de teto para chegar lá. Sem isso, ninguém alcança um time capaz de ganhar o Worlds.
+export const REGION_TALENT: Readonly<Record<string, number>> = { KR: 13, CN: 12, EU: 5, NA: 3, PAC: 2 }
+
+// Potencial na escala da região. O bônus cresce com o talento: a base mais funda eleva o topo,
+// não quem não vingaria (60 não ganha nada; 90 ganha o bônus inteiro).
+export function regionalPotential(region: string | undefined, potential: number): number {
+  const lift = (REGION_TALENT[region ?? ''] ?? 0) * Math.max(0, Math.min(1, (potential - 60) / 30))
+  return Math.min(99, potential + Math.round(lift))
+}
+
 const PROFILES: readonly { item: DevelopmentProfile; weight: number }[] = [
   { item: 'early', weight: 15 },
   { item: 'normal', weight: 70 },
@@ -28,11 +40,14 @@ export interface NewPlayerInput {
   readonly role: Role
   readonly nationality: string
   readonly startYear: number
+  // Região de origem (para a profundidade de talentos).
+  readonly region?: string
 }
 
 export function createPlayer(rng: Rng, input: NewPlayerInput): Roll<Player> {
   const band = pickWeighted(rng, POTENTIAL_BANDS)
-  const potential = int(band.rng, band.value[0], band.value[1])
+  const rolled = int(band.rng, band.value[0], band.value[1])
+  const potential = { rng: rolled.rng, value: regionalPotential(input.region, rolled.value) }
   const profile = pickWeighted(potential.rng, PROFILES)
   const base = int(profile.rng, 0, 4)
   // Quem tem mais potencial costuma começar melhor (o prodígio já chama atenção aos 16).

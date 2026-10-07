@@ -4,8 +4,9 @@
 // Uso: node scripts/simulate.ts [quantidade] [modo] [nacionalidade]
 
 import { CATALOG } from '../src/data/catalog.ts'
-import { createCareer, decide, retire } from '../src/engine/career.ts'
+import { createCareer, decide, regionOf, retire } from '../src/engine/career.ts'
 import type { SimulationMode } from '../src/engine/modes.ts'
+import { regionalPotential } from '../src/engine/player.ts'
 import { createRng, int, pick, type Rng } from '../src/engine/rng.ts'
 import { summarize } from '../src/engine/summary.ts'
 import type { CareerState, DecisionOption, Role, SquadRole } from '../src/engine/types.ts'
@@ -61,8 +62,10 @@ export function classify(state: CareerState): Outcome {
   const isTier1 = (leagueId: string | null) => leagueId !== null && CATALOG.leagues[leagueId]?.tier === 1
   const titles = s.titles.filter((t) => isTier1(t.leagueId)).length
   const tier1Starter = state.history.filter((r) => r.squadRole === 'starter' && isTier1(r.leagueId)).length
-  if (s.peakOvr >= 86 || titles >= 8) return 'legend'
-  if ((s.peakOvr >= 81 && tier1Starter >= 6) || titles >= 4) return 'star'
+  // Os limites de OVR acompanham a profundidade de talentos da região de origem.
+  const region = regionOf(CATALOG, state.player.nationality)
+  if (s.peakOvr >= regionalPotential(region, 86) || titles >= 8) return 'legend'
+  if ((s.peakOvr >= regionalPotential(region, 81) && tier1Starter >= 6) || titles >= 4) return 'star'
   if (tier1Starter >= 6) return 'solid'
   return 'never'
 }
