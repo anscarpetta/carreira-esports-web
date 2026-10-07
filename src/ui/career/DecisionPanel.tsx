@@ -29,44 +29,58 @@ function Outcomes({ outcomes }: { outcomes: readonly Outcome[] }) {
   )
 }
 
-function TeamInfo({ career, teamId }: { career: CareerState; teamId: string }) {
+// Conteúdo do card de time (vertical, logo grande, como no Copero).
+function TeamCardBody({ career, teamId, verb }: { career: CareerState; teamId: string; verb: string }) {
   const team = career.teams[teamId]
   const data = CATALOG.teams[teamId]
   const league = team?.leagueId ? CATALOG.leagues[team.leagueId] : null
   if (!team || !data) return null
   const trend = league ? TREND_LABEL[trendOf(teamForm(team, league))] : null
   return (
-    <div className="flex min-w-0 items-center gap-3">
-      <TeamBadge teamId={teamId} />
-      <div className="min-w-0">
-        <p className="truncate font-bold">{data.name}</p>
-        {league && (
-          <p className="text-xs text-muted">
-            <span className="font-bold text-slate-300">{league.name}</span> · tier {league.tier}
-            {team.guest && ' · convidado'}
-            {isImportIn(career, CATALOG, league.id) && (
-              <span className="ml-1.5 rounded-full bg-sky-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-sky-300 uppercase">
-                Vaga de importado
-              </span>
-            )}
-          </p>
+    <div className="flex flex-col items-center gap-1.5 text-center">
+      <span className="text-[0.65rem] font-bold tracking-wide text-muted uppercase">{verb}</span>
+      <span className="leading-tight font-black">{data.name}</span>
+      <div className="my-1.5">
+        <TeamBadge teamId={teamId} size="xl" />
+      </div>
+      {league && (
+        <span className="text-xs text-slate-300">
+          <span className="font-bold">{league.name}</span> · tier {league.tier}
+          {team.guest && ' · convidado'}
+        </span>
+      )}
+      <span className="text-xs text-muted">
+        Força <span className="font-bold text-slate-100 tabular-nums">{Math.round(team.rating)}</span>
+        {trend && (
+          <span className={`ml-1.5 font-bold ${trend.tone}`}>
+            {trend.arrow} {trend.label}
+          </span>
         )}
-        <p className="text-xs text-muted">
-          Força <span className="font-bold text-slate-200 tabular-nums">{Math.round(team.rating)}</span>
-          {trend && (
-            <span className={`ml-2 font-bold ${trend.tone}`}>
-              {trend.arrow} {trend.label}
-            </span>
-          )}
-        </p>
+      </span>
+      <div className="flex flex-wrap justify-center gap-1">
         {team.ambitiousSince !== null && (
-          <span className="mt-1 inline-block rounded-full bg-fuchsia-500/20 px-2 py-0.5 text-[0.65rem] font-bold tracking-wide text-fuchsia-300 uppercase">
+          <span className="rounded-full bg-fuchsia-500/20 px-2 py-0.5 text-[0.6rem] font-bold text-fuchsia-300 uppercase">
             Projeto ambicioso
+          </span>
+        )}
+        {league && isImportIn(career, CATALOG, league.id) && (
+          <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[0.6rem] font-bold text-sky-300 uppercase">
+            Vaga de importado
           </span>
         )}
       </div>
     </div>
   )
+}
+
+// Verbo do card de time ("Assinar com", "Ficar na", "Subir para"…).
+function optionVerb(option: DecisionOption, career: CareerState): string {
+  if (option.type === 'event_join') return option.label
+  if (option.type === 'stay') return 'Ficar na'
+  if (option.type !== 'join') return ''
+  if (career.teamId && CATALOG.teams[career.teamId]?.parentId === option.teamId) return 'Subir para'
+  if (career.teamId && CATALOG.teams[option.teamId]?.parentId === career.teamId) return 'Descer para'
+  return 'Assinar com'
 }
 
 function optionTitle(option: DecisionOption, career: CareerState): string {
@@ -108,26 +122,25 @@ function OptionCard({
       type="button"
       disabled={busy}
       onClick={() => onChoose(option.id)}
-      className={`w-full rounded-xl border p-3 text-left transition ${chosen ? 'ring-2 ring-white' : 'hover:brightness-125'} ${teamColor ? '' : 'border-line bg-raised'} ${dimmed ? 'opacity-35' : ''} focus-visible:outline-2 focus-visible:outline-white disabled:cursor-default`}
+      className={`h-full w-full rounded-xl border p-3 transition ${teamColor ? 'text-center' : 'text-left'} ${chosen ? 'ring-2 ring-white' : 'hover:brightness-125'} ${teamColor ? '' : 'border-line bg-raised'} ${dimmed ? 'opacity-35' : ''} focus-visible:outline-2 focus-visible:outline-white disabled:cursor-default`}
       style={
         teamColor
           ? { background: `linear-gradient(135deg, ${tint(teamColor, 0.24)}, ${tint(teamColor, 0.08)})`, borderColor: tint(teamColor, 0.4) }
           : undefined
       }
     >
-      <div className="flex items-center justify-between gap-3">
+      {teamId ? (
+        <TeamCardBody career={career} teamId={teamId} verb={optionVerb(option, career)} />
+      ) : (
         <p className="font-black">{optionTitle(option, career)}</p>
-        {expected && (
+      )}
+      {expected && (
+        <div className="mt-2 flex justify-center">
           <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-[0.65rem] font-bold uppercase ${expected === 'starter' ? 'bg-emerald-500/20 text-emerald-300' : expected === 'reserve' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-500/20 text-slate-300'}`}
+            className={`rounded-full px-2 py-0.5 text-[0.65rem] font-bold uppercase ${expected === 'starter' ? 'bg-emerald-500/20 text-emerald-300' : expected === 'reserve' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-500/20 text-slate-300'}`}
           >
             {EXPECTED_ROLE_LABEL[expected]}
           </span>
-        )}
-      </div>
-      {teamId && (
-        <div className="mt-2">
-          <TeamInfo career={career} teamId={teamId} />
         </div>
       )}
       {(option.type === 'event_choice' || option.type === 'event_join') && <Outcomes outcomes={option.outcomes} />}
@@ -234,10 +247,16 @@ export function DecisionPanel({
       <h2 className="mt-1 text-xl font-black">{decision.title}</h2>
       <p className="mt-1 text-sm text-muted">{decision.description}</p>
 
-      <div className="mt-4 flex flex-col gap-2">
-        {decision.options.map((option) => (
-          <OptionCard key={option.id} career={career} option={option} stage={stage} onChoose={onChoose} />
-        ))}
+      {/* Grade de cards: 2 colunas; um card sobrando fica centralizado (como no Copero). */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        {decision.options.map((option, index) => {
+          const alone = decision.options.length % 2 === 1 && index === decision.options.length - 1
+          return (
+            <div key={option.id} className={alone ? 'col-span-2 mx-auto w-[calc(50%-0.25rem)]' : ''}>
+              <OptionCard career={career} option={option} stage={stage} onChoose={onChoose} />
+            </div>
+          )
+        })}
       </div>
 
       {stage.kind === 'suspense' && <Suspense eventKey={stage.eventKey} />}

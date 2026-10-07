@@ -406,3 +406,12 @@ Aposentadoria média aos ~29 anos.
   - **Nacionalidade:** busca (sem acento) e lista rolável com bandeiras.
   - **Rota:** mapa de Summoner's Rift com as 5 rotas.
 - **Bibliotecas:** só a `lucide-react` (ícones do ecossistema shadcn/21st.dev). O resto é Tailwind.
+
+## Redesign 2 (out/2026): tela de carreira como a do Copero
+
+- **Trajetória em tabela por idade:** uma faixa por idade (16 a 30, ou além disso se a carreira for mais longa), na cor do time daquela idade. As idades futuras aparecem apagadas.
+  - Cada split vira uma linha com time, split, função, colocação, OVR (com a variação), jogos e KDA.
+  - As tags (🏆 campeão, ⭐ prêmios, 🌍 internacional, 🚀 explosão, ▲/▼ acesso) quebram a linha no celular em vez de serem cortadas.
+  - A linha "Escolhendo o próximo passo…" mostra a idade e o OVR atuais enquanto a decisão está em aberto.
+- **Propostas em grade:** cards verticais em 2 colunas, com o verbo ("Assinar com", "Ficar na", "Subir para"…), o nome, o logo grande, a liga e o tier, a força com a tendência e os selos. Com um número ímpar de cards, o último fica centralizado.
+- **Vitrine de títulos** no cartão do jogador, com os títulos agrupados e os internacionais primeiro (ex.: "🏆 2× CBLOL").

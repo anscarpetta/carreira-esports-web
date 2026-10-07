@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
-import { decide, retire } from '../../engine/career.ts'
+import { ageOf, decide, retire } from '../../engine/career.ts'
 import { of } from '../../engine/grammar.ts'
 import type { CareerState } from '../../engine/types.ts'
 import { DecisionPanel, type PanelStage } from './DecisionPanel.tsx'
@@ -158,7 +158,11 @@ export function CareerScreen({
         />
       </div>
       <div className="lg:max-h-[calc(100svh-6rem)] lg:overflow-y-auto lg:pr-1">
-        <Trajectory history={shown.history} freshFrom={freshFrom} />
+        <Trajectory
+          history={shown.history}
+          freshFrom={freshFrom}
+          pending={shown.phase === 'career' && !reveal ? { age: ageOf(shown), ovr: shown.player.ovr } : null}
+        />
       </div>
       <Toasts items={toasts} onDismiss={dismissToasts} />
     </div>

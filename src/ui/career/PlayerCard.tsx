@@ -20,6 +20,16 @@ export function PlayerCard({ career, ovrHighlight }: { career: CareerState; ovrH
   const totals = summary.totals
   const imported = !!teamId && isImportIn(career, CATALOG, career.teams[teamId]?.leagueId ?? null)
   const color = team?.color ?? '#3f3f46'
+  const order: Record<string, number> = { worlds: 0, msi: 1, first_stand: 2, league: 3 }
+  const showcase = [...summary.titles]
+    .sort((a, b) => order[a.kind] - order[b.kind])
+    .reduce<[string, number][]>((acc, title) => {
+      const label = title.kind === 'league' ? (CATALOG.leagues[title.leagueId]?.name ?? title.name) : title.name
+      const found = acc.find(([name]) => name === label)
+      if (found) found[1] += 1
+      else acc.push([label, 1])
+      return acc
+    }, [])
 
   return (
     <section className="rounded-2xl border border-line bg-panel p-3 sm:p-4" aria-label="Seu jogador">
@@ -91,6 +101,20 @@ export function PlayerCard({ career, ovrHighlight }: { career: CareerState; ovrH
           </div>
         ))}
       </dl>
+
+      {/* Vitrine: títulos agrupados (internacionais primeiro) */}
+      <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 text-xs">
+        {showcase.length === 0 ? (
+          <span className="py-1 font-bold tracking-widest text-muted uppercase">🏆 Vitrine vazia</span>
+        ) : (
+          showcase.map(([name, count]) => (
+            <span key={name} className="rounded-full border border-gold/40 bg-gold/10 px-2 py-0.5 font-bold text-gold-soft">
+              🏆 {count > 1 ? `${count}× ` : ''}
+              {name}
+            </span>
+          ))
+        )}
+      </div>
     </section>
   )
 }
