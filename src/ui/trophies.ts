@@ -8,6 +8,7 @@ const DRAWN: Readonly<Record<string, string>> = {
   msi: 'msi',
   first_stand: 'first_stand',
   cblol: 'cblol',
+  'cblol-cup': 'cblol_cup',
   lck: 'lck',
   lpl: 'lpl',
   lec: 'lec',
@@ -30,14 +31,24 @@ const GENERIC_COLOR: Readonly<Record<string, string>> = {
   lrn: '#10b981',
 }
 
-// Chave do troféu: o torneio internacional ou a liga do título.
-export function trophyKey(title: Pick<Title, 'kind' | 'leagueId'>): string {
-  return title.kind === 'league' ? title.leagueId : title.kind
+// Copas de início de ano com taça própria: liga → competição (o 1º split da liga).
+const CUPS: Readonly<Record<string, { key: string; name: string }>> = {
+  cblol: { key: 'cblol-cup', name: 'CBLOL Cup' },
 }
 
-// Nome da competição (para agrupar a vitrine): "CBLOL", "Worlds"…
-export function trophyName(title: Pick<Title, 'kind' | 'leagueId' | 'name'>): string {
-  return title.kind === 'league' ? (CATALOG.leagues[title.leagueId]?.name ?? title.name) : title.name
+// Chave do troféu: o torneio internacional, a copa ou a liga do título.
+export function trophyKey(title: Pick<Title, 'kind' | 'leagueId' | 'splitIndex'>): string {
+  if (title.kind !== 'league') return title.kind
+  const cup = CUPS[title.leagueId]
+  return cup && title.splitIndex === 0 ? cup.key : title.leagueId
+}
+
+// Nome da competição (para agrupar a vitrine): "CBLOL", "CBLOL Cup", "Worlds"…
+export function trophyName(title: Pick<Title, 'kind' | 'leagueId' | 'name' | 'splitIndex'>): string {
+  if (title.kind !== 'league') return title.name
+  const cup = CUPS[title.leagueId]
+  if (cup && title.splitIndex === 0) return cup.name
+  return CATALOG.leagues[title.leagueId]?.name ?? title.name
 }
 
 // Títulos agrupados por troféu, do maior para o menor (Worlds, MSI, First Stand, ligas por tier).

@@ -7,14 +7,15 @@ import type { DevelopmentProfile, Player, Role, SquadRole } from './types.ts'
 export const START_AGE = 16
 export const MAX_AGE = 35
 
-// Distribuição do potencial (teto oculto). Calibrada pela simulação em massa
-// (scripts/simulate.ts) para chegar perto de 30% / 40% / 25% / 5%.
-// Teto oculto. Os maiores do Brasil chegam a 81–84 no auge; 84+ é coisa de lenda.
+// Distribuição do potencial (teto oculto) ao nascer. Calibrada pela simulação em massa
+// (scripts/simulate.ts) para chegar perto de 30% / 40% / 25% / 5%. É mais baixa que o teto
+// real da carreira: todo ganho de OVR por evento sobe o teto junto, então as apostas que o
+// jogador aceita é que decidem até onde ele vai. Os maiores do Brasil chegam a 81–84 no auge.
 const POTENTIAL_BANDS: readonly { item: readonly [number, number]; weight: number }[] = [
-  { item: [60, 70], weight: 21 },
-  { item: [71, 78], weight: 50 },
-  { item: [79, 83], weight: 27 },
-  { item: [84, 90], weight: 2 },
+  { item: [57, 67], weight: 21 },
+  { item: [68, 74], weight: 44 },
+  { item: [75, 80], weight: 34 },
+  { item: [81, 84], weight: 1 },
 ]
 
 // Profundidade da base de talentos de cada região: soma ao potencial de quem nasceu lá.

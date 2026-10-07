@@ -21,7 +21,8 @@ Documentos de apoio:
 - **Dados: só clubes**, sem colegas de elenco. O que importa é a sua carreira.
 - **Nomes, fotos e logos 100% reais**, inclusive dos troféus. Risco conhecido: a política de fã da Riot restringe jogos e apps com IP dela, os logos são marcas dos times e as fotos têm direitos da Riot. Mitigação: projeto gratuito e sem paywall, aviso de não afiliação, assets em arquivo de dados para poderem ser trocados.
 - **Troféus (out/2026):** cada competição tem a sua taça, desenhada em SVG no estilo simples do Copero (sem realismo, mas com a silhueta e as cores da taça real). As fotos de referência ficam fora do repositório (`trophieImg/`, ignorada no git).
-  - Desenhadas: Worlds, MSI, First Stand, CBLOL, LCK, LPL, LEC, LCS, LCP e Circuito Desafiante.
+  - Desenhadas: Worlds, MSI, First Stand, CBLOL, CBLOL Cup, LCK, LPL, LEC, LCS, LCP e Circuito Desafiante.
+  - A CBLOL Cup (1º split do CBLOL) tem taça própria e conta separada na vitrine.
   - As outras ligas (tier 2 e 3) usam a taça genérica dourada, com a faixa da base na cor da liga.
   - Uma taça por competição: os títulos de cada split da mesma liga se somam ("3× CBLOL").
 - **Tempo:** a unidade é o **split** (3 por ano). Modos Intensa (1 decisão por split), Normal (por ano) e Expressa (a cada 2 anos). As transferências acontecem em qualquer janela, mas a frequência cai nesta ordem: 3→1, depois 2→3, depois 1→2.
@@ -51,8 +52,9 @@ Documentos de apoio:
   Sem isso, ninguém alcançava um time capaz de ganhar o Worlds: em 1.600 carreiras simuladas, nenhum título.
 - **Vantagem inicial por região (out/2026):** o talento coreano e o chinês chegam mais prontos, e a liga de entrada deles (LCK CL, LDL) é bem mais forte que a Qualificatória Aberta. O OVR aos 16 ganha Coreia +10, China +9, Europa +6, LCS +3 e Pacífico +2 (sempre pelo menos 4 abaixo do potencial). Antes, o coreano só virava titular em média aos 19,3 anos; agora, aos 17,1, perto do brasileiro (16,1).
 - **Viradas (playtest, out/2026):**
-  - **Eventos com ganhos maiores, perdas iguais:** +2 virou +4, +3 virou +5 (solo queue: +4), +5 virou +7, +1 virou +2. As perdas continuam como eram. O teto dos eventos comuns segue em potencial +2.
-  - **Evento secreto "Convite secreto":** uma lenda aposentada oferece um treino fechado, em um card dourado. Aparece em ~5% das carreiras, 3× mais quando a carreira trava (fora da titularidade, ou 20+ anos longe do tier 1), até os 27 anos. Aceitar: 55% dá +6 OVR, 30% dá +9 OVR ("virada lendária") e 15% dá −2 OVR. É o **único evento que sobe o teto oculto** (+6 ou +9), então o jogador mediano pode virar craque.
+  - **Eventos com ganhos maiores, perdas iguais:** +2 virou +4, +3 virou +5 (solo queue: +4), +5 virou +7, +1 virou +2. As perdas continuam como eram.
+  - **Os ganhos sobem o teto (out/2026):** todo ganho de OVR por evento aumenta o potencial na mesma medida. O teto ao nascer ficou mais baixo (faixas 57–67, 68–74, 75–80 e 81–84) e as apostas que o jogador aceita decidem até onde ele vai. Perdas não baixam o teto.
+  - **Evento secreto "Convite secreto":** uma lenda aposentada oferece um treino fechado, em um card dourado. Aparece em ~5% das carreiras, 3× mais quando a carreira trava (fora da titularidade, ou 20+ anos longe do tier 1), até os 27 anos. Aceitar: 55% dá +6 OVR, 30% dá +9 OVR ("virada lendária") e 15% dá −2 OVR. É o maior salto do jogo: o jogador mediano pode virar craque.
   - **Código secreto:** 5 toques no selo de OVR em até 2,5 segundos dão +5 OVR e +5 de teto, uma vez por carreira. É trapaça assumida: a carreira fica marcada no resumo e não conta para as conquistas.
 - **Aposentadoria:** botão separado, discreto, disponível desde o começo, sem idade fixa. É possível pausar (streamer, agente livre) e voltar.
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.

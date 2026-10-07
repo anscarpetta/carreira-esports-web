@@ -472,3 +472,18 @@ Tudo respeita "reduzir movimento" do sistema: sem animação, sem confete e sem 
 
 - **Para revisar no playtest:** lendas brasileiras subiram de 6% para 7,5% com os ganhos maiores.
 - **Ajustes visuais (playtest):** o cartão do jogador não inclina mais em 3D (só o card de compartilhar). A faixa da idade na trajetória agora é dividida entre os splits do ano, cada um na cor do time, com um degradê curto na troca de time.
+
+## CBLOL Cup e ganhos que sobem o teto (out/2026)
+
+- **Taça da CBLOL Cup** desenhada a partir da foto: lâminas cromadas escuras, boca quadrada e o vermelho no meio. O título da Cup conta separado do CBLOL na vitrine.
+- **Todo ganho de OVR por evento sobe o teto junto.** Sem recalibrar, as lendas brasileiras iam a 20% e os coreanos ganhavam o Worlds em 14,5% das carreiras. O potencial ao nascer foi baixado e, agora, quem leva o jogador mais longe são as apostas dele.
+- **Correção:** a "Proposta milionária" podia oferecer vaga de reserva num time de tier 1. Agora só oferece times onde o jogador seria titular.
+- **Resultado** (400 carreiras por nacionalidade, modo normal; o simulador escolhe as opções dos eventos ao acaso):
+
+  | Nacionalidade | Convite secreto | Ganhou o Worlds | Nunca / sólido / craque / lenda |
+  |---|---|---|---|
+  | Brasil | 6% | 0% | 28 / 42 / 21 / 8 |
+  | Coreia | 5,5% | 4,3% | 34 / 47 / 16 / 3 |
+  | China | 6% | 5% | 43 / 37 / 17 / 4 |
+
+- **Para revisar no playtest:** um jogador de verdade aceita mais apostas que o simulador (que sorteia), então deve chegar mais longe que esses números. Lendas brasileiras seguem um pouco acima de 5%, metade delas por acumular 8+ títulos do CBLOL.

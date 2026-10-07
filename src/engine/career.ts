@@ -392,9 +392,11 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
   s = {
     ...s,
     firstTeamId: s.firstTeamId ?? s.teamId,
-    // O boost secreto sobe o teto antes do ganho, para o ganho caber no teto novo.
+    // Todo ganho de OVR por evento sobe o teto junto (playtest, out/2026): as apostas que você
+    // aceita decidem até onde pode ir. O teto sobe antes, para o ganho caber inteiro.
     player: (() => {
-      const raised = { ...s.player, potential: Math.min(99, s.player.potential + (effects.potential ?? 0)) }
+      const lift = Math.max(effects.potential ?? 0, Math.max(0, effects.ovr))
+      const raised = { ...s.player, potential: Math.min(99, s.player.potential + lift) }
       return { ...raised, ovr: eventOvr(raised, effects.ovr) }
     })(),
     suspensionSplits: s.suspensionSplits + effects.suspensionSplits,
@@ -788,7 +790,9 @@ function moneyTarget(
   const target = Object.values(catalog.leagues).find((l) => l.region === destination && l.tier === 1)
   if (!target) return none
   const candidates = leagueTeams(state.teams, target.id)
+    // Tier 1 só contrata titular: o time precisa estar ao alcance do jogador.
     .filter((t) => t.rating < team.rating && t.rating >= state.player.ovr - 8)
+    .filter((t) => squadRoleFor(state.player.ovr, t.rating) === 'starter')
     .sort((a, b) => b.rating - a.rating || a.id.localeCompare(b.id))
   return candidates[0] ? { moneyTeamId: candidates[0].id, moneyLeagueName: target.name } : none
 }

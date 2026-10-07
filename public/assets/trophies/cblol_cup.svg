@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="100" height="140">
+  <!-- CBLOL Cup: lâminas cromadas escuras que se torcem da boca quadrada até a cintura, com o vermelho no meio -->
+  <defs>
+    <linearGradient id="c" x1="0" x2="1">
+      <stop offset="0" stop-color="#2a2d33"/>
+      <stop offset=".35" stop-color="#d9dde3"/>
+      <stop offset=".55" stop-color="#6b717b"/>
+      <stop offset="1" stop-color="#1f2227"/>
+    </linearGradient>
+    <linearGradient id="c2" x1="1" x2="0">
+      <stop offset="0" stop-color="#25282d"/>
+      <stop offset=".45" stop-color="#b8bec7"/>
+      <stop offset="1" stop-color="#3a3e45"/>
+    </linearGradient>
+    <linearGradient id="r" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff4d55"/>
+      <stop offset="1" stop-color="#9b111a"/>
+    </linearGradient>
+    <linearGradient id="k" x1="0" x2="1">
+      <stop offset="0" stop-color="#0d0e10"/>
+      <stop offset=".5" stop-color="#2c2f35"/>
+      <stop offset="1" stop-color="#0b0c0e"/>
+    </linearGradient>
+  </defs>
+  <!-- boca quadrada aberta, com o interior escuro -->
+  <path d="M16 10 L50 3 L84 10 L50 28 Z" fill="url(#c2)"/>
+  <path d="M21 10.5 L50 5 L79 10.5 L50 24 Z" fill="#121418"/>
+  <path d="M28 11 L50 7 L72 11" stroke="#3a3e45" stroke-width="1" fill="none"/>
+  <!-- vermelho no vão central -->
+  <path d="M38 30 L50 26 L62 30 L53 82 L47 82 Z" fill="url(#r)"/>
+  <!-- lâminas externas que se torcem até a cintura -->
+  <path d="M16 10 L30 14 L52 84 L44 84 Z" fill="url(#c)"/>
+  <path d="M84 10 L70 14 L48 84 L56 84 Z" fill="url(#c2)"/>
+  <path d="M19 12 L44 78" stroke="#f1f3f6" stroke-width="1.4" opacity=".6" stroke-linecap="round"/>
+  <path d="M81 12 L58 74" stroke="#9aa0a9" stroke-width="1" opacity=".5" stroke-linecap="round"/>
+  <!-- lâmina da frente, fina -->
+  <path d="M47.5 28 L52.5 28 L51 84 L49 84 Z" fill="url(#c)"/>
+  <!-- cintura e base que se abre -->
+  <path d="M44 82 L56 82 L58 88 L42 88 Z" fill="url(#c)"/>
+  <path d="M42 88 L58 88 C62 98 68 106 74 112 L26 112 C32 106 38 98 42 88 Z" fill="url(#c2)"/>
+  <path d="M46 92 C44 100 38 106 32 110" stroke="#e6e9ee" stroke-width="1.4" fill="none" opacity=".5" stroke-linecap="round"/>
+  <!-- pedestal escuro -->
+  <rect x="22" y="112" width="56" height="16" rx="1.5" fill="url(#k)"/>
+  <rect x="22" y="112" width="56" height="2" fill="#4a4f57"/>
+  <rect x="19" y="128" width="62" height="5" rx="1.5" fill="#1a1c20"/>
+</svg>
