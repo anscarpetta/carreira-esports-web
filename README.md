@@ -10,8 +10,8 @@ Projeto de aprendizado de desenvolvimento pareado com IA (Claude Code).
 1. Conceito ✅
 2. Jogo e jogabilidade → MVP definido ✅
 3. Planejamento técnico + esqueleto publicado ✅
-4. Desenvolvimento em fatias (implementa → testa → publica) — em andamento, ver [docs/progresso.md](docs/progresso.md)
-5. Playtest final
+4. Desenvolvimento em fatias (implementa → testa → publica) ✅ fatias 1 a 7, ver [docs/progresso.md](docs/progresso.md)
+5. Playtest final (próximo passo: jogar e anotar ajustes)
 6. Lançamento
 
 Decisões ficam em [docs/conceito.md](docs/conceito.md). Elas podem ser refinadas ao longo do processo.

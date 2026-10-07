@@ -1,8 +1,11 @@
 import { CATALOG } from '../data/catalog.ts'
+import { of } from '../engine/grammar.ts'
 import { summarize } from '../engine/summary.ts'
 import type { CareerState } from '../engine/types.ts'
 import { kdaText, money, retirementText, ROLE_LABEL, SQUAD_LABEL } from './format.ts'
+import { AchievementsButton } from './AchievementsDialog.tsx'
 import { Flag } from './Flag.tsx'
+import { SharePanel } from './SharePanel.tsx'
 import { TeamBadge } from './TeamBadge.tsx'
 
 function groupCount(names: readonly string[]): { name: string; count: number }[] {
@@ -25,7 +28,14 @@ export function Summary({
   // Internacionais primeiro, do maior para o menor.
   const order: Record<string, number> = { worlds: 0, msi: 1, first_stand: 2, league: 3 }
   const titles = groupCount([...s.titles].sort((a, b) => order[a.kind] - order[b.kind]).map((t) => t.name))
-  const awards = groupCount(s.awards.map((a) => a.name))
+  // Prêmios agrupados por tipo e liga ("Seleção do CBLOL"), sem separar por split.
+  const awardLabel = (a: (typeof s.awards)[number]) => {
+    const league = CATALOG.leagues[a.leagueId]
+    if (!league) return a.name
+    const kind = a.kind === 'all_pro' ? 'Seleção' : a.kind === 'split_mvp' ? 'MVP' : 'MVP da final'
+    return `${kind} ${of(league)} ${league.name}`
+  }
+  const awards = groupCount(s.awards.map(awardLabel))
   const years = s.firstYear !== null && s.lastYear !== null ? `${s.firstYear}–${s.lastYear}` : '—'
 
   return (
@@ -56,6 +66,8 @@ export function Summary({
           </div>
         ))}
       </section>
+
+      <SharePanel career={career} />
 
       <section className="rounded-2xl border border-line bg-panel p-4">
         <h2 className="text-sm font-bold tracking-wide text-muted uppercase">Vitrine</h2>
@@ -123,6 +135,7 @@ export function Summary({
         <button type="button" onClick={onNewCareer} className="rounded-xl border border-line px-6 py-3 font-bold">
           Nova identidade
         </button>
+        <AchievementsButton className="px-6 py-3" />
       </div>
     </div>
   )
