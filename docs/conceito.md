@@ -2,16 +2,46 @@
 
 Cada decisão: o quê, por quê. Ideias fora do MVP vão para "Depois".
 
+Documentos de apoio:
+- [Análise do Copero](referencia-copero.md)
+- [Pesquisa de mobilidade entre regiões](pesquisa-mobilidade.md)
+- [Pesquisa de força das regiões e ciclos dos times](pesquisa-ciclos-e-forca.md)
+- [Design dos sistemas (em discussão)](design-sistemas.md)
+
 ## Decidido
 
 - **Processo:** discutir conceito e jogabilidade antes de código; MVP definido ao fim da fase 2; deploy cedo; desenvolvimento em fatias verticais.
+- **Referência principal:** o Simulador de Carreira do Copero. Sensação-alvo: o mesmo "vício" de carreiras curtas, poucas decisões com peso e vontade de jogar de novo na hora.
+- **Estrutura:** seguir à risca o conceito do Copero.
+- **Realismo:** a movimentação entre regiões segue a realidade (importados, residência, fluxos históricos).
+- **Milagres:** são **quase zero, nunca zero** (brasileiro na LCK, CBLOL campeão do Worlds). Quando acontecem, viram conquistas lendárias.
+- **Nacionalidade:** o jogador escolhe qualquer país. A dificuldade surge da realidade de cada região.
+- **Dados: só clubes**, sem colegas de elenco. O que importa é a sua carreira.
+- **Nomes, fotos e logos 100% reais**, inclusive dos troféus. Risco conhecido: a política de fã da Riot restringe jogos e apps com IP dela, os logos são marcas dos times e as fotos têm direitos da Riot. Mitigação: projeto gratuito e sem paywall, aviso de não afiliação, assets em arquivo de dados para poderem ser trocados.
+- **Tempo:** a unidade é o **split** (3 por ano). Modos Intensa (1 decisão por split), Normal (por ano) e Expressa (a cada 2 anos). As transferências acontecem em qualquer janela, mas a frequência cai nesta ordem: 3→1, depois 2→3, depois 1→2.
+- **Sucesso sem garantia:** distribuição-alvo de 30% que nunca se firmam, 40% sólidos, 25% craques e 5% lendas. Sem arquétipo no resumo.
+- **Aposentadoria:** botão separado, discreto, disponível desde o começo, sem idade fixa. É possível pausar (streamer, agente livre) e voltar.
+- **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
+- **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.
+- **Começo:** ofertas variadas entre academy, tier 2 e tier 3. Só é possível estrear no tier 1 a partir dos 18 anos. A organização pode subir ou descer o jogador entre o academy e o time principal.
+
+- **Estatísticas por split:** partidas, KDA, abates (kills) e assistências.
+- **Títulos:** liga (cada split), First Stand, MSI e Worlds. **Prêmios individuais:** MVP do split, seleção do split, MVP das finais e MVP do Worlds.
+- **Escopo em fatias**, nesta ordem:
+  1. Tier 1 do Brasil (CBLOL)
+  2. Tier 2 do Brasil (Circuito Desafiante) e acesso
+  3. Tiers 1 e 2 da Europa, LCS, LPL e LCK
+  4. First Stand, MSI e Worlds
+  5. LATAM (só tier 2)
+  6. Tiers 1 e 2 da LCP
+
+Detalhes de cada sistema em [design-sistemas.md](design-sistemas.md).
 
 ## Em aberto
 
-- Sensação-alvo: o que o jogador deve sentir ao fim de uma partida?
-- Duração de uma "carreira" (minutos de jogo).
-- Propriedade intelectual: nomes reais (times, jogadores, campeões) ou fictícios? Recomendação: fictícios.
+- Catálogo de eventos de carreira do LoL: [rascunho](eventos.md).
+- Tier 3: quais ligas (e se entra no escopo, já que as fatias só citam tiers 1 e 2).
 
 ## Depois
 
-_(vazio)_
+- **Projeto do tier 3:** montar o seu próprio time, ou entrar num time novo, com a missão de subir de tier.

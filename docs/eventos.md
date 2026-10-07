@@ -1,0 +1,70 @@
+# Catálogo de eventos de carreira (rascunho)
+
+Seguem o modelo do Copero:
+- **Poucos por carreira:** ~3–4 no modo Normal e ~6–7 no Intensa.
+- **Contextuais:** cada evento só aparece se a condição dele for atendida.
+- **Probabilidades visíveis** nas opções.
+
+As porcentagens são um ponto de partida para calibrar. Cada evento indica, entre parênteses, o equivalente no Copero, quando existe.
+
+## A. Apostas de evolução (risco de OVR)
+
+| # | Evento | Condição | Opções e resultados |
+|---|---|---|---|
+| 1 | **Bootcamp na Coreia** | Tier 1 fora da Coreia | Ir: 65% +3 OVR / 35% −2 (choque cultural) · Ficar: nada |
+| 2 | **Maratona de solo queue** (treino extra) | — | Aceitar: 70% +3 / 30% tendinite (lesão) · Descansar: nada |
+| 3 | **Novo coach de mecânica** (treinador pessoal) | — | Mudar o estilo: 50% +2 / 50% −2 · Manter: nada |
+| 4 | **Novo setup** (mouse, teclado, sensibilidade) | — | Trocar: 70% +2 / 30% −2 · Manter: nada |
+| 5 | **Estimulante de origem duvidosa** (substância misteriosa) | — | Tomar: 75% +5 / 25% suspensão · Recusar: nada |
+| 6 | **Patch enterrou seus campeões** | — | Adaptar o pool: 50% +2 / 50% −2 · Insistir: −2 temporário |
+
+## B. Papel no time
+
+| # | Evento | Condição | Opções e resultados |
+|---|---|---|---|
+| 7 | **Troca de rota** (mudança de posição) | — | Aceitar: titular no período / −2 temporário · Recusar: menos jogos |
+| 8 | **Importado coreano pela sua vaga** (disputa pela vaga) | Titular | Disputar: 50% titular / 50% reserva |
+| 9 | **Prodígio do academy** (promessa inesperada) | Mais de 22 anos, titular | Ser mentor: mais chances de título, menos jogos · Buscar saída |
+| 10 | **Liga ou internacional?** (prioridade do clube) | Titular de time forte | Priorizar a liga: chance de título da liga ×2, do internacional ÷2 · O inverso |
+| 11 | **Mandado de volta ao academy** | Desempenho ruim no tier 1 | Aceitar: joga no tier 2 · Pedir para sair |
+
+## C. Rumo da carreira
+
+| # | Evento | Condição | Opções e resultados |
+|---|---|---|---|
+| 12 | **O super time te quer** (oferta do rival) | Titular de time grande | Ir: mais chance de título, risco de banco · Ficar: segue titular |
+| 13 | **Salários atrasados** (crise no clube) | Time de estrutura baixa | Ficar e lutar: menos chance de título · Buscar saída |
+| 14 | **Hate no Twitter** (ira da torcida) | Mais de 22 anos, desempenho ruim | Ficar: −2 temporário (pressão mental) · Sair |
+| 15 | **Saudade de casa** (volta para casa; caso Ceos) | Jogando fora do seu país | Ficar: −5 temporário · Voltar para o seu país |
+| 16 | **Proposta da LPL / LCS** (dinheiro × títulos) | OVR alto, fora da China | Ir para um time mais rico e mais fraco · Ficar |
+| 17 | **Visto atrasado** (caso Ceos) | Acabou de se transferir para outro país | Automático: perde o 1º split (fica no banco) |
+| 18 | **A organização saiu da liga** (caso Flamengo) | Time de estrutura baixa ou projeto que falhou | Automático: vira agente livre e recebe ofertas |
+| 19 | **Retorno triunfal** | Primeiro clube, já veterano | Voltar como titular para encerrar a carreira |
+
+## D. Fama, comportamento e escândalo
+
+| # | Evento | Condição | Opções e resultados |
+|---|---|---|---|
+| 20 | **Proposta para virar streamer** | — | Aceitar: pausa a carreira (pode voltar) · Recusar: nada |
+| 21 | **Flame na solo queue** (punição da Riot) | — | Pedir desculpas: menos jogos · Ignorar: 50% nada / 50% suspensão |
+| 22 | **Criticou o coach na live** (declaração polêmica) | — | Pedir desculpas: menos jogos |
+| 23 | **Familiar critica o time** (postagem polêmica) | — | Apoiar a família: menos jogos · Apoiar o time: −2 temporário |
+| 24 | **Proposta de manipulação** (teste de honestidade; houve casos reais) | — | Aceitar: 50% "nada" / 50% banimento longo · Recusar: nada |
+| 25 | **Concluir os estudos** | Menos de 20 anos | Aceitar: +1 OVR (maturidade), papel menor por um tempo · Recusar: nada |
+
+## E. Saúde e clímax
+
+| # | Evento | Condição | Opções e resultados |
+|---|---|---|---|
+| 26 | **Lesão** (tendinite, túnel do carpo, coluna) | Sorteio raro (no máximo 2 por carreira) | Automático: −1 a −5 OVR |
+| 27 | **Burnout** | Muitos splits seguidos como titular | Parar um split: recupera · Continuar: risco de −3 |
+| 28 | **Jogar com dor na final** (lesão no melhor momento) | Titular, a caminho de uma final | Jogar: alta chance de título / piora a lesão · Se recuperar: baixa chance |
+| 29 | **A call do Barão na final** (pênalti decisivo) | Numa final | Forçar o Barão / Esperar o Ancião: 50% título |
+
+## Fora da lista (sem equivalente no LoL)
+
+O **"Avô de outra nacionalidade"**, porque não há seleções. O **sistema de residência** cumpre esse papel: ele não é um evento, acontece automaticamente depois de alguns anos fora.
+
+## Pendências
+
+- **Sem dinheiro no jogo, alguns eventos não têm motivação real**, como a proposta de manipulação e a proposta da LPL ou da LCS. O Copero contornou isso dando OVR, o que não faz muito sentido. Opções: (a) incluir **salário ou valor de mercado** como número de status, (b) dar outro tipo de recompensa, ou (c) cortar esses eventos.
