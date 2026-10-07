@@ -72,7 +72,8 @@ describe('jogo completo pela interface', () => {
       })
     }
     expect(screen.queryByText('Primeira proposta')).toBeNull()
-    expect(screen.getAllByText(/CBLOL Cup 2027/).length).toBeGreaterThan(0)
+    expect(screen.getByRole('region', { name: 'Trajetória' })).toBeTruthy()
+    expect(screen.getAllByText(/2027/).length).toBeGreaterThan(0)
   })
 
   it('o botão discreto encerra a carreira depois de confirmar', () => {

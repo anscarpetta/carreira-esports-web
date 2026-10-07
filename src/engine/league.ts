@@ -140,7 +140,7 @@ export function simulateSplit(
 
   // Eventos de clímax (call do Barão, jogar com dor) podem decidir o título.
   if (player?.titleOverride === 'force' && championId !== player.teamId) {
-    if (runnerUpId !== player.teamId) runnerUpId = championId
+    runnerUpId = championId
     championId = player.teamId
     playerInFinal = true
   } else if (player?.titleOverride === 'skip' && championId === player.teamId) {

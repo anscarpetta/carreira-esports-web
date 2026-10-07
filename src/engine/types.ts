@@ -42,9 +42,17 @@ export interface LeagueData {
   // Faixa de força (OVR) dos times desta liga.
   readonly ratingRange: readonly [number, number]
   readonly teamIds: readonly string[]
-  // Organizações que podem entrar na liga quando outra sai.
+  // Organizações que podem entrar na liga quando outra sai (só no tier mais baixo).
   readonly reserveTeamIds: readonly string[]
   readonly format: LeagueFormat
+  // Liga logo abaixo, para acesso e rebaixamento.
+  readonly lowerLeagueId?: string
+  // "guest_series": o convidado enfrenta o melhor de baixo numa MD5.
+  // "swap": os 2 piores trocam de lugar com os 2 melhores de baixo.
+  readonly promotion?: 'guest_series' | 'swap'
+  readonly guestTeamIds?: readonly string[]
+  // Nome feminino ("a Qualificatória Aberta"), para os textos.
+  readonly feminine?: boolean
 }
 
 export interface TeamData {
@@ -60,6 +68,8 @@ export interface TeamData {
   readonly color: string
   // Nome do arquivo do logo na Leaguepedia (baixado por scripts/fetch-logos.ts).
   readonly logoFile?: string
+  // Time principal, quando este é um academy.
+  readonly parentId?: string
 }
 
 export interface Catalog {
@@ -77,6 +87,8 @@ export interface TeamState {
   readonly structure: number
   // Projeto ambicioso ativo (ano em que começou).
   readonly ambitiousSince: number | null
+  // Ocupa a vaga de convidado (sujeita a rebaixamento).
+  readonly guest: boolean
 }
 
 export interface Player {
@@ -177,7 +189,14 @@ export interface RetireOption {
   readonly type: 'retire'
 }
 
-export type DecisionOption = TeamOption | EventChoiceOption | EventTeamOption | RetireOption
+// Ficar sem time (agente livre) ou seguir streamando, esperando propostas.
+export interface WaitOption {
+  readonly id: string
+  readonly type: 'wait'
+  readonly label: string
+}
+
+export type DecisionOption = TeamOption | EventChoiceOption | EventTeamOption | RetireOption | WaitOption
 
 export type DecisionKind =
   | 'initial_offer'
@@ -185,6 +204,7 @@ export type DecisionKind =
   | 'released'
   | 'org_left'
   | 'no_offers'
+  | 'paused'
   | 'event'
 
 export interface Decision {
@@ -216,6 +236,8 @@ export interface Effects {
   readonly titleOverride: 'force' | 'skip' | null
   // Fica um split parado (burnout).
   readonly pauseSplits: number
+  // Sai do competitivo para virar streamer (pode voltar depois).
+  readonly pause: 'streamer' | null
 }
 
 export interface ActiveEffects {
@@ -250,7 +272,7 @@ export interface DecisionResult {
 export type RetirementReason = 'voluntary' | 'no_offers' | 'age'
 
 export interface CareerState {
-  readonly version: 1
+  readonly version: number
   readonly seed: string
   readonly rngState: number
   readonly mode: SimulationMode
@@ -274,4 +296,10 @@ export interface CareerState {
   readonly development: { readonly year: number; readonly remaining: readonly number[] } | null
   readonly retirement: { readonly reason: RetirementReason; readonly age: number } | null
   readonly lastResult: DecisionResult | null
+  // Fora do competitivo: agente livre ou streamer.
+  readonly paused: { readonly reason: 'free_agent' | 'streamer'; readonly splits: number } | null
+  // Colocações do ano na liga do jogador (para acesso e rebaixamento).
+  readonly seasonPlacements: Readonly<Record<string, readonly number[]>>
+  // Notícias da última pré-temporada (acesso, rebaixamento, projetos).
+  readonly news: readonly string[]
 }

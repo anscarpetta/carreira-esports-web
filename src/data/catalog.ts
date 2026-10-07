@@ -1,11 +1,11 @@
 import type { Catalog, LeagueData, TeamData } from '../engine/types.ts'
-import { BRAZIL_TEAMS, CBLOL } from './brazil.ts'
+import { BRAZIL_TEAMS, CBLOL, CIRCUITO_DESAFIANTE, QUALIFICATORIA_ABERTA } from './brazil.ts'
 
 function indexById<T extends { id: string }>(items: readonly T[]): Record<string, T> {
   return Object.fromEntries(items.map((item) => [item.id, item]))
 }
 
-const LEAGUES: readonly LeagueData[] = [CBLOL]
+const LEAGUES: readonly LeagueData[] = [CBLOL, CIRCUITO_DESAFIANTE, QUALIFICATORIA_ABERTA]
 const TEAMS: readonly TeamData[] = [...BRAZIL_TEAMS]
 
 export const CATALOG: Catalog = {

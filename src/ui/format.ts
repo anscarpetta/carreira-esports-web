@@ -16,7 +16,7 @@ export const SQUAD_LABEL: Record<SplitRecord['squadRole'], string> = {
   reserve: 'Reserva',
   bench: 'Banco',
   suspended: 'Suspenso',
-  paused: 'Parado',
+  paused: 'Sem jogar',
 }
 
 export const EXPECTED_ROLE_LABEL: Record<SquadRole, string> = {

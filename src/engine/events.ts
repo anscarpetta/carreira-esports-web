@@ -17,6 +17,7 @@ export const NO_EFFECTS: Effects = {
   teamBonus: 0,
   titleOverride: null,
   pauseSplits: 0,
+  pause: null,
 }
 
 export interface EventContext {
@@ -33,6 +34,8 @@ export interface EventContext {
   // Time mais forte que o atual, para a "oferta do super time".
   readonly strongerTeamId: string | null
   readonly firstTeamInLeague: boolean
+  // Academy do time atual, se existir e estiver ativo.
+  readonly academyId: string | null
 }
 
 export interface EventOutcomeDef {
@@ -46,8 +49,8 @@ export interface EventChoiceDef {
   readonly label: string
   readonly outcomes: readonly EventOutcomeDef[]
   // Opções que levam a outro time: "exit" gera ofertas, "rival" é o super time,
-  // "first_team" é o primeiro time da carreira.
-  readonly join?: 'exit' | 'rival' | 'first_team'
+  // "first_team" é o primeiro time da carreira, "academy" é o academy do time.
+  readonly join?: 'exit' | 'rival' | 'first_team' | 'academy'
 }
 
 export interface EventDef {
@@ -77,7 +80,7 @@ export const EVENTS: readonly EventDef[] = [
     title: () => 'Bootcamp na Coreia',
     description: () =>
       'O time vai passar a pré-temporada treinando na Coreia. Jogar contra os melhores pode te levar a outro nível, ou te desgastar.',
-    condition: (ctx) => ctx.squadRole !== 'bench',
+    condition: (ctx) => ctx.league.tier === 1 && ctx.squadRole !== 'bench',
     choices: () => [
       {
         key: 'go',
@@ -477,8 +480,45 @@ export const EVENTS: readonly EventDef[] = [
   },
 ]
 
+export const SLICE_2_EVENTS: readonly EventDef[] = [
+  {
+    key: 'academy_demotion',
+    weight: 70,
+    title: () => 'De volta ao academy',
+    description: () => 'Você quase não está jogando. O coach quer que você ganhe ritmo no academy.',
+    condition: (ctx) => ctx.league.tier === 1 && ctx.squadRole !== 'starter' && ctx.age <= 22 && ctx.academyId !== null,
+    choices: () => [
+      {
+        key: 'accept',
+        label: 'Descer para o academy',
+        join: 'academy',
+        outcomes: [{ probability: 1, text: 'Titular no academy no período', effects: { forcedRole: 'starter' } }],
+      },
+      { key: 'exit', label: 'Pedir para sair', join: 'exit', outcomes: [] },
+    ],
+  },
+  {
+    key: 'streamer_offer',
+    weight: 50,
+    title: () => 'Proposta para virar streamer',
+    description: () =>
+      'Uma plataforma oferece um contrato para você largar o competitivo e fazer lives. Dá para voltar depois… se alguém ainda te quiser.',
+    condition: (ctx) => ctx.age >= 19,
+    choices: () => [
+      {
+        key: 'accept',
+        label: 'Virar streamer',
+        outcomes: [{ probability: 1, text: 'Você sai do competitivo (pode voltar)', effects: { pause: 'streamer' } }],
+      },
+      { key: 'refuse', label: 'Seguir no competitivo', outcomes: nothing },
+    ],
+  },
+]
+
+export const ALL_EVENTS: readonly EventDef[] = [...EVENTS, ...SLICE_2_EVENTS]
+
 export const EVENTS_BY_KEY: Readonly<Record<string, EventDef>> = Object.fromEntries(
-  EVENTS.map((event) => [event.key, event]),
+  ALL_EVENTS.map((event) => [event.key, event]),
 )
 
 // Quantos eventos cada modo terá na carreira (mín, máx).
@@ -514,7 +554,7 @@ export function pendingSlot(plan: EventPlan, age: number): number | null {
 }
 
 export function pickEvent(rng: Rng, ctx: EventContext, plan: EventPlan): Roll<EventDef | null> {
-  const eligible = EVENTS.filter((event) => !plan.doneEventKeys.includes(event.key) && event.condition(ctx))
+  const eligible = ALL_EVENTS.filter((event) => !plan.doneEventKeys.includes(event.key) && event.condition(ctx))
   if (eligible.length === 0) return { rng, value: null }
   return pickWeighted(rng, eligible.map((event) => ({ item: event as EventDef | null, weight: event.weight })))
 }

@@ -17,21 +17,45 @@ export interface OfferCandidate {
   readonly expectedRole: SquadRole
 }
 
-function interest(playerOvr: number, age: number, team: TeamState): { role: SquadRole; weight: number } {
+// Um time candidato, com o tier da liga em que joga.
+export interface OfferTeam {
+  readonly team: TeamState
+  readonly tier: number
+}
+
+const TIER_WEIGHT: Record<number, number> = { 1: 1.3, 2: 1, 3: 0.8 }
+
+// Com a idade, o mercado esfria: os times preferem apostar em jovens.
+function ageFactor(age: number): number {
+  if (age <= 25) return 1
+  if (age <= 27) return 0.7
+  if (age <= 29) return 0.35
+  if (age <= 31) return 0.15
+  return 0.05
+}
+
+function interest(playerOvr: number, age: number, candidate: OfferTeam): { role: SquadRole; weight: number } {
+  const { team, tier } = candidate
   const role = squadRoleFor(playerOvr, team.rating)
   let weight: number
   if (role === 'starter') weight = 3
   else if (role === 'reserve') weight = age <= 23 ? 2 : 0.8
   // Jogador de banco só interessa enquanto é uma aposta jovem.
   else weight = age <= 18 ? 1.5 : age <= 20 ? 0.8 : age <= 22 ? 0.3 : 0
+  // Bom demais para o nível do time: a proposta raramente faz sentido.
+  const surplus = playerOvr - team.rating
+  if (surplus > 8) weight *= 0.15
+  else if (surplus > 5) weight *= 0.5
   // Projetos ambiciosos estão contratando.
   if (team.ambitiousSince !== null) weight *= 1.8
-  return { role, weight }
+  // Times de base (tier 3) querem jovens; veterano só no tier 1 e 2.
+  const youth = tier >= 3 && age >= 24 ? 0.4 : 1
+  return { role, weight: weight * (TIER_WEIGHT[tier] ?? 1) * ageFactor(age) * youth }
 }
 
 export function generateOffers(
   rng: Rng,
-  teams: readonly TeamState[],
+  candidates: readonly OfferTeam[],
   playerOvr: number,
   age: number,
   excludeIds: readonly string[],
@@ -40,10 +64,10 @@ export function generateOffers(
 ): Roll<OfferCandidate[]> {
   let r = rng
   const offers: OfferCandidate[] = []
-  const pool = teams
-    .filter((team) => !excludeIds.includes(team.id))
-    .sort((a, b) => a.id.localeCompare(b.id))
-    .map((team) => ({ team, ...interest(playerOvr, age, team) }))
+  const pool = candidates
+    .filter((c) => !excludeIds.includes(c.team.id))
+    .sort((a, b) => a.team.id.localeCompare(b.team.id))
+    .map((c) => ({ team: c.team, ...interest(playerOvr, age, c) }))
   for (let i = 0; i < slots; i += 1) {
     const arrives = chance(r, slotChance)
     r = arrives.rng

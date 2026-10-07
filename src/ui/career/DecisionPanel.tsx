@@ -37,6 +37,12 @@ function TeamInfo({ career, teamId }: { career: CareerState; teamId: string }) {
       <TeamBadge teamId={teamId} />
       <div className="min-w-0">
         <p className="truncate font-bold">{data.name}</p>
+        {league && (
+          <p className="text-xs text-muted">
+            <span className="font-bold text-slate-300">{league.name}</span> · tier {league.tier}
+            {team.guest && ' · convidado'}
+          </p>
+        )}
         <p className="text-xs text-muted">
           Força <span className="font-bold text-slate-200 tabular-nums">{Math.round(team.rating)}</span>
           {trend && (
@@ -55,7 +61,12 @@ function TeamInfo({ career, teamId }: { career: CareerState; teamId: string }) {
   )
 }
 
-function optionTitle(option: DecisionOption): string {
+function optionTitle(option: DecisionOption, career: CareerState): string {
+  const currentParent = career.teamId ? CATALOG.teams[career.teamId]?.parentId : undefined
+  if (option.type === 'join' && option.teamId === currentParent) {
+    return `Subir para ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
+  }
+  if (option.type === 'wait') return option.label
   if (option.type === 'join') return `Assinar com ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
   if (option.type === 'stay') return `Ficar na ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
   if (option.type === 'event_join') return `${option.label}: ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
@@ -88,7 +99,7 @@ function OptionCard({
       className={`w-full rounded-xl border p-3 text-left transition ${chosen ? 'border-gold bg-gold/10' : 'border-line bg-night/40 hover:border-gold-soft'} ${dimmed ? 'opacity-35' : ''} focus-visible:outline-2 focus-visible:outline-gold disabled:cursor-default`}
     >
       <div className="flex items-center justify-between gap-3">
-        <p className="font-black">{optionTitle(option)}</p>
+        <p className="font-black">{optionTitle(option, career)}</p>
         {expected && (
           <span
             className={`shrink-0 rounded-full px-2 py-0.5 text-[0.65rem] font-bold uppercase ${expected === 'starter' ? 'bg-emerald-500/20 text-emerald-300' : expected === 'reserve' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-500/20 text-slate-300'}`}
@@ -103,6 +114,9 @@ function OptionCard({
         </div>
       )}
       {(option.type === 'event_choice' || option.type === 'event_join') && <Outcomes outcomes={option.outcomes} />}
+      {option.type === 'wait' && (
+        <p className="mt-1 text-sm text-muted">Você passa o período sem jogar e pode receber propostas depois.</p>
+      )}
     </button>
   )
 }
@@ -163,6 +177,16 @@ export function DecisionPanel({
 
   return (
     <section className="rounded-2xl border border-line bg-panel p-4 sm:p-5" aria-label="Decisão" aria-live="polite">
+      {career.news.length > 0 && stage.kind === 'choosing' && (
+        <div className="mb-4 rounded-xl border border-line bg-night/50 p-3">
+          <p className="text-[0.65rem] font-bold tracking-widest text-muted uppercase">Notícias da pré-temporada</p>
+          <ul className="mt-1 flex flex-col gap-0.5 text-sm text-slate-300">
+            {career.news.slice(0, 5).map((line) => (
+              <li key={line}>• {line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <p className="text-xs font-bold tracking-widest text-gold uppercase">Decisão</p>
       <h2 className="mt-1 text-xl font-black">{decision.title}</h2>
       <p className="mt-1 text-sm text-muted">{decision.description}</p>

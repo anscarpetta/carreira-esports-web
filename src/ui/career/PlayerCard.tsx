@@ -37,8 +37,10 @@ export function PlayerCard({ career, ovrHighlight }: { career: CareerState; ovrH
           </p>
         </div>
         <div className="flex flex-col items-center gap-1 text-center">
-          <TeamBadge teamId={career.teamId} size="lg" />
-          <span className="max-w-24 truncate text-xs text-muted">{team ? team.shortName : 'Sem time'}</span>
+          <TeamBadge teamId={career.paused ? null : career.teamId} size="lg" />
+          <span className="max-w-24 truncate text-xs text-muted">
+            {career.paused?.reason === 'streamer' ? 'Streamer' : team ? team.shortName : 'Sem time'}
+          </span>
         </div>
       </div>
       <dl className="mt-4 grid grid-cols-5 gap-2 text-center">

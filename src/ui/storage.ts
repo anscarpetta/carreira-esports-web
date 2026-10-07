@@ -1,6 +1,7 @@
 // Salva a partida no próprio navegador. Tudo protegido por try/catch:
 // em janela anônima ou com armazenamento bloqueado, o jogo segue sem salvar.
 
+import { SAVE_VERSION } from '../engine/career.ts'
 import type { SimulationMode } from '../engine/modes.ts'
 import type { CareerState, Role } from '../engine/types.ts'
 
@@ -22,7 +23,8 @@ export function loadSave(): SaveData | null {
     const raw = window.localStorage.getItem(KEY)
     if (!raw) return null
     const data = JSON.parse(raw) as SaveData
-    if (data.career && data.career.version !== 1) return { ...data, career: null }
+    // Saves de versões antigas do motor não são compatíveis: começa de novo.
+    if (data.career && data.career.version !== SAVE_VERSION) return { ...data, career: null }
     return data
   } catch {
     return null

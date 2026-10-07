@@ -3,6 +3,7 @@
 
 import { chance, float, type Rng, type Roll } from './rng.ts'
 import type { Standing } from './league.ts'
+import { of } from './grammar.ts'
 import type { Award, LeagueData, SplitIndex } from './types.ts'
 
 // Desempenho de um jogador rival: perto da força do time, com variação.
@@ -53,7 +54,7 @@ export function computeAwards(rng: Rng, input: AwardsInput): Roll<Award[]> {
       bestRival = Math.max(bestRival, rival.value)
     }
     if (mine.value > bestRival) {
-      awards.push({ ...base, kind: 'all_pro', name: `Seleção do ${splitName}` })
+      awards.push({ ...base, kind: 'all_pro', name: `Seleção ${of(input.league)} ${splitName}` })
 
       // MVP do split: o melhor da seleção, pesando mais a campanha do time.
       const mvpScore = mine.value + (winRate(input.playerTeamId) - 0.5) * 4
@@ -66,7 +67,7 @@ export function computeAwards(rng: Rng, input: AwardsInput): Roll<Award[]> {
           bestOther = Math.max(bestOther, rival.value)
         }
       }
-      if (mvpScore > bestOther) awards.push({ ...base, kind: 'split_mvp', name: `MVP do ${splitName}` })
+      if (mvpScore > bestOther) awards.push({ ...base, kind: 'split_mvp', name: `MVP ${of(input.league)} ${splitName}` })
     }
   }
 
@@ -76,7 +77,7 @@ export function computeAwards(rng: Rng, input: AwardsInput): Roll<Award[]> {
     const probability = Math.min(0.7, Math.max(0.05, 0.2 * Math.exp((input.playerOvr - teamRating) / 4)))
     const roll = chance(r, probability)
     r = roll.rng
-    if (roll.value) awards.push({ ...base, kind: 'finals_mvp', name: `MVP da final do ${splitName}` })
+    if (roll.value) awards.push({ ...base, kind: 'finals_mvp', name: `MVP da final ${of(input.league)} ${splitName}` })
   }
 
   return { rng: r, value: awards }
