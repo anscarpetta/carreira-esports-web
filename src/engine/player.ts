@@ -1,7 +1,7 @@
 // Jogador: criação (com potencial e perfil ocultos), evolução por idade,
 // papel no time e valor de mercado.
 
-import { float, int, pickWeighted, type Rng, type Roll } from './rng.ts'
+import { chance, float, int, pickWeighted, type Rng, type Roll } from './rng.ts'
 import type { DevelopmentProfile, Player, Role, SquadRole } from './types.ts'
 
 export const START_AGE = 16
@@ -9,11 +9,12 @@ export const MAX_AGE = 35
 
 // Distribuição do potencial (teto oculto). Calibrada pela simulação em massa
 // (scripts/simulate.ts) para chegar perto de 30% / 40% / 25% / 5%.
+// Teto oculto. Os maiores do Brasil chegam a 81–84 no auge; 84+ é coisa de lenda.
 const POTENTIAL_BANDS: readonly { item: readonly [number, number]; weight: number }[] = [
-  { item: [62, 71], weight: 15 },
-  { item: [72, 78], weight: 38 },
-  { item: [79, 84], weight: 40 },
-  { item: [85, 91], weight: 7 },
+  { item: [60, 70], weight: 18 },
+  { item: [71, 78], weight: 48 },
+  { item: [79, 83], weight: 31 },
+  { item: [84, 90], weight: 3 },
 ]
 
 const PROFILES: readonly { item: DevelopmentProfile; weight: number }[] = [
@@ -34,8 +35,8 @@ export function createPlayer(rng: Rng, input: NewPlayerInput): Roll<Player> {
   const potential = int(band.rng, band.value[0], band.value[1])
   const profile = pickWeighted(potential.rng, PROFILES)
   const base = int(profile.rng, 0, 4)
-  // Quem tem mais potencial costuma começar um pouco melhor.
-  const ovr = 53 + Math.round((potential.value - 62) * 0.15) + base.value
+  // Quem tem mais potencial costuma começar melhor (o prodígio já chama atenção aos 16).
+  const ovr = 51 + Math.round((potential.value - 62) * 0.3) + base.value
   const player: Player = {
     nick: input.nick,
     role: input.role,
@@ -75,25 +76,58 @@ function growthRange(profile: DevelopmentProfile, age: number): readonly [number
   return age < 16 ? table[16] : [-5, -2]
 }
 
-// Sorteia a evolução do ano e divide entre os 3 splits.
-export function rollYearlyDevelopment(rng: Rng, player: Player, age: number): Roll<readonly number[]> {
-  const [min, max] = growthRange(player.profile, age)
-  const roll = int(rng, min, max)
-  let delta = roll.value
-  // O potencial é um teto: perto dele, a evolução trava.
-  if (delta > 0) delta = Math.min(delta, Math.max(0, player.potential - player.ovr))
-  const first = Math.round(delta / 3)
-  const second = Math.round((2 * delta) / 3) - first
-  // "+ 0" troca -0 por 0 (o JSON do save não distingue os dois).
-  return { rng: roll.rng, value: [first + 0, second + 0, delta - first - second + 0] }
+// Evolução de um split. A faixa anual da idade é dividida pelos 3 splits, com variação, e:
+// - quem está longe do potencial cresce mais rápido enquanto é jovem (a subida meteórica);
+// - minutos importam: jovem titular (até no academy) evolui mais; quem não joga, menos;
+// - jovem titular com espaço para crescer pode "explodir" (+2 a +5 num split);
+// - o potencial é um teto.
+export const BREAKOUT_CHANCE = 0.08
+
+const GAP_FACTOR: Record<number, number> = { 16: 0.07, 17: 0.07, 18: 0.07, 19: 0.05, 20: 0.05, 21: 0.03, 22: 0.03 }
+
+function minutesFactor(age: number, squad: SquadRole | 'out'): number {
+  if (age < 20) return squad === 'starter' ? 1.25 : squad === 'reserve' ? 1 : squad === 'bench' ? 0.7 : 0.6
+  return squad === 'starter' ? 1 : squad === 'reserve' ? 0.6 : squad === 'bench' ? 0.5 : 0.4
 }
 
-// Aplica a parte da evolução de um split. Quem quase não joga evolui menos.
-export function applyDevelopment(player: Player, delta: number, age: number, squadRole: SquadRole | 'out'): Player {
-  let applied = delta
-  if (delta > 0 && age >= 20 && squadRole !== 'starter') applied = Math.floor(delta / 2)
-  const ovr = Math.max(40, Math.min(99, player.ovr + applied))
-  return { ...player, ovr }
+export interface SplitDevelopment {
+  readonly delta: number
+  readonly breakout: boolean
+}
+
+export function rollSplitDevelopment(rng: Rng, player: Player, age: number, squad: SquadRole | 'out'): Roll<SplitDevelopment> {
+  const [min, max] = growthRange(player.profile, age)
+  const base = float(rng, min / 3, max / 3)
+  let r = base.rng
+  const gap = Math.max(0, player.potential - player.ovr)
+  let value = base.value
+  if (value > 0 || gap > 0) value += (gap * (GAP_FACTOR[age] ?? 0)) / 3
+  if (value > 0) value *= minutesFactor(age, squad)
+  else if (squad === 'out') value -= 0.2
+
+  // Arredondamento sorteado: 1,4 vira 1 (60%) ou 2 (40%).
+  const whole = Math.floor(value)
+  const fraction = chance(r, value - whole)
+  r = fraction.rng
+  let delta = whole + (fraction.value ? 1 : 0)
+
+  let breakout = false
+  if (age <= 21 && squad === 'starter' && gap >= 5) {
+    const explodes = chance(r, BREAKOUT_CHANCE)
+    r = explodes.rng
+    if (explodes.value) {
+      const jump = int(r, 2, 5)
+      r = jump.rng
+      delta += jump.value
+      breakout = true
+    }
+  }
+  if (delta > 0) delta = Math.min(delta, gap)
+  return { rng: r, value: { delta: delta + 0, breakout: breakout && delta >= 2 } }
+}
+
+export function applyDevelopment(player: Player, delta: number): Player {
+  return { ...player, ovr: Math.max(40, Math.min(99, player.ovr + delta)) }
 }
 
 // Papel no time: compara o OVR do jogador com a força do time.

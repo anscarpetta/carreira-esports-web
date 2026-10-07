@@ -33,6 +33,8 @@ describe('estresse', () => {
           break
         }
         const options = state.decision!.options
+        // Toda decisão tem escolha de verdade: pelo menos 2 opções.
+        expect(options.length, state.decision!.title).toBeGreaterThanOrEqual(2)
         const pickIndex = int(rng, 0, options.length - 1)
         rng = pickIndex.rng
         state = decide(state, options[pickIndex.value].id, CATALOG)

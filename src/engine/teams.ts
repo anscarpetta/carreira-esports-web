@@ -213,14 +213,15 @@ export function offseasonUpdate(
 
       // Reformulação: o momento volta parcialmente ao nível natural, com sorte.
       const target = structureTarget(league, structure)
-      const persistence = structure >= 4 ? 0.4 : 0.55
+      // Time muito acima do nível natural perde peças (os rivais contratam do campeão).
+      const persistence = rating - target > 2 ? 0.3 : structure >= 4 ? 0.4 : 0.55
       const noise = normal(r)
       r = noise.rng
       rating = target + (rating - target) * persistence + noise.value * 2.2
 
       // "Projeto em volta de você": um titular acima do nível do time puxa o time para cima.
       if (team.id === context.playerTeamId && context.playerSurplus > 0) {
-        rating += Math.min(2.5, 0.25 * context.playerSurplus)
+        rating += Math.min(1.5, 0.15 * context.playerSurplus)
       }
 
       // Um novo projeto ambicioso começa (raro; academies não fazem).

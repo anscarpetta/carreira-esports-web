@@ -21,14 +21,14 @@ import { guaranteedOffers, type OfferCandidate, type OfferTeam } from './offers.
 import {
   applyDevelopment,
   createPlayer,
+  rollSplitDevelopment,
   MAX_AGE,
   marketValueWithNoise,
   PLAY_CHANCE,
-  rollYearlyDevelopment,
   shiftRole,
   squadRoleFor,
 } from './player.ts'
-import { chance, createRng, pick, pickWeighted, type Rng } from './rng.ts'
+import { chance, createRng, float, pick, pickWeighted, type Rng } from './rng.ts'
 import { EMPTY_STATS, generateStats } from './stats.ts'
 import { teamRatingWithPlayer } from './strength.ts'
 import {
@@ -53,6 +53,7 @@ import type {
   EventChoiceOption,
   EventTeamOption,
   LeagueData,
+  Player,
   RetirementReason,
   Role,
   SplitRecord,
@@ -98,6 +99,13 @@ function rngOf(state: CareerState): Rng {
 
 function clampOvr(ovr: number): number {
   return Math.max(40, Math.min(99, ovr))
+}
+
+// Ganho de OVR por evento: o talento tem margem, mas não infinita (até 2 acima do potencial).
+function eventOvr(player: Player, delta: number): number {
+  if (delta <= 0) return clampOvr(player.ovr + delta)
+  const ceiling = Math.max(player.ovr, player.potential + 2)
+  return clampOvr(Math.min(player.ovr + delta, ceiling))
 }
 
 export function ageOf(state: CareerState): number {
@@ -352,7 +360,7 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
   s = {
     ...s,
     firstTeamId: s.firstTeamId ?? s.teamId,
-    player: { ...s.player, ovr: clampOvr(s.player.ovr + effects.ovr) },
+    player: { ...s.player, ovr: eventOvr(s.player, effects.ovr) },
     suspensionSplits: s.suspensionSplits + effects.suspensionSplits,
     pauseSplits: s.pauseSplits + effects.pauseSplits,
     effects: hasTemporary
@@ -424,12 +432,6 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   const age = year - state.player.birthYear
   let player = state.player
 
-  let development = state.development
-  if (!development || development.year !== year) {
-    const roll = rollYearlyDevelopment(rng, player, age)
-    rng = roll.rng
-    development = { year, remaining: roll.value }
-  }
 
   const team = state.teamId ? state.teams[state.teamId] : null
   const league = team?.leagueId ? catalog.leagues[team.leagueId] : null
@@ -454,8 +456,15 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
 
   if (team && league && !state.paused) {
     const members = leagueTeams(state.teams, league.id).sort((a, b) => a.id.localeCompare(b.id))
-    const bonus = effects.teamBonus
-    const splitTeams = members.map((t) => ({ id: t.id, rating: t.id === team.id ? t.rating + bonus : t.rating }))
+    // Forma do split: cada time varia um pouco de split para split (até o favorito tem split ruim).
+    const form: Record<string, number> = {}
+    for (const t of members) {
+      const roll = float(rng, -2, 2)
+      rng = roll.rng
+      form[t.id] = roll.value
+    }
+    const bonus = effects.teamBonus + form[team.id]
+    const splitTeams = members.map((t) => ({ id: t.id, rating: t.rating + (t.id === team.id ? bonus : form[t.id]) }))
     const input: PlayerTeamInput = {
       teamId: team.id,
       ratingWithPlayer: teamRatingWithPlayer(team.rating + bonus, ovrNow),
@@ -567,10 +576,13 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   }
 
   const ovrBefore = player.ovr
-  let delta = development.remaining[index]
+  // Evolução do split (minutos, idade, distância do potencial e chance de explosão).
+  const growth = rollSplitDevelopment(rng, player, age, plays ? (squad as SquadRole) : 'out')
+  rng = growth.rng
+  let delta = growth.value.delta
   // Streamer perde ritmo: não evolui e cai um pouco a cada split.
   if (state.paused?.reason === 'streamer') delta = Math.min(0, delta) - 1
-  player = applyDevelopment(player, delta, age, plays ? (squad as SquadRole) : 'out')
+  player = applyDevelopment(player, delta)
   const value = marketValueWithNoise(rng, player.ovr, age)
   rng = value.rng
   player = { ...player, marketValue: value.value }
@@ -591,6 +603,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
     awards,
     marketValue: player.marketValue,
     international,
+    breakout: growth.value.breakout && delta >= 2,
   }
 
   const benchStreak = squad === 'starter' ? 0 : plays ? state.benchStreak + 1 : state.benchStreak
@@ -638,7 +651,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
       player,
       teams,
       news,
-      development,
+      development: null,
       history: [...state.history, finalRecord],
       teamMove,
       residency,
@@ -674,6 +687,7 @@ function buildContext(state: CareerState, catalog: Catalog, team: TeamState, lea
     strongerTeamId: stronger[0]?.id ?? null,
     firstTeamInLeague: state.firstTeamId !== null && state.teams[state.firstTeamId]?.leagueId === league.id,
     academyId: academyOf(state, catalog, team.id),
+    isAcademy: catalog.teams[team.id]?.parentId !== undefined,
     homeRegion: regionOf(catalog, state.player.nationality),
     teamRegion: league.region,
     ...moneyTarget(state, catalog, team, league),
@@ -906,6 +920,20 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
             choiceKey: 'recover',
             label: 'Começar a recuperação',
             outcomes: [{ probability: 1, text: `${injury.value.ovr} OVR`, effects: { ovr: injury.value.ovr } }],
+          },
+          {
+            id: 'injury-play',
+            type: 'event_choice',
+            choiceKey: 'play',
+            label: 'Jogar no sacrifício',
+            outcomes: [
+              { probability: 0.5, text: 'Aguenta: só −1 OVR', effects: { ovr: -1 } },
+              {
+                probability: 0.5,
+                text: `A lesão piora: ${injury.value.ovr - 2} OVR`,
+                effects: { ovr: injury.value.ovr - 2 },
+              },
+            ],
           },
         ],
       }

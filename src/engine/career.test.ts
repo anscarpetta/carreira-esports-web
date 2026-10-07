@@ -46,7 +46,7 @@ describe('criação da carreira', () => {
       const { player } = createCareer({ ...INPUT, seed: `p${i}` }, CATALOG)
       expect(player.ovr).toBeGreaterThanOrEqual(50)
       expect(player.ovr).toBeLessThan(68)
-      expect(player.potential).toBeGreaterThanOrEqual(62)
+      expect(player.potential).toBeGreaterThanOrEqual(60)
       expect(player.potential).toBeLessThanOrEqual(91)
     }
   })

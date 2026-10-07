@@ -66,6 +66,11 @@ function Row({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
       </div>
       <div className="text-right text-xs tabular-nums">
         <p className="font-bold">
+          {record.breakout && (
+            <span className="mr-1" title="Explosão: salto de evolução neste split" aria-label="Explosão">
+              🚀
+            </span>
+          )}
           OVR <OvrChange before={record.ovr} after={record.ovrAfter} />
         </p>
         <p className="text-muted">

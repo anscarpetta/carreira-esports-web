@@ -28,6 +28,11 @@ Documentos de apoio:
   - Sem time (agente livre ou streamer): 2 times novos + seguir esperando.
   - Fora da pré-temporada, os times de tier 1 se mexem menos (a qualidade das propostas cai).
 - **Sucesso sem garantia:** distribuição-alvo de 30% que nunca se firmam, 40% sólidos, 25% craques e 5% lendas. Sem arquétipo no resumo.
+- **Evolução (playtest 2, out/2026):** split a split e mais variável.
+  - Quem está longe do potencial cresce mais rápido enquanto é jovem (a subida meteórica de um Tatu ou de um duduhh).
+  - Jovem titular, inclusive no academy, evolui mais (+25% até os 19); quem não joga evolui menos.
+  - 🚀 **Explosão:** jovem titular com espaço para crescer tem 8% de chance por split de um salto de +2 a +5.
+  - O teto realista: no Brasil, 90% dos jogadores ficam até OVR 83 (os maiores chegam a 81–84).
 - **Aposentadoria:** botão separado, discreto, disponível desde o começo, sem idade fixa. É possível pausar (streamer, agente livre) e voltar.
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
 - **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.
