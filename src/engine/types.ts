@@ -175,6 +175,8 @@ export interface SplitRecord {
   readonly international?: InternationalRecord | null
   // O time do jogador subiu, caiu ou saiu da liga na pré-temporada seguinte a este split.
   readonly leagueChange?: TeamMove | null
+  // Salto de evolução ("explosão") neste split.
+  readonly breakout?: boolean
 }
 
 export interface TeamMove {

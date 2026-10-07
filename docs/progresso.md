@@ -314,3 +314,33 @@ Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito
 
 ### Testes: 75
 - Novos testes cobrem: toda janela com 3 cards nas combinações certas, a convidada campeã mantendo a vaga, e a convidada com campanha ruim voltando para a Liga Regional Sur. O teste de estresse com 3.000 carreiras roda sem erros.
+
+---
+
+## Playtest 2 (out/2026): eventos e evolução
+
+### O que o Angelo pediu
+1. Opções em todos os eventos ("Criticou o coach na live" só tinha "Pedir desculpas").
+2. Mais eventos para subir o OVR.
+3. A subida meteórica dos craques (duduhh, Tatu: titulares em times grandes aos 18). A evolução estava estática demais; ser titular no academy deveria acelerar.
+4. O evento do importado coreano não faz sentido no academy.
+
+### O que mudou
+- **Eventos:** detalhes em [eventos.md](eventos.md#playtest-2-out2026). Todo evento tem pelo menos 2 opções (os testes verificam o catálogo e todas as decisões das carreiras de estresse). Há 3 eventos novos de evolução, treinos repetíveis e quase o dobro de eventos por carreira.
+- **Evolução:** novo modelo split a split (ver [conceito.md](conceito.md)). Distância do potencial, minutos jogados e explosões 🚀 (com pop-up e marca na trajetória).
+- **Forma por split:** cada time varia um pouco de split para split, então até o favorito tem split ruim.
+- **Dinastias mais curtas:** um time muito acima do nível natural perde peças na pré-temporada, e o efeito "projeto em volta de você" ficou mais fraco.
+
+### Calibração (Brasil, 3.000 carreiras)
+
+| Modo | Não vingam | Sólidos | Craques | Lendas | Titular no tier 1 aos 18 |
+|---|---|---|---|---|---|
+| Normal | 33% | 37% | 24% | 6% | 18% |
+| Intensa | 28% | 37% | 26% | 9% | 54% (há janela a cada split) |
+| Expressa | 40% | 33% | 23% | 5% | 17% |
+
+- Aposentadoria média aos ~29 anos. 90% dos jogadores ficam até OVR 83.
+- ~0,4 explosão por carreira.
+
+### Testes: 78
+- Novos testes cobrem: todo evento com 2+ opções, jovem titular evoluindo mais que jovem no banco, prodígio crescendo ~+10 por ano, frequência das explosões e o potencial como teto. O teste de estresse com 3.000 carreiras roda sem erros e sem nenhuma decisão de opção única.

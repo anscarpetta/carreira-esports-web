@@ -99,6 +99,8 @@ function main(): void {
   const championTeams: Record<string, number> = {}
   const tiersPlayed: Record<string, number> = {}
   let streamers = 0
+  let prodigies = 0
+  let breakouts = 0
 
   for (let i = 0; i < count; i += 1) {
     const state = runCareer(`sim-${i}`, mode, nationality)
@@ -115,6 +117,9 @@ function main(): void {
     const best = Math.min(...state.history.map((r) => (r.leagueId ? CATALOG.leagues[r.leagueId].tier : 9)))
     tiersPlayed[`tier ${best}`] = (tiersPlayed[`tier ${best}`] ?? 0) + 1
     if (state.history.some((r) => r.squadRole === 'paused' && !r.teamId)) streamers += 1
+    // Prodígio: titular no tier 1 aos 18 anos.
+    if (state.history.some((r) => r.age === 18 && r.squadRole === 'starter' && r.leagueId && CATALOG.leagues[r.leagueId].tier === 1)) prodigies += 1
+    breakouts += state.history.filter((r) => r.breakout).length
     const regions = new Set(state.history.filter((r) => r.leagueId).map((r) => CATALOG.leagues[r.leagueId!].region))
     for (const region of regions) regionsPlayed[region] = (regionsPlayed[region] ?? 0) + 1
   }
@@ -130,6 +135,7 @@ function main(): void {
   console.log(`Motivo do fim: ${Object.entries(reasons).map(([k, v]) => `${k} ${pct(v)}`).join(' · ')}`)
   console.log(`Tier mais alto alcançado: ${Object.entries(tiersPlayed).sort().map(([k, v]) => `${k} ${pct(v)}`).join(' · ')}`)
   console.log(`Carreiras com pausa (agente livre ou streamer): ${pct(streamers)}`)
+  console.log(`Prodígios (titular no tier 1 aos 18): ${pct(prodigies)} · explosões por carreira: ${(breakouts / count).toFixed(2)}`)
   console.log(`Jogou em cada região: ${Object.entries(regionsPlayed).sort().map(([k, v]) => `${k} ${pct(v)}`).join(' · ')}`)
   console.log(`Títulos por time: ${Object.entries(championTeams).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(' · ')}`)
 }

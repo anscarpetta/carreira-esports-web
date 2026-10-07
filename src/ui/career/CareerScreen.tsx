@@ -34,6 +34,13 @@ function prefersReducedMotion(): boolean {
 function celebrations(prev: CareerState, next: CareerState): Toast[] {
   const toasts: Toast[] = []
   for (const record of next.history.slice(prev.history.length)) {
+    if (record.breakout) {
+      toasts.push({
+        id: `b-${record.year}-${record.splitIndex}`,
+        icon: '🚀',
+        text: `Explosão! +${record.ovrAfter - record.ovr} OVR no ${record.splitName}`,
+      })
+    }
     for (const title of record.titles) {
       toasts.push({
         id: `t-${title.year}-${title.splitIndex}`,

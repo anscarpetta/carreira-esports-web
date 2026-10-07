@@ -4,6 +4,7 @@
 // resultados e probabilidades visíveis, e efeitos aplicados pelo motor.
 // Os textos ficam aqui porque o jogo é só em português.
 
+import { of } from './grammar.ts'
 import { int, pickWeighted, type Rng, type Roll } from './rng.ts'
 import type { CareerState, Effects, EventPlan, LeagueData, SquadRole, TeamState } from './types.ts'
 import type { Trend } from './teams.ts'
@@ -37,6 +38,8 @@ export interface EventContext {
   readonly firstTeamInLeague: boolean
   // Academy do time atual, se existir e estiver ativo.
   readonly academyId: string | null
+  // O time atual é um academy.
+  readonly isAcademy: boolean
   // Região de origem do jogador e região da liga do time atual.
   readonly homeRegion: string
   readonly teamRegion: string
@@ -63,6 +66,8 @@ export interface EventChoiceDef {
 export interface EventDef {
   readonly key: string
   readonly weight: number
+  // Quantas vezes pode acontecer na mesma carreira (padrão: 1). Treinos se repetem.
+  readonly repeatable?: number
   readonly title: (ctx: EventContext) => string
   readonly description: (ctx: EventContext) => string
   readonly condition: (ctx: EventContext) => boolean
@@ -83,6 +88,7 @@ export const INJURIES: readonly { item: { name: string; ovr: number }; weight: n
 export const EVENTS: readonly EventDef[] = [
   {
     key: 'korea_bootcamp',
+    repeatable: 2,
     weight: 60,
     title: () => 'Bootcamp na Coreia',
     description: () =>
@@ -102,7 +108,8 @@ export const EVENTS: readonly EventDef[] = [
   },
   {
     key: 'soloq_marathon',
-    weight: 100,
+    repeatable: 3,
+    weight: 120,
     title: () => 'Maratona de solo queue',
     description: () =>
       'Você pode virar noites na fila ranqueada para chegar ao topo do Challenger. Evolução garantida, se o punho aguentar.',
@@ -121,6 +128,7 @@ export const EVENTS: readonly EventDef[] = [
   },
   {
     key: 'mechanics_coach',
+    repeatable: 2,
     weight: 100,
     title: () => 'Coach de mecânica',
     description: () => 'Um coach propõe mudar sua mecânica de lane. Pode refinar seu jogo ou te desregular.',
@@ -139,6 +147,7 @@ export const EVENTS: readonly EventDef[] = [
   },
   {
     key: 'new_setup',
+    repeatable: 2,
     weight: 50,
     title: () => 'Setup novo',
     description: () =>
@@ -176,6 +185,7 @@ export const EVENTS: readonly EventDef[] = [
   },
   {
     key: 'patch_meta',
+    repeatable: 2,
     weight: 100,
     title: () => 'O patch enterrou seus campeões',
     description: () => 'O novo patch acabou com os campeões do seu pool. O meta mudou de vez.',
@@ -226,7 +236,9 @@ export const EVENTS: readonly EventDef[] = [
     weight: 100,
     title: () => 'Importado coreano na sua vaga',
     description: () => 'O time contratou um coreano da sua rota para disputar a vaga com você.',
-    condition: (ctx) => ctx.squadRole === 'starter',
+    // Só no tier 1 e fora da Coreia (academy não contrata importado para disputar vaga).
+    condition: (ctx) =>
+      ctx.squadRole === 'starter' && ctx.league.tier === 1 && ctx.league.region !== 'KR' && !ctx.isAcademy,
     choices: () => [
       {
         key: 'compete',
@@ -236,6 +248,7 @@ export const EVENTS: readonly EventDef[] = [
           { probability: 0.5, text: 'Reserva no período', effects: { forcedRole: 'reserve' } },
         ],
       },
+      { key: 'exit', label: 'Pedir para sair', join: 'exit', outcomes: [] },
     ],
   },
   {
@@ -243,7 +256,7 @@ export const EVENTS: readonly EventDef[] = [
     weight: 45,
     title: () => 'Prodígio do academy',
     description: () => 'Um garoto de 17 anos da sua rota está voando no academy e quer a sua vaga.',
-    condition: (ctx) => ctx.age >= 22 && ctx.squadRole === 'starter',
+    condition: (ctx) => ctx.age >= 22 && ctx.squadRole === 'starter' && !ctx.isAcademy,
     choices: () => [
       {
         key: 'mentor',
@@ -263,7 +276,7 @@ export const EVENTS: readonly EventDef[] = [
     key: 'super_team',
     weight: 80,
     title: () => 'O super time te quer',
-    description: () => 'Um dos gigantes do CBLOL quer montar um super time e te chamou.',
+    description: (ctx) => `Um dos gigantes ${of(ctx.league)} ${ctx.league.name} quer montar um super time e te chamou.`,
     condition: (ctx) => ctx.squadRole === 'starter' && ctx.strongerTeamId !== null,
     choices: () => [
       {
@@ -358,6 +371,14 @@ export const EVENTS: readonly EventDef[] = [
         key: 'apologize',
         label: 'Pedir desculpas',
         outcomes: [{ probability: 1, text: 'Menos jogos no período', effects: { roleShift: -1 } }],
+      },
+      {
+        key: 'double_down',
+        label: 'Bancar a crítica',
+        outcomes: [
+          { probability: 0.5, text: 'O coach é demitido: titular no período', effects: { forcedRole: 'starter' } },
+          { probability: 0.5, text: 'Afastado: banco no período', effects: { forcedRole: 'bench' } },
+        ],
       },
     ],
   },
@@ -487,6 +508,70 @@ export const EVENTS: readonly EventDef[] = [
   },
 ]
 
+// Eventos de evolução (playtest 2): mais chances de subir o OVR.
+export const TRAINING_EVENTS: readonly EventDef[] = [
+  {
+    key: 'vod_review',
+    weight: 120,
+    repeatable: 3,
+    title: () => 'Maratona de VODs',
+    description: () => 'O analista montou uma maratona com os seus jogos e os dos melhores da sua rota.',
+    condition: always,
+    choices: () => [
+      {
+        key: 'study',
+        label: 'Estudar tudo',
+        outcomes: [
+          { probability: 0.75, text: '+2 OVR', effects: { ovr: 2 } },
+          { probability: 0.25, text: 'Não absorveu nada: sem mudanças', effects: {} },
+        ],
+      },
+      { key: 'rest', label: 'Folgar', outcomes: nothing },
+    ],
+  },
+  {
+    key: 'veteran_mentor',
+    weight: 90,
+    title: () => 'Mentoria de um veterano',
+    description: () => 'Um veterano respeitado se ofereceu para te ensinar a ler o jogo e a falar no call.',
+    condition: (ctx) => ctx.age <= 20,
+    choices: () => [
+      {
+        key: 'accept',
+        label: 'Aceitar a mentoria',
+        outcomes: [
+          { probability: 0.7, text: '+3 OVR', effects: { ovr: 3 } },
+          { probability: 0.3, text: '+1 OVR', effects: { ovr: 1 } },
+        ],
+      },
+      { key: 'refuse', label: 'Seguir no seu ritmo', outcomes: nothing },
+    ],
+  },
+  {
+    key: 'korea_scrims',
+    weight: 70,
+    repeatable: 2,
+    title: () => 'Scrims contra a LCK',
+    description: () => 'O time conseguiu uma semana de scrims contra times da LCK. Vai ser duro.',
+    condition: (ctx) => ctx.league.region !== 'KR' && ctx.squadRole !== 'bench',
+    choices: () => [
+      {
+        key: 'all_in',
+        label: 'Jogar todas as scrims',
+        outcomes: [
+          { probability: 0.6, text: '+3 OVR', effects: { ovr: 3 } },
+          { probability: 0.4, text: 'Moral abalada: −1 OVR', effects: { ovr: -1 } },
+        ],
+      },
+      {
+        key: 'some',
+        label: 'Jogar só algumas',
+        outcomes: [{ probability: 1, text: '+1 OVR', effects: { ovr: 1 } }],
+      },
+    ],
+  },
+]
+
 export const SLICE_2_EVENTS: readonly EventDef[] = [
   {
     key: 'academy_demotion',
@@ -595,20 +680,27 @@ export const SLICE_4_EVENTS: readonly EventDef[] = [
   },
 ]
 
-export const ALL_EVENTS: readonly EventDef[] = [...EVENTS, ...SLICE_2_EVENTS, ...SLICE_3_EVENTS, ...SLICE_4_EVENTS]
+export const ALL_EVENTS: readonly EventDef[] = [
+  ...EVENTS,
+  ...TRAINING_EVENTS,
+  ...SLICE_2_EVENTS,
+  ...SLICE_3_EVENTS,
+  ...SLICE_4_EVENTS,
+]
 
 export const EVENTS_BY_KEY: Readonly<Record<string, EventDef>> = Object.fromEntries(
   ALL_EVENTS.map((event) => [event.key, event]),
 )
 
 // Quantos eventos cada modo terá na carreira (mín, máx).
+// Quantos eventos cada modo terá na carreira (mín, máx), no máximo um por idade.
 const EVENT_COUNT: Record<CareerState['mode'], readonly [number, number]> = {
-  intense: [7, 9],
-  normal: [3, 4],
-  express: [2, 2],
+  intense: [10, 12],
+  normal: [5, 6],
+  express: [3, 3],
 }
 
-const SLOT_AGES = [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+const SLOT_AGES = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
 
 export function planEvents(rng: Rng, mode: CareerState['mode']): Roll<EventPlan> {
   const [min, max] = EVENT_COUNT[mode]
@@ -634,7 +726,8 @@ export function pendingSlot(plan: EventPlan, age: number): number | null {
 }
 
 export function pickEvent(rng: Rng, ctx: EventContext, plan: EventPlan): Roll<EventDef | null> {
-  const eligible = ALL_EVENTS.filter((event) => !plan.doneEventKeys.includes(event.key) && event.condition(ctx))
+  const times = (key: string) => plan.doneEventKeys.filter((done) => done === key).length
+  const eligible = ALL_EVENTS.filter((event) => times(event.key) < (event.repeatable ?? 1) && event.condition(ctx))
   if (eligible.length === 0) return { rng, value: null }
   return pickWeighted(rng, eligible.map((event) => ({ item: event as EventDef | null, weight: event.weight })))
 }

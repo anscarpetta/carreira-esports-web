@@ -96,3 +96,18 @@ O **"Avô de outra nacionalidade"**, porque não há seleções. O **sistema de 
 | 4 | 10 (Liga ou internacional?) |
 
 Código: `src/engine/events.ts` (catálogo) e `src/engine/career.ts` (lesão, visto e saída de organização).
+
+## Playtest 2 (out/2026)
+
+- **Todo evento tem pelo menos 2 opções.** Os três que tinham uma só ganharam a segunda:
+  - **Criticou o coach na live:** pedir desculpas (menos jogos) ou **bancar a crítica** (50% o coach é demitido e você vira titular; 50% vai para o banco).
+  - **Importado coreano na sua vaga:** disputar a vaga ou **pedir para sair**. Agora só acontece **no tier 1, fora da Coreia e fora de academies**.
+  - **Lesão:** começar a recuperação ou **jogar no sacrifício** (50% aguenta com −1 OVR; 50% piora 2 a mais).
+- **Eventos novos de evolução:**
+  - **Maratona de VODs:** estudar (75% +2 OVR) ou folgar.
+  - **Mentoria de um veterano** (até 20 anos): aceitar (70% +3, 30% +1) ou seguir no seu ritmo.
+  - **Scrims contra a LCK:** jogar todas (60% +3, 40% −1) ou só algumas (+1).
+- **Treinos se repetem** na mesma carreira: solo queue (até 3×), VODs (3×), coach de mecânica, setup, bootcamp, scrims e patch (2× cada).
+- **Mais eventos por carreira:** Intensa 10–12, Normal 5–6, Expressa 3. Podem acontecer a partir dos 16 anos.
+- **Correções de texto/contexto:** "O super time te quer" usa o nome da liga; o "Prodígio do academy" não aparece para quem já está num academy.
+- Os ganhos de OVR por evento param em **2 acima do potencial** (o talento tem margem, mas não infinita).

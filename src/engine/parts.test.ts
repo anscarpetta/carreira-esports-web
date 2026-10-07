@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOG } from '../data/catalog.ts'
 import { computeAwards } from './awards.ts'
-import { EVENTS, planEvents } from './events.ts'
+import { ALL_EVENTS, EVENTS, planEvents } from './events.ts'
 import { simulateSplit } from './league.ts'
 import { generateOffers } from './offers.ts'
-import { createPlayer, marketValue, rollYearlyDevelopment, shiftRole, squadRoleFor } from './player.ts'
+import { createPlayer, marketValue, rollSplitDevelopment, shiftRole, squadRoleFor } from './player.ts'
 import { createRng } from './rng.ts'
 import { generateStats, kda } from './stats.ts'
 import { initialTeams, leagueTeams, offseasonUpdate, structureTarget, trendOf } from './teams.ts'
@@ -136,14 +136,50 @@ describe('jogador', () => {
     expect(marketValue(80, 30)).toBeLessThan(marketValue(80, 22))
   })
 
+  const prospect = (ovr: number, potential: number) => ({
+    ...createPlayer(createRng('pot'), { nick: 'x', role: 'top', nationality: 'BR', startYear: 2027 }).value,
+    ovr,
+    potential,
+    profile: 'normal' as const,
+  })
+
   it('a evolução respeita o potencial', () => {
-    const player = { ...createPlayer(createRng('pot'), { nick: 'x', role: 'top', nationality: 'BR', startYear: 2027 }).value, ovr: 70, potential: 71 }
+    const player = prospect(70, 71)
     let rng = createRng('evo')
-    for (let i = 0; i < 100; i += 1) {
-      const roll = rollYearlyDevelopment(rng, player, 18)
+    for (let i = 0; i < 300; i += 1) {
+      const roll = rollSplitDevelopment(rng, player, 18, 'starter')
       rng = roll.rng
-      expect(roll.value.reduce((a, b) => a + b, 0)).toBeLessThanOrEqual(1)
+      expect(roll.value.delta).toBeLessThanOrEqual(1)
     }
+  })
+
+  it('jovem titular evolui mais que jovem no banco, e quem está longe do potencial cresce rápido', () => {
+    const average = (ovr: number, potential: number, squad: 'starter' | 'bench') => {
+      let rng = createRng(`media-${ovr}-${potential}-${squad}`)
+      let total = 0
+      for (let i = 0; i < 2000; i += 1) {
+        const roll = rollSplitDevelopment(rng, prospect(ovr, potential), 17, squad)
+        rng = roll.rng
+        total += roll.value.delta
+      }
+      return total / 2000
+    }
+    expect(average(60, 85, 'starter')).toBeGreaterThan(average(60, 85, 'bench'))
+    expect(average(60, 90, 'starter')).toBeGreaterThan(average(60, 70, 'starter'))
+    // Um prodígio titular ganha, em média, mais de 3 de OVR por split (≈ +10 por ano).
+    expect(average(60, 90, 'starter')).toBeGreaterThan(3)
+  })
+
+  it('jovem titular com espaço para crescer às vezes explode', () => {
+    let rng = createRng('explosao')
+    let breakouts = 0
+    for (let i = 0; i < 1000; i += 1) {
+      const roll = rollSplitDevelopment(rng, prospect(65, 88), 18, 'starter')
+      rng = roll.rng
+      if (roll.value.breakout) breakouts += 1
+    }
+    expect(breakouts).toBeGreaterThan(60)
+    expect(breakouts).toBeLessThan(200)
   })
 })
 
@@ -213,12 +249,18 @@ describe('ofertas e eventos', () => {
   })
 
   it('o número de eventos planejados depende do modo', () => {
-    expect(planEvents(createRng('a'), 'express').value.slotAges).toHaveLength(2)
+    expect(planEvents(createRng('a'), 'express').value.slotAges).toHaveLength(3)
     const normal = planEvents(createRng('b'), 'normal').value.slotAges.length
-    expect(normal).toBeGreaterThanOrEqual(3)
-    expect(normal).toBeLessThanOrEqual(4)
+    expect(normal).toBeGreaterThanOrEqual(5)
+    expect(normal).toBeLessThanOrEqual(6)
     const intense = planEvents(createRng('c'), 'intense').value.slotAges.length
-    expect(intense).toBeGreaterThanOrEqual(7)
+    expect(intense).toBeGreaterThanOrEqual(10)
+  })
+
+  it('todo evento tem pelo menos 2 opções', () => {
+    for (const event of ALL_EVENTS) {
+      expect(event.choices({} as never).length, event.key).toBeGreaterThanOrEqual(2)
+    }
   })
 })
 
