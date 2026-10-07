@@ -287,6 +287,8 @@ export interface Effects {
   readonly pause: 'streamer' | null
   // Bônus na força do time nos torneios internacionais do período.
   readonly internationalBonus: number
+  // Aumento do teto oculto (só o boost secreto).
+  readonly potential: number
 }
 
 export interface ActiveEffects {
@@ -358,4 +360,6 @@ export interface CareerState {
   readonly residency: Readonly<Record<string, number>>
   // Subida, queda ou saída do time do jogador na última pré-temporada (aviso em destaque).
   readonly teamMove: TeamMove | null
+  // Usou o código secreto (boost): a carreira não conta para as conquistas.
+  readonly secretBoost?: boolean
 }

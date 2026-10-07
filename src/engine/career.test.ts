@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOG } from '../data/catalog.ts'
-import { createCareer, decide, isImportIn, residentRegions, retire, RESIDENCY_SPLITS, type NewCareerInput } from './career.ts'
+import {
+  createCareer,
+  decide,
+  isImportIn,
+  residentRegions,
+  retire,
+  RESIDENCY_SPLITS,
+  SECRET_BOOST,
+  secretBoost,
+  type NewCareerInput,
+} from './career.ts'
+import { EVENTS_BY_KEY, SECRET_EVENT_KEY, struggling, type EventContext } from './events.ts'
 import { SPLITS_PER_DECISION } from './modes.ts'
 import { summarize } from './summary.ts'
 import type { CareerState, DecisionOption } from './types.ts'
@@ -416,5 +427,53 @@ describe('titular estabelecido', () => {
     const last = { ...state, history: [{ ...({} as CareerState['history'][number]), teamId: 'loud', squadRole: 'starter' as const }] }
     expect(roleAt(last, 'loud')).toBe('starter')
     expect(roleAt({ ...last, player: { ...last.player, ovr: 76 } }, 'loud')).not.toBe('starter')
+  })
+})
+
+describe('viradas', () => {
+  it('o código secreto sobe OVR e teto uma vez só e marca a carreira', () => {
+    const start = createCareer(INPUT, CATALOG)
+    const boosted = secretBoost(start)
+    expect(boosted.player.ovr).toBe(start.player.ovr + SECRET_BOOST)
+    expect(boosted.player.potential).toBe(start.player.potential + SECRET_BOOST)
+    expect(boosted.secretBoost).toBe(true)
+    expect(secretBoost(boosted)).toBe(boosted)
+    expect(secretBoost(retire(start)).secretBoost).toBeUndefined()
+  })
+
+  it('o evento secreto é o único que sobe o teto, e aparece mais quando a carreira trava', () => {
+    const secret = EVENTS_BY_KEY[SECRET_EVENT_KEY]
+    const base = { age: 21, squadRole: 'starter', league: { tier: 1 } } as unknown as EventContext
+    const stuck = { ...base, squadRole: 'bench' } as EventContext
+    expect(struggling(base)).toBe(false)
+    expect(struggling(stuck)).toBe(true)
+    const weight = (ctx: EventContext) => (typeof secret.weight === 'function' ? secret.weight(ctx) : secret.weight)
+    expect(weight(stuck)).toBeGreaterThan(weight(base))
+    const raisesCeiling = (key: string) =>
+      EVENTS_BY_KEY[key].choices(base).some((choice) => choice.outcomes.some((o) => (o.effects.potential ?? 0) > 0))
+    expect(raisesCeiling(SECRET_EVENT_KEY)).toBe(true)
+    expect(Object.keys(EVENTS_BY_KEY).filter(raisesCeiling)).toEqual([SECRET_EVENT_KEY])
+  })
+
+  it('a virada do evento secreto passa do teto antigo', () => {
+    // Procura uma carreira em que o convite aparece e aceita.
+    for (let i = 0; i < 400; i += 1) {
+      let state = createCareer({ ...INPUT, seed: `virada-${i}` }, CATALOG)
+      for (let step = 0; step < 40 && state.phase === 'career'; step += 1) {
+        const decision = state.decision!
+        if (decision.eventKey === SECRET_EVENT_KEY) {
+          const before = state.player
+          const accept = decision.options.find((o) => 'choiceKey' in o && o.choiceKey === 'accept')!
+          const after = decide(state, accept.id, CATALOG)
+          if (after.player.potential > before.potential) {
+            expect(after.player.ovr).toBeGreaterThan(before.ovr)
+            return
+          }
+          break
+        }
+        state = decide(state, decision.options[0].id, CATALOG)
+      }
+    }
+    throw new Error('nenhuma virada encontrada em 400 carreiras')
   })
 })

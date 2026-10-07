@@ -57,7 +57,8 @@ export default function App() {
   function openSummary() {
     setScreen('summary')
     if (!career || career.phase !== 'summary') return
-    const fresh = unlock(achievedIds(career, CATALOG))
+    // Carreira com o código secreto não conta para as conquistas.
+    const fresh = career.secretBoost ? [] : unlock(achievedIds(career, CATALOG))
     setAchievementToasts(
       fresh.map((id) => {
         const achievement = ACHIEVEMENTS.find((a) => a.id === id)!

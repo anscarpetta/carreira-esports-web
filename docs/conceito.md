@@ -49,6 +49,11 @@ Documentos de apoio:
   | Brasil e LATAM | 0 (a referência) |
 
   Sem isso, ninguém alcançava um time capaz de ganhar o Worlds: em 1.600 carreiras simuladas, nenhum título.
+- **Vantagem inicial por região (out/2026):** o talento coreano e o chinês chegam mais prontos, e a liga de entrada deles (LCK CL, LDL) é bem mais forte que a Qualificatória Aberta. O OVR aos 16 ganha Coreia +10, China +9, Europa +6, LCS +3 e Pacífico +2 (sempre pelo menos 4 abaixo do potencial). Antes, o coreano só virava titular em média aos 19,3 anos; agora, aos 17,1, perto do brasileiro (16,1).
+- **Viradas (playtest, out/2026):**
+  - **Eventos com ganhos maiores, perdas iguais:** +2 virou +4, +3 virou +5 (solo queue: +4), +5 virou +7, +1 virou +2. As perdas continuam como eram. O teto dos eventos comuns segue em potencial +2.
+  - **Evento secreto "Convite secreto":** uma lenda aposentada oferece um treino fechado, em um card dourado. Aparece em ~5% das carreiras, 3× mais quando a carreira trava (fora da titularidade, ou 20+ anos longe do tier 1), até os 27 anos. Aceitar: 55% dá +6 OVR, 30% dá +9 OVR ("virada lendária") e 15% dá −2 OVR. É o **único evento que sobe o teto oculto** (+6 ou +9), então o jogador mediano pode virar craque.
+  - **Código secreto:** 5 toques no selo de OVR em até 2,5 segundos dão +5 OVR e +5 de teto, uma vez por carreira. É trapaça assumida: a carreira fica marcada no resumo e não conta para as conquistas.
 - **Aposentadoria:** botão separado, discreto, disponível desde o começo, sem idade fixa. É possível pausar (streamer, agente livre) e voltar.
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
 - **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.

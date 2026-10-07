@@ -101,3 +101,20 @@ describe('jogo completo pela interface', () => {
     expect(within(decisionPanel()!).getByRole('heading').textContent).toBe(title)
   })
 })
+
+describe('código secreto', () => {
+  it('5 toques no OVR dão o boost uma vez só', () => {
+    setReducedMotion(true)
+    render(<App />)
+    startCareer()
+    const card = screen.getByRole('region', { name: 'Seu jogador' })
+    const badge = within(card).getByLabelText(/^OVR \d+$/)
+    const before = Number(badge.getAttribute('aria-label')!.replace('OVR ', ''))
+    for (let i = 0; i < 5; i += 1) fireEvent.pointerDown(badge)
+    expect(screen.getByText(/Boost secreto: \+5 OVR/)).toBeTruthy()
+    const after = () => Number(within(card).getByLabelText(/^OVR \d+$/).getAttribute('aria-label')!.replace('OVR ', ''))
+    expect(after()).toBe(before + 5)
+    for (let i = 0; i < 5; i += 1) fireEvent.pointerDown(within(card).getByLabelText(/^OVR \d+$/))
+    expect(after()).toBe(before + 5)
+  })
+})
