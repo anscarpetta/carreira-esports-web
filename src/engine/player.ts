@@ -84,7 +84,8 @@ export function rollYearlyDevelopment(rng: Rng, player: Player, age: number): Ro
   if (delta > 0) delta = Math.min(delta, Math.max(0, player.potential - player.ovr))
   const first = Math.round(delta / 3)
   const second = Math.round((2 * delta) / 3) - first
-  return { rng: roll.rng, value: [first, second, delta - first - second] }
+  // "+ 0" troca -0 por 0 (o JSON do save não distingue os dois).
+  return { rng: roll.rng, value: [first + 0, second + 0, delta - first - second + 0] }
 }
 
 // Aplica a parte da evolução de um split. Quem quase não joga evolui menos.

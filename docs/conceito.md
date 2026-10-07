@@ -57,7 +57,7 @@ Detalhes de cada sistema em [design-sistemas.md](design-sistemas.md).
 
 ## Em aberto
 
-- Tier 3 do Brasil: quais ligas e times (pesquisa de dados).
+- Ajustes que vierem do playtest (ver [progresso.md](progresso.md), seção "Para revisar").
 
 ## Depois
 

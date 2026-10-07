@@ -263,3 +263,25 @@ Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito
 
 ### Testes: 71
 - Novos testes cobrem as conquistas (O impossível, Rota do Ceos, Ringless e carreiras simuladas), e o teste do jogo completo agora confere o painel de compartilhamento e a lista de conquistas.
+
+## Revisão final ✅
+
+- **Teste de estresse:** 3.000 carreiras com escolhas aleatórias, em todas as 28 nacionalidades e nos 3 modos (74 mil decisões). Achou 1 bug: um jogador de 17 anos ia junto quando o time do tier 2 subia para o tier 1 e jogava antes dos 18. Corrigido: ele fica no elenco, mas não entra em quadra até os 18. Depois disso, zero erros. Uma versão com 200 carreiras ficou na suíte de testes.
+- **Versão do save** passou para 3: carreiras salvas em versões anteriores do motor recomeçam, em vez de quebrar.
+- **Total: 72 testes.**
+
+---
+
+## Para revisar quando você acordar
+
+1. **Jogue** em https://anscarpetta.github.io/carreira-esports-web/, de preferência uma carreira no modo Intensa com o Brasil e outra com a Coreia.
+2. **Calibração:** a sensação de "sem garantia" está boa? Hoje (Brasil, modo normal) são 30% que não vingam, 43% sólidos, 22% craques e 4% lendas, com aposentadoria média aos 29 anos. Coreia e China são bem mais difíceis.
+3. **Decisões que tomei sozinho**, listadas no fim de cada fatia acima. As principais:
+   - O Desafiante tem 3 "Etapas".
+   - A EMEA Masters é o tier 2 europeu.
+   - A LDL usa os times de 2025.
+   - Idade mínima de 18 anos em todas as regiões.
+   - Worlds com 17 times.
+   - Valor de mercado em reais.
+4. **Imagens:** os logos vêm da Leaguepedia (o download manda o cabeçalho `Referer` da própria Leaguepedia, como um navegador) e as bandeiras, do flagcdn (domínio público). Tudo fica no repositório e pode ser trocado.
+5. **O que ficou para depois:** o "projeto do tier 3" (montar ou entrar num time e subi-lo de tier).

@@ -148,7 +148,11 @@ describe('carreira completa', () => {
   it('ninguém joga o tier 1 antes dos 18 anos', () => {
     for (const career of careers) {
       for (const record of career.history) {
-        if (record.leagueId && CATALOG.leagues[record.leagueId].tier === 1) expect(record.age).toBeGreaterThanOrEqual(18)
+        // Pode estar no elenco (o time subiu de divisão), mas sem entrar em quadra.
+        if (record.leagueId && CATALOG.leagues[record.leagueId].tier === 1 && record.age < 18) {
+          expect(record.stats.games).toBe(0)
+          expect(record.titles).toHaveLength(0)
+        }
       }
     }
   })
