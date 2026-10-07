@@ -91,3 +91,54 @@ export function generateOffers(
   }
   return { rng: r, value: offers }
 }
+
+// Propostas garantidas: sempre devolve `count` times diferentes (se houver times no pool).
+// Primeiro vêm os interessados (sorteio ponderado pelo interesse); se faltar, completa com os
+// times onde o jogador mais faz sentido: de preferência como titular e no tier mais alto possível.
+// Fora da pré-temporada (janelas 1→2 e 2→3), os times de tier 1 se mexem menos.
+export function guaranteedOffers(
+  rng: Rng,
+  candidates: readonly OfferTeam[],
+  playerOvr: number,
+  age: number,
+  excludeIds: readonly string[],
+  count: number,
+  window: TransferWindow | null,
+): Roll<OfferCandidate[]> {
+  let r = rng
+  const offers: OfferCandidate[] = []
+  const pool = candidates
+    .filter((c) => !excludeIds.includes(c.team.id))
+    .sort((a, b) => a.team.id.localeCompare(b.team.id))
+    .map((c) => {
+      const base = interest(playerOvr, age, c)
+      const midSeason = window !== null && window !== '3-1' && c.tier === 1 ? 0.5 : 1
+      return { candidate: c, role: base.role, weight: base.weight * midSeason }
+    })
+
+  while (offers.length < count) {
+    const interested = pool.filter((p) => p.weight > 0 && !offers.some((o) => o.teamId === p.candidate.team.id))
+    if (interested.length === 0) break
+    const picked = pickWeighted(r, interested.map((p) => ({ item: p, weight: p.weight })))
+    r = picked.rng
+    offers.push({ teamId: picked.value.candidate.team.id, expectedRole: picked.value.role })
+  }
+
+  if (offers.length < count) {
+    // Plano B: times da própria região (sem vaga de importado), ordenados pelo encaixe.
+    const roleScore: Record<SquadRole, number> = { starter: 2, reserve: 1, bench: 0 }
+    const fallback = pool
+      .filter((p) => (p.candidate.importFactor ?? 1) >= 1 && !offers.some((o) => o.teamId === p.candidate.team.id))
+      .map((p) => ({ p, fit: roleScore[p.role] * 100 - p.candidate.tier * 10 - Math.abs(playerOvr - p.candidate.team.rating) }))
+      .sort((a, b) => b.fit - a.fit || a.p.candidate.team.id.localeCompare(b.p.candidate.team.id))
+    while (offers.length < count && fallback.length > 0) {
+      // Sorteia entre os 4 melhores encaixes, para variar.
+      const top = fallback.slice(0, 4)
+      const picked = pickWeighted(r, top.map((f, i) => ({ item: f, weight: 4 - i })))
+      r = picked.rng
+      offers.push({ teamId: picked.value.p.candidate.team.id, expectedRole: picked.value.p.role })
+      fallback.splice(fallback.indexOf(picked.value), 1)
+    }
+  }
+  return { rng: r, value: offers }
+}

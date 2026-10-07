@@ -1,5 +1,6 @@
 import { CATALOG } from '../../data/catalog.ts'
-import type { SplitRecord } from '../../engine/types.ts'
+import { art, of } from '../../engine/grammar.ts'
+import type { SplitRecord, TeamMove } from '../../engine/types.ts'
 import { kdaText, SQUAD_LABEL } from '../format.ts'
 import { TeamBadge } from '../TeamBadge.tsx'
 
@@ -12,6 +13,15 @@ function OvrChange({ before, after }: { before: number; after: number }) {
       <span className={diff > 0 ? 'text-emerald-400' : 'text-rose-400'}>{diff > 0 ? `+${diff}` : diff}</span>
     </span>
   )
+}
+
+function moveText(move: TeamMove): string {
+  const team = CATALOG.teams[move.teamId]?.shortName ?? move.teamId
+  const to = move.to ? CATALOG.leagues[move.to] : null
+  const from = move.from ? CATALOG.leagues[move.from] : null
+  if (move.kind === 'promoted') return `▲ ${team} subiu para ${art(to)} ${to?.name}`
+  if (move.kind === 'relegated') return `▼ ${team} caiu para ${art(to)} ${to?.name}`
+  return `✖ ${team} saiu ${of(from)} ${from?.name}`
 }
 
 function Row({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
@@ -34,6 +44,13 @@ function Row({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
         </p>
         {record.awards.length > 0 && (
           <p className="mt-0.5 text-xs font-bold text-gold-soft">⭐ {record.awards.map((a) => a.name).join(' · ')}</p>
+        )}
+        {record.leagueChange && (
+          <p
+            className={`mt-1 rounded-md px-2 py-0.5 text-xs font-bold ${record.leagueChange.kind === 'promoted' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'}`}
+          >
+            {moveText(record.leagueChange)}
+          </p>
         )}
         {record.international && (
           <p

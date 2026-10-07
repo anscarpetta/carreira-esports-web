@@ -269,3 +269,44 @@ describe('internacionais', () => {
     expect(brazil).toBeLessThanOrEqual(2)
   })
 })
+
+describe('vaga de convidado do CBLOL (caso da 9z)', () => {
+  // Monta a pirâmide com a 9z (vinda da Liga Regional Sur) no lugar da LOS como convidada.
+  function withNineZAsGuest() {
+    const teams = initialTeams(CATALOG)
+    teams.los = { ...teams.los, leagueId: 'circuito-desafiante', guest: false }
+    teams['team-solid'] = { ...teams['team-solid'], leagueId: 'qualificatoria-aberta' }
+    teams.kuma = { ...teams.kuma, leagueId: null }
+    teams['9z'] = { ...teams['9z'], leagueId: 'cblol', guest: true, rating: 60 }
+    teams.wap = { ...teams.wap, leagueId: 'lrs' }
+    teams.estral = { ...teams.estral, rating: 90 }
+    return teams
+  }
+
+  it('campeã de um split no ano mantém a vaga sem série', () => {
+    const teams = withNineZAsGuest()
+    const placements = { '9z': [6, 5, 1] }
+    for (let i = 0; i < 20; i += 1) {
+      const result = offseasonUpdate(createRng(`campea-${i}`), teams, CATALOG, { year: 2028, playerTeamId: null, playerSurplus: 0, placements })
+      expect(result.teams['9z'].leagueId).toBe('cblol')
+    }
+  })
+
+  it('com campanha ruim, perde a série e volta para a Liga Regional Sur', () => {
+    const teams = withNineZAsGuest()
+    const placements = { '9z': [8, 7, 8] }
+    let relegated = 0
+    for (let i = 0; i < 20; i += 1) {
+      const result = offseasonUpdate(createRng(`ruim-${i}`), teams, CATALOG, { year: 2028, playerTeamId: null, playerSurplus: 0, placements })
+      if (result.teams['9z'].leagueId !== 'cblol') {
+        relegated += 1
+        expect(result.teams['9z'].leagueId).toBe('lrs')
+        expect(result.changes).toContainEqual({ kind: 'relegated', teamId: '9z', from: 'cblol', to: 'lrs' })
+      }
+      for (const league of Object.values(CATALOG.leagues)) {
+        expect(leagueTeams(result.teams, league.id)).toHaveLength(league.teamIds.length)
+      }
+    }
+    expect(relegated).toBeGreaterThan(10)
+  })
+})

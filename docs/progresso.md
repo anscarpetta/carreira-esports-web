@@ -285,3 +285,32 @@ Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito
    - Valor de mercado em reais.
 4. **Imagens:** os logos vêm da Leaguepedia (o download manda o cabeçalho `Referer` da própria Leaguepedia, como um navegador) e as bandeiras, do flagcdn (domínio público). Tudo fica no repositório e pode ser trocado.
 5. **O que ficou para depois:** o "projeto do tier 3" (montar ou entrar num time e subi-lo de tier).
+
+---
+
+## Playtest 1 (out/2026): janelas e acesso
+
+### O que o Angelo encontrou
+1. Várias janelas só tinham a opção de ficar no time.
+2. Estava no CBLOL com a 9z, ganhou o último split e foi parar no Circuito Desafiante.
+
+### Por que o caso da 9z aconteceu
+- A 9z, vinda da Liga Regional Sur, ocupava a vaga de convidado do CBLOL. Na pré-temporada, o convidado sempre disputava uma MD5 contra o melhor do Desafiante ou da LRS, **sem contar a campanha** (nem o título) e **sem contar o jogador** na força do time.
+- Perdendo, o convidado ia para a liga **de onde veio o desafiante** (o Desafiante), e não para a liga de origem.
+- O aviso era só uma linha nas notícias.
+
+### O que mudou
+- **Janelas sempre com 3 cards** (regras no [conceito.md](conceito.md)). As propostas agora são garantidas: se faltar time interessado, entram os times onde o jogador mais faz sentido.
+- **Fim de ciclo mais comum** com desempenho ruim: 3 splits seguidos fora da equipe titular dão 60% de chance; 6 splits, 100%.
+- **Convidado com boa campanha mantém a vaga**, a série conta a sua força em quadra, e o rebaixado volta para a liga de origem.
+- **Quem sobe é escolhido pela campanha:** a mediana de quem sobe do Desafiante para o CBLOL é ~2º lugar (antes, um 10º chegou a subir por causa de um projeto ambicioso).
+- **Ligas com time a mais** (quando o convidado volta para a liga de origem e o desafiante veio de outra) rebaixam o pior time, para manter o tamanho das ligas.
+- **Aviso em destaque** na decisão ("▲ A Team Solid subiu para o CBLOL!", "▼ … caiu para …") e **marca na trajetória**.
+- Versão do save 4.
+
+### Calibração
+- Brasil, modo normal: 30% não vingam · 42% sólidos · 23% craques · 5% lendas · aposentadoria ~29.
+- Com propostas garantidas, a carreira só acaba quando o jogador decide (card "Aposentar-se" no fim de ciclo do veterano ou botão discreto) ou aos 35. Na simulação, o jogador automático se aposenta como alguém de verdade faria: sem vaga de titular depois dos 28, ou fora do tier 1 depois dos 30.
+
+### Testes: 75
+- Novos testes cobrem: toda janela com 3 cards nas combinações certas, a convidada campeã mantendo a vaga, e a convidada com campanha ruim voltando para a Liga Regional Sur. O teste de estresse com 3.000 carreiras roda sem erros.

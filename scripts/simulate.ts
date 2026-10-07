@@ -4,7 +4,7 @@
 // Uso: node scripts/simulate.ts [quantidade] [modo] [nacionalidade]
 
 import { CATALOG } from '../src/data/catalog.ts'
-import { createCareer, decide } from '../src/engine/career.ts'
+import { createCareer, decide, retire } from '../src/engine/career.ts'
 import type { SimulationMode } from '../src/engine/modes.ts'
 import { createRng, int, pick, type Rng } from '../src/engine/rng.ts'
 import { summarize } from '../src/engine/summary.ts'
@@ -33,9 +33,21 @@ function choose(state: CareerState, rng: Rng): { rng: Rng; optionId: string } {
         (o.type === 'stay' ? 0.5 : 0),
     }))
     .sort((a, b) => b.score - a.score)
+  const age = state.next.year - state.player.birthYear
+  // Veterano sem vaga de titular à vista, ou já fora do tier 1 depois dos 30: aposenta,
+  // como faria um jogador de verdade (o jogo não obriga; quem decide é o jogador).
+  const best = scored[0]?.o
+  const wantsOut =
+    !best ||
+    (age >= 28 && best.expectedRole !== 'starter') ||
+    (age >= 30 && tierOf(best.teamId) >= 2) ||
+    age >= 33
+  const retireCard = options.find((o) => o.type === 'retire')
+  if (wantsOut && retireCard) return { rng, optionId: retireCard.id }
+  // Sem o card de aposentar, o jogador automático usa o botão discreto.
+  if (wantsOut && age >= 30) return { rng, optionId: '__retire__' }
   if (scored.length > 0) return { rng, optionId: scored[0].o.id }
   const wait = options.find((o) => o.type === 'wait')
-  const age = state.next.year - state.player.birthYear
   if (wait && (state.paused?.splits ?? 0) < 3 && age < 27) return { rng, optionId: wait.id }
   const retire = options.find((o) => o.type === 'retire')
   return { rng, optionId: (retire ?? wait ?? options[0]).id }
@@ -66,7 +78,7 @@ export function runCareer(seed: string, mode: SimulationMode, nationality = 'BR'
   while (state.phase === 'career' && guard < 200) {
     const choice = choose(state, rng)
     rng = choice.rng
-    state = decide(state, choice.optionId, CATALOG)
+    state = choice.optionId === '__retire__' ? retire(state) : decide(state, choice.optionId, CATALOG)
     guard += 1
   }
   return state
