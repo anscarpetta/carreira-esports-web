@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="100" height="140">
+  <!-- First Stand: cristal escuro envolto por lâminas douradas, coroa no topo e base facetada -->
+  <defs>
+    <linearGradient id="au" x1="0" x2="1">
+      <stop offset="0" stop-color="#7a5510"/>
+      <stop offset=".4" stop-color="#ffe28a"/>
+      <stop offset=".65" stop-color="#e2b23f"/>
+      <stop offset="1" stop-color="#6e4b0c"/>
+    </linearGradient>
+    <linearGradient id="au2" x1="1" x2="0">
+      <stop offset="0" stop-color="#7a5510"/>
+      <stop offset=".5" stop-color="#f3cd62"/>
+      <stop offset="1" stop-color="#8f6512"/>
+    </linearGradient>
+    <linearGradient id="dk" x1="0" x2="1">
+      <stop offset="0" stop-color="#2c2f36"/>
+      <stop offset=".45" stop-color="#8a8f99"/>
+      <stop offset=".7" stop-color="#5a5f69"/>
+      <stop offset="1" stop-color="#25272d"/>
+    </linearGradient>
+  </defs>
+  <!-- núcleo escuro -->
+  <path d="M50 14 L60 40 L57 98 L50 106 L43 98 L40 40 Z" fill="url(#dk)"/>
+  <path d="M50 18 L53 40 L51 96 L49 96 L47 40 Z" fill="#c9ced8" opacity=".35"/>
+  <!-- coroa de lâminas -->
+  <path d="M50 4 L58 16 L50 30 L42 16 Z" fill="url(#au)"/>
+  <path d="M40 10 L48 26 L42 40 L33 24 Z" fill="url(#au2)"/>
+  <path d="M60 10 L52 26 L58 40 L67 24 Z" fill="url(#au)"/>
+  <path d="M30 18 L40 34 L38 52 L27 34 Z" fill="url(#au)"/>
+  <path d="M70 18 L60 34 L62 52 L73 34 Z" fill="url(#au2)"/>
+  <!-- asas do meio -->
+  <path d="M41 46 L30 60 L38 74 L42 62 Z" fill="url(#au2)"/>
+  <path d="M59 46 L70 60 L62 74 L58 62 Z" fill="url(#au)"/>
+  <!-- base facetada -->
+  <path d="M43 96 L36 104 L40 112 L46 104 Z" fill="url(#au)"/>
+  <path d="M57 96 L64 104 L60 112 L54 104 Z" fill="url(#au2)"/>
+  <path d="M30 108 L50 100 L70 108 L74 130 L26 130 Z" fill="url(#au)"/>
+  <path d="M50 100 L46 130 M50 100 L56 130 M38 112 L34 130 M62 112 L66 130 M30 108 L40 118 L50 108 L60 118 L70 108" stroke="#8f6512" stroke-width="1" fill="none" opacity=".7"/>
+  <path d="M42 106 L38 126" stroke="#fff3c4" stroke-width="1.4" opacity=".5" stroke-linecap="round"/>
+  <rect x="24" y="130" width="52" height="4" rx="1.5" fill="url(#au2)"/>
+</svg>

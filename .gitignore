@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Referências dos troféus (fotos de terceiros; os SVGs desenhados ficam em public/assets/trophies)
+trophieImg/
+*:Zone.Identifier

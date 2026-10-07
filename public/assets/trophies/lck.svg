@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="100" height="140">
+  <!-- LCK: taça prateada com frisos verticais, laterais erguidas, haste torcida e o emblema em V -->
+  <defs>
+    <linearGradient id="l" x1="0" x2="1">
+      <stop offset="0" stop-color="#8a86b8"/>
+      <stop offset=".3" stop-color="#f4f2fb"/>
+      <stop offset=".55" stop-color="#9b93d6"/>
+      <stop offset=".8" stop-color="#e5e1f5"/>
+      <stop offset="1" stop-color="#7d78a8"/>
+    </linearGradient>
+    <linearGradient id="l2" x1="0" x2="1">
+      <stop offset="0" stop-color="#77739a"/>
+      <stop offset=".5" stop-color="#e2e0ec"/>
+      <stop offset="1" stop-color="#6c688e"/>
+    </linearGradient>
+    <linearGradient id="v" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b9b0ff"/>
+      <stop offset="1" stop-color="#5b4fd0"/>
+    </linearGradient>
+  </defs>
+  <!-- bojo: as laterais sobem mais que o centro -->
+  <path d="M14 8 L22 12 L30 14 L40 16 L50 17 L60 16 L70 14 L78 12 L86 8 C86 38 72 60 56 72 L44 72 C28 60 14 38 14 8 Z" fill="url(#l)"/>
+  <path d="M22 14 C24 36 34 54 46 68 M30 15 C32 36 40 54 48 69 M70 15 C68 36 60 54 52 69 M78 14 C76 36 66 54 54 68" stroke="#6f6aa0" stroke-width=".9" fill="none" opacity=".55"/>
+  <path d="M18 12 C19 30 26 44 34 54" stroke="#ffffff" stroke-width="1.8" fill="none" opacity=".6" stroke-linecap="round"/>
+  <!-- emblema em V -->
+  <path d="M36 30 L46 32 L50 40 L54 32 L64 30 L54 46 L50 48 L46 46 Z" fill="url(#v)"/>
+  <path d="M38 31 L45 33 L50 41" stroke="#e8e4ff" stroke-width=".9" fill="none" opacity=".8"/>
+  <!-- haste torcida -->
+  <path d="M44 72 L56 72 C55 82 47 88 46 98 L54 98 C53 88 45 82 44 72 Z" fill="url(#l2)"/>
+  <path d="M44 72 C50 80 52 88 54 98 L46 98 C48 88 50 80 56 72 Z" fill="url(#l)" opacity=".85"/>
+  <!-- base redonda em dois níveis -->
+  <ellipse cx="50" cy="100" rx="12" ry="3.5" fill="url(#l2)"/>
+  <path d="M34 104 Q50 98 66 104 L70 118 Q50 124 30 118 Z" fill="url(#l)"/>
+  <path d="M33 110 Q50 115 67 110" stroke="#8a86b8" stroke-width=".8" fill="none" opacity=".7"/>
+  <path d="M26 120 Q50 126 74 120 L76 128 Q50 134 24 128 Z" fill="url(#l2)"/>
+</svg>

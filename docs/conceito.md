@@ -20,6 +20,10 @@ Documentos de apoio:
 - **Nacionalidade:** o jogador escolhe qualquer país. A dificuldade surge da realidade de cada região.
 - **Dados: só clubes**, sem colegas de elenco. O que importa é a sua carreira.
 - **Nomes, fotos e logos 100% reais**, inclusive dos troféus. Risco conhecido: a política de fã da Riot restringe jogos e apps com IP dela, os logos são marcas dos times e as fotos têm direitos da Riot. Mitigação: projeto gratuito e sem paywall, aviso de não afiliação, assets em arquivo de dados para poderem ser trocados.
+- **Troféus (out/2026):** cada competição tem a sua taça, desenhada em SVG no estilo simples do Copero (sem realismo, mas com a silhueta e as cores da taça real). As fotos de referência ficam fora do repositório (`trophieImg/`, ignorada no git).
+  - Desenhadas: Worlds, MSI, First Stand, CBLOL, LCK, LPL, LEC, LCS, LCP e Circuito Desafiante.
+  - As outras ligas (tier 2 e 3) usam a taça genérica dourada, com a faixa da base na cor da liga.
+  - Uma taça por competição: os títulos de cada split da mesma liga se somam ("3× CBLOL").
 - **Tempo:** a unidade é o **split** (3 por ano). Modos Intensa (1 decisão por split), Normal (por ano) e Expressa (a cada 2 anos). As transferências acontecem em qualquer janela, mas a frequência cai nesta ordem: 3→1, depois 2→3, depois 1→2.
 - **Janelas com 3 cards (playtest, out/2026):** toda janela de transferência mostra 3 opções:
   - **Normal:** 2 times novos + ficar no time atual.

@@ -1,9 +1,12 @@
 import { useEffect } from 'react'
+import { Trophy } from '../Trophy.tsx'
 
 export interface Toast {
   readonly id: string
   readonly icon: string
   readonly text: string
+  // Troféu no lugar do ícone (títulos).
+  readonly trophy?: string
 }
 
 // Comemorações de títulos e prêmios. Somem sozinhas ou com um toque.
@@ -24,7 +27,7 @@ export function Toasts({ items, onDismiss }: { items: readonly Toast[]; onDismis
           onClick={onDismiss}
           className="pointer-events-auto flex animate-[rise_0.4s_ease-out] items-center gap-3 rounded-2xl border border-gold bg-night/95 px-5 py-3 font-black text-gold-soft shadow-2xl shadow-gold/20"
         >
-          <span className="text-2xl">{toast.icon}</span>
+          {toast.trophy ? <Trophy trophy={toast.trophy} size="sm" /> : <span className="text-2xl">{toast.icon}</span>}
           {toast.text}
         </button>
       ))}

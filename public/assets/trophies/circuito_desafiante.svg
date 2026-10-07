@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="100" height="140">
+  <!-- Circuito Desafiante: chamas douradas em blocos em volta de um núcleo âmbar, coluna e base em pirâmide -->
+  <defs>
+    <linearGradient id="y" x1="0" x2="1">
+      <stop offset="0" stop-color="#b8820f"/>
+      <stop offset=".4" stop-color="#ffd84d"/>
+      <stop offset=".7" stop-color="#f0b51e"/>
+      <stop offset="1" stop-color="#a5740c"/>
+    </linearGradient>
+    <linearGradient id="y2" x1="1" x2="0">
+      <stop offset="0" stop-color="#9a6a08"/>
+      <stop offset=".5" stop-color="#f6c936"/>
+      <stop offset="1" stop-color="#b8820f"/>
+    </linearGradient>
+    <linearGradient id="am" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c2410c"/>
+      <stop offset=".5" stop-color="#9a1f0a"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="bs" x1="0" x2="1">
+      <stop offset="0" stop-color="#5c430e"/>
+      <stop offset=".5" stop-color="#b8892a"/>
+      <stop offset="1" stop-color="#4f390b"/>
+    </linearGradient>
+  </defs>
+  <!-- núcleo âmbar -->
+  <path d="M38 14 L62 14 L62 66 L38 66 Z" fill="url(#am)"/>
+  <path d="M44 18 L50 10 L56 18 L56 60 L44 60 Z" fill="#7c1d0a" opacity=".7"/>
+  <!-- chamas em blocos (alturas diferentes) -->
+  <path d="M28 22 L36 22 L36 34 L32 34 L32 52 L40 52 L40 70 L28 70 Z" fill="url(#y)"/>
+  <path d="M72 18 L64 18 L64 30 L68 30 L68 50 L60 50 L60 70 L72 70 Z" fill="url(#y2)"/>
+  <path d="M40 8 L48 8 L48 26 L44 26 L44 40 L40 40 Z" fill="url(#y2)"/>
+  <path d="M54 12 L62 12 L62 40 L58 40 L58 24 L54 24 Z" fill="url(#y)"/>
+  <path d="M30 26 L30 66 M70 22 L70 66 M46 10 L46 24" stroke="#fff3b0" stroke-width="1" opacity=".55"/>
+  <!-- coluna quadrada -->
+  <path d="M40 70 L60 70 L58 108 L42 108 Z" fill="url(#y)"/>
+  <path d="M50 70 L50 108" stroke="#c98d12" stroke-width="1.2"/>
+  <path d="M44 72 L44 104" stroke="#fff3b0" stroke-width="1.2" opacity=".5"/>
+  <!-- base em pirâmide texturizada -->
+  <path d="M42 106 L58 106 L78 126 L22 126 Z" fill="url(#bs)"/>
+  <path d="M34 120 L40 114 L44 122 L50 112 L56 122 L60 114 L66 120" stroke="#e0b44a" stroke-width="1" fill="none" opacity=".65"/>
+  <path d="M28 124 L36 118 M72 124 L64 118" stroke="#3d2c08" stroke-width="1" opacity=".7"/>
+  <rect x="20" y="126" width="60" height="6" rx="1.5" fill="url(#y2)"/>
+</svg>

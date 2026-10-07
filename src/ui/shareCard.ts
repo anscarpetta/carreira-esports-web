@@ -1,5 +1,5 @@
 // Card compartilhável da carreira (1080 × 1350, formato de post), desenhado em canvas.
-// Usa só imagens do próprio site (logos e bandeiras), então o canvas pode virar arquivo.
+// Usa só imagens do próprio site (logos, bandeiras e troféus), então o canvas pode virar arquivo.
 
 import { CATALOG } from '../data/catalog.ts'
 import logos from '../data/logos.json'
@@ -7,6 +7,7 @@ import { summarize } from '../engine/summary.ts'
 import type { CareerState } from '../engine/types.ts'
 import { kdaText, ROLE_LABEL } from './format.ts'
 import { ovrColor } from './ovr.ts'
+import { groupTrophies, trophyImage } from './trophies.ts'
 
 export const GAME_URL = 'https://anscarpetta.github.io/carreira-esports-web/'
 
@@ -109,24 +110,30 @@ export async function drawCareerCard(canvas: HTMLCanvasElement, career: CareerSt
   ctx.fillStyle = MUTED
   ctx.font = font(800, 28)
   ctx.fillText('VITRINE', 60, 590)
-  const order: Record<string, number> = { worlds: 0, msi: 1, first_stand: 2, league: 3 }
-  const titles = grouped([...s.titles].sort((a, b) => order[a.kind] - order[b.kind]).map((t) => t.name))
+  // Taças (até 6), com a quantidade embaixo; os prêmios individuais vêm numa linha só.
+  const trophies = groupTrophies(s.titles).slice(0, 6)
   const awards = grouped(s.awards.map((a) => a.name.replace(/ (do|da) .*$/, '')))
-  const lines = [
-    ...titles.map((t) => `🏆 ${t.count}× ${t.name}`),
-    ...awards.map((a) => `⭐ ${a.count}× ${a.name}`),
-  ]
-  ctx.font = font(700, 36)
-  if (lines.length === 0) {
-    ctx.fillStyle = MUTED
-    ctx.fillText('Vitrine vazia', 60, 645)
+  ctx.textAlign = 'center'
+  for (let i = 0; i < trophies.length; i += 1) {
+    const { key, name, count } = trophies[i]
+    const cx = 60 + i * 160 + 80
+    const image = await loadImage(trophyImage(key))
+    if (image) ctx.drawImage(image, cx - 54, 615, 108, 151)
+    ctx.fillStyle = GOLD_SOFT
+    ctx.font = font(800, 26)
+    ctx.fillText(count > 1 ? `${count}× ${name}` : name, cx, 805, 150)
   }
-  lines.slice(0, 8).forEach((line, i) => {
-    const col = i % 2
-    const row = Math.floor(i / 2)
-    ctx.fillStyle = line.startsWith('🏆') ? GOLD_SOFT : '#ffffff'
-    ctx.fillText(line, 60 + col * 490, 650 + row * 58, 470)
-  })
+  ctx.textAlign = 'left'
+  const awardsLine = awards.map((a) => `${a.count}× ${a.name}`).join(' · ')
+  if (trophies.length === 0 && awards.length === 0) {
+    ctx.fillStyle = MUTED
+    ctx.font = font(700, 36)
+    ctx.fillText('Vitrine vazia', 60, 645)
+  } else if (awards.length > 0) {
+    ctx.fillStyle = '#ffffff'
+    ctx.font = font(700, 30)
+    ctx.fillText(`⭐ ${awardsLine}`, 60, trophies.length > 0 ? 865 : 650, 960)
+  }
 
   // Times da carreira
   ctx.fillStyle = MUTED
