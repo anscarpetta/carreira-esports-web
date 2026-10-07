@@ -69,7 +69,7 @@ export interface NewCareerInput {
   readonly nationality: string
 }
 
-export const SAVE_VERSION = 2
+export const SAVE_VERSION = 3
 
 // Ninguém estreia no tier 1 antes dos 18 anos.
 export const MIN_TIER1_AGE = 18
@@ -431,11 +431,15 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   const effects = state.effects.splitsLeft > 0 ? state.effects : NO_ACTIVE_EFFECTS
   const ovrNow = clampOvr(player.ovr + effects.tempOvr)
 
+  // Quem tem menos de 18 anos não pode jogar o tier 1 (pode acontecer quando o time sobe de divisão).
+  const underage = league?.tier === 1 && age < MIN_TIER1_AGE
+
   let squad: SplitRecord['squadRole']
   if (state.suspensionSplits > 0) squad = 'suspended'
   else if (state.paused || state.pauseSplits > 0 || !team || !league) squad = 'paused'
+  else if (underage) squad = 'bench'
   else squad = effects.forcedRole ?? shiftRole(squadRoleFor(ovrNow, team.rating), effects.roleShift)
-  const plays = squad === 'starter' || squad === 'reserve' || squad === 'bench'
+  const plays = !underage && (squad === 'starter' || squad === 'reserve' || squad === 'bench')
 
   let stats = EMPTY_STATS
   let titles: Title[] = []

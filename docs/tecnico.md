@@ -27,13 +27,27 @@ Status: **decidido** (aprovado pelo Angelo em out/2026).
 
 ```
 src/
-  engine/   motor do jogo (TypeScript puro, sem React)
-  data/     ligas, times, troféus (JSON)
-  ui/       telas e componentes React
-public/
-  assets/   logos, fotos e troféus (todos trocáveis, ver a decisão de IP)
+  engine/              motor do jogo (TypeScript puro, sem React)
+    rng.ts             sorteio com semente (FNV-1a + Mulberry32)
+    strength.ts        Elo: chance por jogo e séries MD1/MD3/MD5
+    teams.ts           estrutura + momento, projetos ambiciosos, acesso e rebaixamento
+    league.ts          split de liga (pontos + playoffs)
+    international.ts   First Stand, MSI e Worlds
+    player.ts          potencial, evolução, papel no time, valor de mercado
+    offers.ts          propostas (tiers, importados, idade)
+    events.ts          catálogo de eventos de carreira
+    career.ts          orquestrador: estado + decisão → novo estado
+    summary.ts         totais, vitrine e times da carreira
+    achievements.ts    conquistas
+    *.test.ts          testes (incluindo um teste de estresse com carreiras aleatórias)
+  data/                ligas e times por região, países, matriz de mobilidade, logos.json
+  ui/                  telas React (intro, identidade, carreira, resumo, card, conquistas)
+public/assets/
+  teams/               logos dos times (WebP, da Leaguepedia)
+  flags/               bandeiras (PNG, do flagcdn)
 scripts/
-  simulate.ts  simulação em massa para calibrar a distribuição de sucesso
+  simulate.ts          simulação em massa (npm run simulate [qtd] [modo] [nacionalidade])
+  fetch-logos.ts       baixa os logos que faltam (npm run logos)
 ```
 
 ## Hospedagem e CI

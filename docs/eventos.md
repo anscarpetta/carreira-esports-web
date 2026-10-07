@@ -1,6 +1,6 @@
 # Catálogo de eventos de carreira
 
-**Status:** aprovado como base. O ajuste fino (porcentagens, cortes, novos eventos) vem do playtest.
+**Status:** os 29 eventos estão implementados (fatias 1 a 4). O ajuste fino (porcentagens, cortes, novos eventos) vem do playtest.
 
 Seguem o modelo do Copero:
 - **Poucos por carreira:** ~3–4 no modo Normal e ~6–7 no Intensa.
@@ -85,3 +85,14 @@ O **"Avô de outra nacionalidade"**, porque não há seleções. O **sistema de 
 ## Decisões
 
 - **Sem salário.** Como no Copero, só existe o valor de mercado, como número de status. Os eventos ligados a dinheiro continuam, mas o efeito deles cai no **OVR**: a proposta milionária (16) pode motivar ou acomodar o jogador, e a manipulação (24) usa a recompensa do Copero (+2 OVR). Avaliar no playtest.
+
+## Implementação
+
+| Fatia | Eventos |
+|---|---|
+| 1 | 1–9, 12–14, 18 (automático), 19, 21–29 |
+| 2 | 11 (De volta ao academy), 20 (Proposta para virar streamer) |
+| 3 | 15 (Saudade de casa), 16 (Proposta milionária), 17 (Visto atrasado: automático, 35% de chance na primeira ida ao exterior) |
+| 4 | 10 (Liga ou internacional?) |
+
+Código: `src/engine/events.ts` (catálogo) e `src/engine/career.ts` (lesão, visto e saída de organização).
