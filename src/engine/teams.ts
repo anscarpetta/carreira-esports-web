@@ -44,7 +44,7 @@ export function trendOf(form: number): Trend {
 
 function clampRating(league: LeagueData, rating: number): number {
   const [low, high] = league.ratingRange
-  return Math.min(high + 2, Math.max(low - 2, rating))
+  return Math.min(high + 2, 99, Math.max(low - 2, rating))
 }
 
 export function isAcademy(catalog: Catalog, teamId: string): boolean {
@@ -172,7 +172,7 @@ export function offseasonUpdate(
           r = drop.rng
           rating -= drop.value
           structure = Math.max(0, structure - 1)
-          if (structure <= 1 && !isAcademy(catalog, team.id)) {
+          if (structure <= 1 && !isAcademy(catalog, team.id) && !league.franchised) {
             const exit = chance(r, 0.5)
             r = exit.rng
             leaves = exit.value

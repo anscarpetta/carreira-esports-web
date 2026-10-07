@@ -21,6 +21,9 @@ export interface OfferCandidate {
 export interface OfferTeam {
   readonly team: TeamState
   readonly tier: number
+  // 1 para times da região do jogador (ou onde ele é residente). Abaixo de 1, o jogador
+  // seria importado: o time só contrata para ser titular, com chance reduzida.
+  readonly importFactor?: number
 }
 
 const TIER_WEIGHT: Record<number, number> = { 1: 1.3, 2: 1, 3: 0.8 }
@@ -50,7 +53,10 @@ function interest(playerOvr: number, age: number, candidate: OfferTeam): { role:
   if (team.ambitiousSince !== null) weight *= 1.8
   // Times de base (tier 3) querem jovens; veterano só no tier 1 e 2.
   const youth = tier >= 3 && age >= 24 ? 0.4 : 1
-  return { role, weight: weight * (TIER_WEIGHT[tier] ?? 1) * ageFactor(age) * youth }
+  // Importado ocupa uma das 2 vagas de estrangeiro: só vale a pena se for titular.
+  const importFactor = candidate.importFactor ?? 1
+  if (importFactor < 1 && role !== 'starter') return { role, weight: 0 }
+  return { role, weight: weight * (TIER_WEIGHT[tier] ?? 1) * ageFactor(age) * youth * importFactor }
 }
 
 export function generateOffers(

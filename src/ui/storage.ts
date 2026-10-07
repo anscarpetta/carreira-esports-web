@@ -10,6 +10,7 @@ const KEY = 'carreira-esports:save:v1'
 export interface Identity {
   readonly nick: string
   readonly role: Role
+  readonly nationality: string
 }
 
 export interface SaveData {
@@ -22,7 +23,11 @@ export function loadSave(): SaveData | null {
   try {
     const raw = window.localStorage.getItem(KEY)
     if (!raw) return null
-    const data = JSON.parse(raw) as SaveData
+    const parsed = JSON.parse(raw) as SaveData
+    // Identidades salvas antes da fatia 3 não tinham nacionalidade.
+    const data: SaveData = parsed.identity
+      ? { ...parsed, identity: { ...parsed.identity, nationality: parsed.identity.nationality ?? 'BR' } }
+      : parsed
     // Saves de versões antigas do motor não são compatíveis: começa de novo.
     if (data.career && data.career.version !== SAVE_VERSION) return { ...data, career: null }
     return data

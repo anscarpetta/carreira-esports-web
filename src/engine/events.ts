@@ -36,6 +36,12 @@ export interface EventContext {
   readonly firstTeamInLeague: boolean
   // Academy do time atual, se existir e estiver ativo.
   readonly academyId: string | null
+  // Região de origem do jogador e região da liga do time atual.
+  readonly homeRegion: string
+  readonly teamRegion: string
+  // Time da "proposta milionária", se houver.
+  readonly moneyTeamId: string | null
+  readonly moneyLeagueName: string
 }
 
 export interface EventOutcomeDef {
@@ -50,7 +56,7 @@ export interface EventChoiceDef {
   readonly outcomes: readonly EventOutcomeDef[]
   // Opções que levam a outro time: "exit" gera ofertas, "rival" é o super time,
   // "first_team" é o primeiro time da carreira, "academy" é o academy do time.
-  readonly join?: 'exit' | 'rival' | 'first_team' | 'academy'
+  readonly join?: 'exit' | 'rival' | 'first_team' | 'academy' | 'home' | 'money'
 }
 
 export interface EventDef {
@@ -515,7 +521,45 @@ export const SLICE_2_EVENTS: readonly EventDef[] = [
   },
 ]
 
-export const ALL_EVENTS: readonly EventDef[] = [...EVENTS, ...SLICE_2_EVENTS]
+export const SLICE_3_EVENTS: readonly EventDef[] = [
+  {
+    key: 'homesick',
+    weight: 70,
+    title: () => 'Saudade de casa',
+    description: () =>
+      'Longe da família, da comida e da língua, o rendimento começa a cair. Sua família pede que você volte.',
+    condition: (ctx) => ctx.teamRegion !== ctx.homeRegion && ctx.age >= 19,
+    choices: () => [
+      {
+        key: 'stay',
+        label: 'Ficar',
+        outcomes: [{ probability: 1, text: '−5 OVR temporário (saudade)', effects: { tempOvr: -5 } }],
+      },
+      { key: 'return', label: 'Voltar para casa', join: 'home', outcomes: [] },
+    ],
+  },
+  {
+    key: 'money_offer',
+    weight: 70,
+    title: (ctx) => `Proposta milionária da ${ctx.moneyLeagueName}`,
+    description: () => 'Um time mais fraco, mas muito mais rico, oferece um salário que você nunca viu.',
+    condition: (ctx) => ctx.moneyTeamId !== null,
+    choices: () => [
+      {
+        key: 'accept',
+        label: 'Aceitar a proposta',
+        join: 'money',
+        outcomes: [
+          { probability: 0.5, text: '+2 OVR (motivado pelo novo desafio)', effects: { ovr: 2 } },
+          { probability: 0.5, text: '−2 OVR (se acomodou)', effects: { ovr: -2 } },
+        ],
+      },
+      { key: 'refuse', label: 'Ficar e brigar por títulos', outcomes: nothing },
+    ],
+  },
+]
+
+export const ALL_EVENTS: readonly EventDef[] = [...EVENTS, ...SLICE_2_EVENTS, ...SLICE_3_EVENTS]
 
 export const EVENTS_BY_KEY: Readonly<Record<string, EventDef>> = Object.fromEntries(
   ALL_EVENTS.map((event) => [event.key, event]),

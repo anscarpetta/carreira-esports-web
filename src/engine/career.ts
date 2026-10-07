@@ -98,8 +98,24 @@ export function ageOf(state: CareerState): number {
 }
 
 // Região em que o jogador começa a carreira.
-export function regionOf(nationality: string): string {
-  return nationality === 'AR' ? 'BR' : nationality
+export function regionOf(catalog: Catalog, nationality: string): string {
+  return catalog.countries[nationality]?.region ?? (nationality === 'AR' ? 'BR' : nationality)
+}
+
+// Três anos (9 splits) jogando numa região dão residência: o jogador deixa de ser importado.
+export const RESIDENCY_SPLITS = 9
+
+export function residentRegions(state: CareerState, catalog: Catalog): string[] {
+  const home = regionOf(catalog, state.player.nationality)
+  const earned = Object.entries(state.residency)
+    .filter(([region, splits]) => region !== home && splits >= RESIDENCY_SPLITS)
+    .map(([region]) => region)
+  return [home, ...earned]
+}
+
+export function isImportIn(state: CareerState, catalog: Catalog, leagueId: string | null): boolean {
+  if (!leagueId) return false
+  return !residentRegions(state, catalog).includes(catalog.leagues[leagueId].region)
 }
 
 export function regionLeagues(catalog: Catalog, region: string): LeagueData[] {
@@ -109,15 +125,27 @@ export function regionLeagues(catalog: Catalog, region: string): LeagueData[] {
 }
 
 export function homeLeague(catalog: Catalog, nationality: string): LeagueData {
-  return regionLeagues(catalog, regionOf(nationality))[0] ?? Object.values(catalog.leagues)[0]
+  return regionLeagues(catalog, regionOf(catalog, nationality))[0] ?? Object.values(catalog.leagues)[0]
 }
 
-// Times que podem fazer proposta: os da região do jogador, respeitando a idade mínima do tier 1.
-function offerPool(state: CareerState, catalog: Catalog, age: number): OfferTeam[] {
+// Times que podem fazer proposta, respeitando a idade mínima do tier 1:
+// - nas regiões onde o jogador é residente, todos os tiers;
+// - nas outras, só o tier 1, como importado (matriz de mobilidade da pesquisa).
+function offerPool(state: CareerState, catalog: Catalog, age: number, onlyRegion: string | null = null): OfferTeam[] {
+  const resident = residentRegions(state, catalog)
+  const home = regionOf(catalog, state.player.nationality)
   const pool: OfferTeam[] = []
-  for (const league of regionLeagues(catalog, regionOf(state.player.nationality))) {
+  const leagues = Object.values(catalog.leagues).sort((a, b) => a.id.localeCompare(b.id))
+  for (const league of leagues) {
+    if (onlyRegion && league.region !== onlyRegion) continue
     if (league.tier === 1 && age < MIN_TIER1_AGE) continue
-    for (const team of leagueTeams(state.teams, league.id)) pool.push({ team, tier: league.tier })
+    let importFactor = 1
+    if (!resident.includes(league.region)) {
+      if (league.tier !== 1) continue
+      importFactor = catalog.mobility[home]?.[league.region] ?? 0
+      if (importFactor <= 0) continue
+    }
+    for (const team of leagueTeams(state.teams, league.id)) pool.push({ team, tier: league.tier, importFactor })
   }
   return pool
 }
@@ -168,6 +196,7 @@ export function createCareer(input: NewCareerInput, catalog: Catalog): CareerSta
     paused: null,
     seasonPlacements: {},
     news: [],
+    residency: {},
   }
 
   // Primeira proposta: academies, Desafiante ou qualificatória (o tier 1 só a partir dos 18).
@@ -213,6 +242,27 @@ export function retire(state: CareerState): CareerState {
 function joinTeam(state: CareerState, teamId: string): CareerState {
   const changedTeam = teamId !== state.teamId
   return { ...state, teamId, paused: null, benchStreak: changedTeam ? 0 : state.benchStreak }
+}
+
+// Visto atrasado (caso Ceos): na primeira ida para outra região, o jogador pode perder um split.
+const VISA_DELAY_CHANCE = 0.35
+
+function visaCheck(state: CareerState, rng: Rng, catalog: Catalog): { state: CareerState; rng: Rng } {
+  const team = state.teamId ? state.teams[state.teamId] : null
+  const league = team?.leagueId ? catalog.leagues[team.leagueId] : null
+  if (!league || !isImportIn(state, catalog, league.id) || (state.residency[league.region] ?? 0) > 0) {
+    return { state, rng }
+  }
+  const delayed = chance(rng, VISA_DELAY_CHANCE)
+  if (!delayed.value) return { state, rng: delayed.rng }
+  return {
+    rng: delayed.rng,
+    state: {
+      ...state,
+      pauseSplits: state.pauseSplits + 1,
+      news: [`Problemas com o visto: você vai perder o primeiro split ${in_(league)} ${league.name}.`, ...state.news],
+    },
+  }
 }
 
 export function decide(state: CareerState, optionId: string, catalog: Catalog): CareerState {
@@ -263,6 +313,12 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
     s = { ...s, teamId: null, paused: { reason: 'streamer', splits: 0 } }
   }
 
+  if (s.teamId !== state.teamId && s.teamId) {
+    const visa = visaCheck(s, rng, catalog)
+    s = visa.state
+    rng = visa.rng
+  }
+
   const period = SPLITS_PER_DECISION[s.mode]
   const hasTemporary =
     effects.tempOvr !== 0 ||
@@ -305,11 +361,20 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
 
 // ---------- Notícias da pré-temporada ----------
 
-function newsFor(changes: readonly LeagueChange[], catalog: Catalog, playerTeamId: string | null): string[] {
+function newsFor(
+  changes: readonly LeagueChange[],
+  catalog: Catalog,
+  playerTeamId: string | null,
+  region: string,
+): string[] {
   const name = (id: string) => catalog.teams[id]?.name ?? id
   const data = (id: string | null) => (id ? catalog.leagues[id] : null)
   const league = (id: string | null) => data(id)?.name ?? ''
-  const lines = changes.map((change) => {
+  // Só as notícias da região onde o jogador está (e as do próprio time).
+  const relevant = changes.filter(
+    (c) => c.teamId === playerTeamId || data(c.from)?.region === region || data(c.to)?.region === region,
+  )
+  const lines = relevant.map((change) => {
     const yours = change.teamId === playerTeamId ? ' (o seu time)' : ''
     switch (change.kind) {
       case 'promoted':
@@ -436,6 +501,10 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   }
 
   const benchStreak = squad === 'starter' ? 0 : plays ? state.benchStreak + 1 : state.benchStreak
+  const residency =
+    league && !state.paused
+      ? { ...state.residency, [league.region]: (state.residency[league.region] ?? 0) + 1 }
+      : state.residency
   const nextEffects: ActiveEffects =
     effects.splitsLeft > 1 ? { ...effects, splitsLeft: effects.splitsLeft - 1, titleOverride: null } : NO_ACTIVE_EFFECTS
 
@@ -451,7 +520,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
     })
     rng = update.rng
     teams = update.teams
-    news = newsFor(update.changes, catalog, state.paused ? null : state.teamId)
+    news = [...state.news.filter((line) => line.startsWith('Problemas com o visto')), ...newsFor(update.changes, catalog, state.paused ? null : state.teamId, league?.region ?? regionOf(catalog, player.nationality))]
   } else {
     const drift = midseasonDrift(rng, teams, catalog)
     rng = drift.rng
@@ -467,6 +536,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
       news,
       development,
       history: [...state.history, record],
+      residency,
       benchStreak,
       effects: nextEffects,
       paused: state.paused ? { ...state.paused, splits: state.paused.splits + 1 } : null,
@@ -499,7 +569,31 @@ function buildContext(state: CareerState, catalog: Catalog, team: TeamState, lea
     strongerTeamId: stronger[0]?.id ?? null,
     firstTeamInLeague: state.firstTeamId !== null && state.teams[state.firstTeamId]?.leagueId === league.id,
     academyId: academyOf(state, catalog, team.id),
+    homeRegion: regionOf(catalog, state.player.nationality),
+    teamRegion: league.region,
+    ...moneyTarget(state, catalog, team, league),
   }
+}
+
+// Proposta milionária: um time de tier 1 mais rico e mais fraco, na região que paga melhor
+// para quem é da sua origem (coreanos → China; europeus e brasileiros → América do Norte).
+const MONEY_DESTINATION: Readonly<Record<string, string>> = { KR: 'CN', EU: 'NA', BR: 'NA' }
+
+function moneyTarget(
+  state: CareerState,
+  catalog: Catalog,
+  team: TeamState,
+  league: LeagueData,
+): { moneyTeamId: string | null; moneyLeagueName: string } {
+  const destination = MONEY_DESTINATION[regionOf(catalog, state.player.nationality)]
+  const none = { moneyTeamId: null, moneyLeagueName: '' }
+  if (!destination || league.region === destination || state.player.ovr < 80) return none
+  const target = Object.values(catalog.leagues).find((l) => l.region === destination && l.tier === 1)
+  if (!target) return none
+  const candidates = leagueTeams(state.teams, target.id)
+    .filter((t) => t.rating < team.rating && t.rating >= state.player.ovr - 8)
+    .sort((a, b) => b.rating - a.rating || a.id.localeCompare(b.id))
+  return candidates[0] ? { moneyTeamId: candidates[0].id, moneyLeagueName: target.name } : none
 }
 
 function waitOption(state: CareerState): DecisionOption {
@@ -563,13 +657,21 @@ function eventDecision(
       continue
     }
     let targets: OfferCandidate[] = []
-    if (choice.join === 'exit') {
-      const offers = generateOffers(rng, offerPool(state, catalog, ctx.age), state.player.ovr, ctx.age, [ctx.team.id], 2, 1)
+    if (choice.join === 'exit' || choice.join === 'home') {
+      const region = choice.join === 'home' ? ctx.homeRegion : null
+      const pool = offerPool(state, catalog, ctx.age, region)
+      const offers = generateOffers(rng, pool, state.player.ovr, ctx.age, [ctx.team.id], 2, 1)
       rng = offers.rng
       targets = offers.value
     } else {
       const teamId =
-        choice.join === 'rival' ? ctx.strongerTeamId : choice.join === 'academy' ? ctx.academyId : state.firstTeamId
+        choice.join === 'rival'
+          ? ctx.strongerTeamId
+          : choice.join === 'academy'
+            ? ctx.academyId
+            : choice.join === 'money'
+              ? ctx.moneyTeamId
+              : state.firstTeamId
       if (teamId && state.teams[teamId]) {
         targets = [{ teamId, expectedRole: squadRoleFor(state.player.ovr, state.teams[teamId].rating) }]
       }

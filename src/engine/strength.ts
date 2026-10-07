@@ -1,10 +1,10 @@
 // Força e partidas. Usa a mesma ideia do Elo do Global Power Rankings:
-// 1 ponto de OVR equivale a 20 pontos de Elo, então 20 pontos de OVR
-// de diferença deixam o mais fraco com ~9% de chance por jogo.
+// 1 ponto de OVR equivale a 22 pontos de Elo (OVR = 80 + (Elo - 1200) / 22),
+// então 18 pontos de OVR de diferença deixam o mais fraco com ~9% de chance por jogo.
 
 import { chance, type Rng, type Roll } from './rng.ts'
 
-export const ELO_PER_OVR = 20
+export const ELO_PER_OVR = 22
 
 export function winProbability(ratingA: number, ratingB: number): number {
   return 1 / (1 + 10 ** ((-(ratingA - ratingB) * ELO_PER_OVR) / 400))

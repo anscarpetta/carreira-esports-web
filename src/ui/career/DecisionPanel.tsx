@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
+import { isImportIn } from '../../engine/career.ts'
 import { teamForm, trendOf } from '../../engine/teams.ts'
 import type { CareerState, Decision, DecisionOption, Outcome } from '../../engine/types.ts'
 import { EXPECTED_ROLE_LABEL, percent, TREND_LABEL } from '../format.ts'
@@ -41,6 +42,11 @@ function TeamInfo({ career, teamId }: { career: CareerState; teamId: string }) {
           <p className="text-xs text-muted">
             <span className="font-bold text-slate-300">{league.name}</span> · tier {league.tier}
             {team.guest && ' · convidado'}
+            {isImportIn(career, CATALOG, league.id) && (
+              <span className="ml-1.5 rounded-full bg-sky-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-sky-300 uppercase">
+                Vaga de importado
+              </span>
+            )}
           </p>
         )}
         <p className="text-xs text-muted">

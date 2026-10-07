@@ -1,7 +1,7 @@
 // Simulação em massa: roda milhares de carreiras com escolhas automáticas e
 // mostra a distribuição de resultados, para calibrar o motor.
 //
-// Uso: node scripts/simulate.ts [quantidade] [modo]
+// Uso: node scripts/simulate.ts [quantidade] [modo] [nacionalidade]
 
 import { CATALOG } from '../src/data/catalog.ts'
 import { createCareer, decide } from '../src/engine/career.ts'
@@ -57,11 +57,11 @@ export function classify(state: CareerState): Outcome {
 
 const ROLES: readonly Role[] = ['top', 'jungle', 'mid', 'adc', 'support']
 
-export function runCareer(seed: string, mode: SimulationMode): CareerState {
+export function runCareer(seed: string, mode: SimulationMode, nationality = 'BR'): CareerState {
   let rng = createRng(`policy-${seed}`)
   const role = int(rng, 0, ROLES.length - 1)
   rng = role.rng
-  let state = createCareer({ seed, mode, nick: 'Sim', role: ROLES[role.value], nationality: 'BR' }, CATALOG)
+  let state = createCareer({ seed, mode, nick: 'Sim', role: ROLES[role.value], nationality }, CATALOG)
   let guard = 0
   while (state.phase === 'career' && guard < 200) {
     const choice = choose(state, rng)
@@ -75,6 +75,8 @@ export function runCareer(seed: string, mode: SimulationMode): CareerState {
 function main(): void {
   const count = Number(process.argv[2] ?? 2000)
   const mode = (process.argv[3] ?? 'normal') as SimulationMode
+  const nationality = process.argv[4] ?? 'BR'
+  const regionsPlayed: Record<string, number> = {}
   const outcomes: Record<Outcome, number> = { never: 0, solid: 0, star: 0, legend: 0 }
   let totalAge = 0
   let totalTitles = 0
@@ -87,7 +89,7 @@ function main(): void {
   let streamers = 0
 
   for (let i = 0; i < count; i += 1) {
-    const state = runCareer(`sim-${i}`, mode)
+    const state = runCareer(`sim-${i}`, mode, nationality)
     const s = summarize(state)
     outcomes[classify(state)] += 1
     totalAge += state.retirement?.age ?? 0
@@ -101,11 +103,13 @@ function main(): void {
     const best = Math.min(...state.history.map((r) => (r.leagueId ? CATALOG.leagues[r.leagueId].tier : 9)))
     tiersPlayed[`tier ${best}`] = (tiersPlayed[`tier ${best}`] ?? 0) + 1
     if (state.history.some((r) => r.squadRole === 'paused' && !r.teamId)) streamers += 1
+    const regions = new Set(state.history.filter((r) => r.leagueId).map((r) => CATALOG.leagues[r.leagueId!].region))
+    for (const region of regions) regionsPlayed[region] = (regionsPlayed[region] ?? 0) + 1
   }
 
   const pct = (n: number) => `${((100 * n) / count).toFixed(1)}%`
   peaks.sort((a, b) => a - b)
-  console.log(`Carreiras: ${count} (modo ${mode})`)
+  console.log(`Carreiras: ${count} (modo ${mode}, nacionalidade ${nationality})`)
   console.log(`Resultados: nunca firmou ${pct(outcomes.never)} · sólido ${pct(outcomes.solid)} · craque ${pct(outcomes.star)} · lenda ${pct(outcomes.legend)}`)
   console.log(`Idade média de aposentadoria: ${(totalAge / count).toFixed(1)}`)
   console.log(`Splits por carreira: ${(totalSplits / count).toFixed(1)} · decisões: ${(totalDecisions / count).toFixed(1)}`)
@@ -114,6 +118,7 @@ function main(): void {
   console.log(`Motivo do fim: ${Object.entries(reasons).map(([k, v]) => `${k} ${pct(v)}`).join(' · ')}`)
   console.log(`Tier mais alto alcançado: ${Object.entries(tiersPlayed).sort().map(([k, v]) => `${k} ${pct(v)}`).join(' · ')}`)
   console.log(`Carreiras com pausa (agente livre ou streamer): ${pct(streamers)}`)
+  console.log(`Jogou em cada região: ${Object.entries(regionsPlayed).sort().map(([k, v]) => `${k} ${pct(v)}`).join(' · ')}`)
   console.log(`Títulos por time: ${Object.entries(championTeams).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(' · ')}`)
 }
 

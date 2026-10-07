@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOG } from '../data/catalog.ts'
-import { createCareer, decide, retire, type NewCareerInput } from './career.ts'
+import { createCareer, decide, isImportIn, residentRegions, retire, RESIDENCY_SPLITS, type NewCareerInput } from './career.ts'
 import { SPLITS_PER_DECISION } from './modes.ts'
 import { summarize } from './summary.ts'
 import type { CareerState, DecisionOption } from './types.ts'
@@ -196,5 +196,41 @@ describe('carreira completa', () => {
     }
     expect(waited).toBeGreaterThan(5)
     expect(returned).toBeGreaterThan(0)
+  })
+
+})
+
+describe('regiões', () => {
+  const START: Record<string, string> = { BR: 'BR', KR: 'KR', CN: 'CN', FR: 'EU', US: 'NA' }
+
+  it('cada nacionalidade começa nos tiers de base da própria região', () => {
+    for (const [nationality, region] of Object.entries(START)) {
+      for (let i = 0; i < 10; i += 1) {
+        const state = createCareer({ ...INPUT, nationality, seed: `regiao-${nationality}-${i}` }, CATALOG)
+        for (const option of state.decision!.options) {
+          const league = CATALOG.leagues[state.teams[teamOf(option)!].leagueId!]
+          expect(league.region).toBe(region)
+          expect(league.tier).toBeGreaterThan(1)
+        }
+      }
+    }
+  })
+
+  it('três anos numa região dão residência', () => {
+    const state = createCareer(INPUT, CATALOG)
+    expect(isImportIn(state, CATALOG, 'lcs')).toBe(true)
+    const resident = { ...state, residency: { NA: RESIDENCY_SPLITS } }
+    expect(residentRegions(resident, CATALOG)).toContain('NA')
+    expect(isImportIn(resident, CATALOG, 'lcs')).toBe(false)
+    expect(isImportIn(state, CATALOG, 'cblol')).toBe(false)
+  })
+
+  it('chineses quase nunca jogam fora da China', () => {
+    let abroad = 0
+    for (let i = 0; i < 60; i += 1) {
+      const career = playToEnd(createCareer({ ...INPUT, nationality: 'CN', seed: `china-${i}` }, CATALOG))
+      if (career.history.some((r) => r.leagueId && CATALOG.leagues[r.leagueId].region !== 'CN')) abroad += 1
+    }
+    expect(abroad).toBeLessThanOrEqual(3)
   })
 })
