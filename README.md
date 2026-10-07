@@ -15,3 +15,21 @@ Projeto de aprendizado de desenvolvimento pareado com IA (Claude Code).
 6. Lançamento
 
 Decisões ficam em [docs/conceito.md](docs/conceito.md). Elas podem ser refinadas ao longo do processo.
+
+## Jogar
+
+https://anscarpetta.github.io/carreira-esports-web/
+
+## Rodar localmente
+
+Requer Node 24 (`nvm use` lê o `.nvmrc`).
+
+```bash
+npm install
+npm run dev        # servidor de desenvolvimento
+npm test           # testes do motor
+npm run lint       # verificação de código
+npm run build      # build de produção em dist/
+```
+
+Organização do código e decisões técnicas: [docs/tecnico.md](docs/tecnico.md).
