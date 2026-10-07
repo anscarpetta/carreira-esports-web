@@ -16,7 +16,7 @@ function OvrChange({ before, after }: { before: number; after: number }) {
 
 function Row({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
   const team = record.teamId ? CATALOG.teams[record.teamId] : null
-  const champion = record.titles.length > 0
+  const champion = record.titles.length > 0 || (record.international?.titles.length ?? 0) > 0
   const s = record.stats
   return (
     <li
@@ -34,6 +34,17 @@ function Row({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
         </p>
         {record.awards.length > 0 && (
           <p className="mt-0.5 text-xs font-bold text-gold-soft">⭐ {record.awards.map((a) => a.name).join(' · ')}</p>
+        )}
+        {record.international && (
+          <p
+            className={`mt-1 rounded-md px-2 py-0.5 text-xs font-bold ${record.international.titles.length > 0 ? 'bg-gold/20 text-gold-soft' : 'bg-sky-500/10 text-sky-300'}`}
+          >
+            🌍 {record.international.name} {record.year}: {record.international.stage}
+            {record.international.titles.length > 0 && ' 🏆'}
+            {record.international.stats.games > 0 &&
+              ` · ${record.international.stats.games}j · KDA ${kdaText(record.international.stats.kills, record.international.stats.deaths, record.international.stats.assists)}`}
+            {record.international.awards.map((a) => ` · ⭐ ${a.name}`).join('')}
+          </p>
         )}
       </div>
       <div className="text-right text-xs tabular-nums">

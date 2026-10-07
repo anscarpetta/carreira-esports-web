@@ -185,7 +185,7 @@ export function DecisionPanel({
     <section className="rounded-2xl border border-line bg-panel p-4 sm:p-5" aria-label="Decisão" aria-live="polite">
       {career.news.length > 0 && stage.kind === 'choosing' && (
         <div className="mb-4 rounded-xl border border-line bg-night/50 p-3">
-          <p className="text-[0.65rem] font-bold tracking-widest text-muted uppercase">Notícias da pré-temporada</p>
+          <p className="text-[0.65rem] font-bold tracking-widest text-muted uppercase">Notícias</p>
           <ul className="mt-1 flex flex-col gap-0.5 text-sm text-slate-300">
             {career.news.slice(0, 5).map((line) => (
               <li key={line}>• {line}</li>

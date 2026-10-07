@@ -45,10 +45,11 @@ function interest(playerOvr: number, age: number, candidate: OfferTeam): { role:
   else if (role === 'reserve') weight = age <= 23 ? 2 : 0.8
   // Jogador de banco só interessa enquanto é uma aposta jovem.
   else weight = age <= 18 ? 1.5 : age <= 20 ? 0.8 : age <= 22 ? 0.3 : 0
-  // Bom demais para o nível do time: a proposta raramente faz sentido.
+  // Bom demais para um time de tier 2 ou 3: a proposta raramente faz sentido.
+  // (No tier 1 não: o craque da liga é disputado por todos.)
   const surplus = playerOvr - team.rating
-  if (surplus > 8) weight *= 0.15
-  else if (surplus > 5) weight *= 0.5
+  if (tier > 1 && surplus > 8) weight *= 0.15
+  else if (tier > 1 && surplus > 5) weight *= 0.5
   // Projetos ambiciosos estão contratando.
   if (team.ambitiousSince !== null) weight *= 1.8
   // Times de base (tier 3) querem jovens; veterano só no tier 1 e 2.

@@ -120,7 +120,7 @@ export interface Player {
   readonly marketValue: number
 }
 
-export type TitleKind = 'league'
+export type TitleKind = 'league' | 'first_stand' | 'msi' | 'worlds'
 
 export interface Title {
   readonly kind: TitleKind
@@ -131,7 +131,7 @@ export interface Title {
   readonly teamId: string
 }
 
-export type AwardKind = 'split_mvp' | 'all_pro' | 'finals_mvp'
+export type AwardKind = 'split_mvp' | 'all_pro' | 'finals_mvp' | 'international_finals_mvp'
 
 export interface Award {
   readonly kind: AwardKind
@@ -165,6 +165,18 @@ export interface SplitRecord {
   readonly titles: readonly Title[]
   readonly awards: readonly Award[]
   readonly marketValue: number
+  // Torneio internacional disputado logo depois deste split, se houver.
+  readonly international?: InternationalRecord | null
+}
+
+export interface InternationalRecord {
+  readonly id: TitleKind
+  readonly name: string
+  readonly placement: number
+  readonly stage: string
+  readonly stats: GameStats
+  readonly titles: readonly Title[]
+  readonly awards: readonly Award[]
 }
 
 // ---------- Decisões ----------
@@ -255,6 +267,8 @@ export interface Effects {
   readonly pauseSplits: number
   // Sai do competitivo para virar streamer (pode voltar depois).
   readonly pause: 'streamer' | null
+  // Bônus na força do time nos torneios internacionais do período.
+  readonly internationalBonus: number
 }
 
 export interface ActiveEffects {
@@ -263,6 +277,7 @@ export interface ActiveEffects {
   readonly roleShift: number
   readonly teamBonus: number
   readonly titleOverride: 'force' | 'skip' | null
+  readonly internationalBonus: number
   // Por quantos splits os efeitos temporários ainda valem.
   readonly splitsLeft: number
 }

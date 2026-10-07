@@ -14,6 +14,7 @@ import {
   type EventContext,
   type EventDef,
 } from './events.ts'
+import { internationalAfter, qualifiers, simulateInternational, stageReached } from './international.ts'
 import { simulateSplit, type PlayerTeamInput } from './league.ts'
 import { SPLITS_PER_DECISION, type SimulationMode } from './modes.ts'
 import { generateOffers, WINDOW_OFFERS, type OfferCandidate, type OfferTeam } from './offers.ts'
@@ -42,6 +43,7 @@ import {
 import type {
   ActiveEffects,
   Award,
+  InternationalRecord,
   CareerState,
   Catalog,
   Decision,
@@ -78,6 +80,7 @@ const NO_ACTIVE_EFFECTS: ActiveEffects = {
   roleShift: 0,
   teamBonus: 0,
   titleOverride: null,
+  internationalBonus: 0,
   splitsLeft: 0,
 }
 
@@ -325,7 +328,8 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
     effects.forcedRole !== null ||
     effects.roleShift !== 0 ||
     effects.teamBonus !== 0 ||
-    effects.titleOverride !== null
+    effects.titleOverride !== null ||
+    effects.internationalBonus !== 0
   s = {
     ...s,
     firstTeamId: s.firstTeamId ?? s.teamId,
@@ -339,6 +343,7 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
           roleShift: effects.roleShift,
           teamBonus: effects.teamBonus,
           titleOverride: effects.titleOverride,
+          internationalBonus: effects.internationalBonus,
           splitsLeft: period,
         }
       : NO_ACTIVE_EFFECTS,
@@ -422,6 +427,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   let titles: Title[] = []
   let awards: Award[] = []
   let placement: number | null = null
+  let leaguePlacements: Readonly<Record<string, number>> = {}
 
   if (team && league && !state.paused) {
     const members = leagueTeams(state.teams, league.id).sort((a, b) => a.id.localeCompare(b.id))
@@ -436,6 +442,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
     }
     const result = simulateSplit(rng, league, splitTeams, input)
     rng = result.rng
+    leaguePlacements = result.placements
     const generated = generateStats(rng, player.role, ovrNow, result.playerGames)
     rng = generated.rng
     stats = generated.value
@@ -474,6 +481,68 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
     state = { ...state, seasonPlacements: yearPlacements }
   }
 
+  // Torneio internacional logo depois do split (First Stand, MSI ou Worlds).
+  let international: InternationalRecord | null = null
+  const newsLines: string[] = []
+  const event = internationalAfter(index)
+  if (event) {
+    const playerLeagueId = team && league && !state.paused ? league.id : null
+    const picked = qualifiers(rng, event, state.teams, catalog, playerLeagueId, leaguePlacements)
+    rng = picked.rng
+    const qualified = team !== null && picked.teamIds.includes(team.id) && plays
+    const bonus = effects.teamBonus + effects.internationalBonus
+    const entrants = picked.teamIds.map((id) => ({
+      id,
+      rating: qualified && id === team!.id ? state.teams[id].rating + bonus : state.teams[id].rating,
+    }))
+    const input: PlayerTeamInput | null = qualified
+      ? {
+          teamId: team!.id,
+          ratingWithPlayer: teamRatingWithPlayer(team!.rating + bonus, ovrNow),
+          ratingWithoutPlayer: team!.rating + bonus,
+          playChance: PLAY_CHANCE[squad as SquadRole],
+          titleOverride: null,
+        }
+      : null
+    const tournament = simulateInternational(rng, event, entrants, input)
+    rng = tournament.rng
+    const champion = catalog.teams[tournament.championId]
+    newsLines.push(`${champion?.name ?? tournament.championId} é campeã do ${event.name} ${year}.`)
+    if (qualified) {
+      const generated = generateStats(rng, player.role, ovrNow, tournament.playerGames)
+      rng = generated.rng
+      const place = tournament.placements[team!.id] ?? entrants.length
+      const playedKnockout = tournament.playerGames.some((game) => game.stage !== 'regular')
+      const won = tournament.championId === team!.id && (squad === 'starter' || playedKnockout)
+      const intlAwards: Award[] = []
+      if (won && tournament.playerInFinal) {
+        const mvp = chance(rng, Math.min(0.7, Math.max(0.05, 0.2 * Math.exp((ovrNow - team!.rating) / 4))))
+        rng = mvp.rng
+        if (mvp.value) {
+          intlAwards.push({
+            kind: 'international_finals_mvp',
+            leagueId: event.id,
+            name: `MVP da final do ${event.name}`,
+            year,
+            splitIndex: index,
+          })
+        }
+      }
+      international = {
+        id: event.id,
+        name: event.name,
+        placement: place,
+        stage: stageReached(event, place),
+        stats: generated.value,
+        titles: won ? [{ kind: event.id, leagueId: event.id, name: event.name, year, splitIndex: index, teamId: team!.id }] : [],
+        awards: intlAwards,
+      }
+      newsLines.unshift(
+        `${catalog.teams[team!.id]?.shortName ?? team!.id} no ${event.name} ${year}: ${international.stage.toLowerCase()}.`,
+      )
+    }
+  }
+
   const ovrBefore = player.ovr
   let delta = development.remaining[index]
   // Streamer perde ritmo: não evolui e cai um pouco a cada split.
@@ -498,6 +567,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
     titles,
     awards,
     marketValue: player.marketValue,
+    international,
   }
 
   const benchStreak = squad === 'starter' ? 0 : plays ? state.benchStreak + 1 : state.benchStreak
@@ -509,7 +579,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
     effects.splitsLeft > 1 ? { ...effects, splitsLeft: effects.splitsLeft - 1, titleOverride: null } : NO_ACTIVE_EFFECTS
 
   let teams = state.teams
-  let news = state.news
+  let news = [...state.news, ...newsLines]
   if (index === 2) {
     const surplus = squad === 'starter' && team ? player.ovr - team.rating : 0
     const update = offseasonUpdate(rng, teams, catalog, {
@@ -520,7 +590,10 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
     })
     rng = update.rng
     teams = update.teams
-    news = [...state.news.filter((line) => line.startsWith('Problemas com o visto')), ...newsFor(update.changes, catalog, state.paused ? null : state.teamId, league?.region ?? regionOf(catalog, player.nationality))]
+    news = [
+      ...news,
+      ...newsFor(update.changes, catalog, state.paused ? null : state.teamId, league?.region ?? regionOf(catalog, player.nationality)),
+    ]
   } else {
     const drift = midseasonDrift(rng, teams, catalog)
     rng = drift.rng
