@@ -235,7 +235,7 @@ describe('importados e residência', () => {
 })
 
 describe('internacionais', () => {
-  it('o Worlds tem campeão, vice e colocações para todos os 16 times', async () => {
+  it('o Worlds tem campeão, vice e colocações para todos os 17 times', async () => {
     const { INTERNATIONALS, qualifiers, simulateInternational } = await import('./international.ts')
     const worlds = INTERNATIONALS.find((e) => e.id === 'worlds')!
     let rng = createRng('worlds')
@@ -243,11 +243,11 @@ describe('internacionais', () => {
     for (let i = 0; i < 30; i += 1) {
       const picked = qualifiers(rng, worlds, teams, CATALOG, null, {})
       rng = picked.rng
-      expect(picked.teamIds).toHaveLength(16)
+      expect(picked.teamIds).toHaveLength(17)
       const entrants = picked.teamIds.map((id) => ({ id, rating: teams[id].rating }))
       const result = simulateInternational(rng, worlds, entrants, null)
       rng = result.rng
-      expect(Object.keys(result.placements)).toHaveLength(16)
+      expect(Object.keys(result.placements)).toHaveLength(17)
       expect(result.placements[result.championId]).toBe(1)
       expect(result.placements[result.runnerUpId]).toBe(2)
     }

@@ -14,6 +14,7 @@ const REGION_START: Record<string, string> = {
   NA: 'Começa na NACL; o topo é a LCS.',
   LATAM:
     'Começa na Liga Regional Sur ou Norte. Até 2027, a dupla residência deixa jogar CBLOL e LCS sem ocupar vaga de importado.',
+  PAC: 'Começa na liga do seu país: VCS (Vietnã), LJL (Japão) ou PCS (Taiwan, Hong Kong e Oceania); o topo é a LCP.',
 }
 
 const ROLE_HINT: Record<Role, string> = {

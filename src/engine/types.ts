@@ -37,6 +37,8 @@ export interface LeagueData {
   readonly id: string
   readonly name: string
   readonly region: string
+  // Ligas nacionais: países cujos jogadores não contam como estrangeiros.
+  readonly countries?: readonly string[]
   readonly tier: 1 | 2 | 3
   readonly splitNames: readonly [string, string, string]
   // Faixa de força (OVR) dos times desta liga.

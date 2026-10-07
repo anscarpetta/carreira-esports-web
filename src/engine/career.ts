@@ -158,6 +158,9 @@ function offerPool(state: CareerState, catalog: Catalog, age: number, onlyRegion
       if (league.tier !== 1) continue
       importFactor = catalog.mobility[home]?.[league.region] ?? 0
       if (importFactor <= 0) continue
+    } else if (league.countries && !league.countries.includes(state.player.nationality)) {
+      // Liga nacional de outro país da mesma região (ex.: japonês na VCS): só como titular.
+      importFactor = 0.25
     }
     for (const team of leagueTeams(state.teams, league.id)) pool.push({ team, tier: league.tier, importFactor })
   }

@@ -195,3 +195,32 @@ Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito
 - **Nomes dos splits da LATAM:** Apertura, Split 1 e Split 2 (Apertura é um nome comum na região).
 - **Força dos times da LATAM estimada** (na faixa do Desafiante).
 - **Isurus e WAP Esports** ficam como reservas da Liga Regional Sur.
+
+## Fatia 6: LCP (Pacífico, tiers 1 e 2) ✅
+
+### O que mudou no jogo
+- **LCP (tier 1):** os 8 times do ranking da Riot de 13/07/2026 (Team Secret Whales, CTBC Flying Oyster, GAM, Deep Cross Gaming, MVK, SoftBank HAWKS, Ground Zero e DetonatioN FocusMe).
+- **Tier 2 com as ligas nacionais de 2026:**
+  - **VCS (Vietnã):** MVK Academy, Saigon Dino, Cybercore, 9Gaming, Ngựa Hí e Saigon Warriors.
+  - **LJL (Japão):** DFM Academy, FENNEL, Rising Gaming, L Guide, RAYN Clocks, New Meta, Arneb e Uwinks.
+  - **PCS (Taiwan, Hong Kong e Oceania):** CFO Academy, Frank, GZ Academy, SillySilly, EWH, Reignfall, RogerSaMa e Sponge.
+- **Ligas nacionais:** um jogador de outro país da região (por exemplo, um japonês na VCS) só entra como titular, com chance reduzida.
+- **Vagas de convidado na LCP:** os 5 convidados enfrentam os melhores das ligas nacionais na pré-temporada.
+- **Nacionalidades:** Vietnã, Taiwan, Japão, Hong Kong e Austrália.
+- **Mobilidade:** taiwaneses e vietnamitas às vezes vão para a LPL (como SofM e Karsa) e quase nunca para a LCK (só o LazyFeel, em 2025). Coreanos também vão para a LCP.
+- **Internacionais com a LCP:**
+
+  | Torneio | Vagas da LCP | Total de times |
+  |---|---|---|
+  | First Stand | 1 | 6 |
+  | MSI | 2 | 11 |
+  | Worlds | 2 | 17 (a LEC voltou para 3 vagas) |
+
+- **155 times com logo real.**
+
+### Calibração (vietnamitas e japoneses, modo normal)
+- ~41% não se firmam no tier 1 · 35% sólidos · 21% craques · 3% lendas.
+- ~3% das carreiras vão para a LPL e ~3% para a LCS.
+
+### Testes: 66
+- Os testes de região agora incluem Vietnã, Japão e Taiwan, e o Worlds tem 17 classificados.

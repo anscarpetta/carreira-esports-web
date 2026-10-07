@@ -5,7 +5,7 @@ import { CATALOG } from '../data/catalog.ts'
 
 const AVAILABLE = new Set([
   'br', 'kr', 'cn', 'us', 'ca', 'fr', 'de', 'es', 'pt', 'gb', 'it', 'pl', 'dk', 'se',
-  'be', 'nl', 'tr', 'gr', 'ar', 'mx', 'ua', 'cl', 'co', 'pe', 'tw', 'vn', 'jp',
+  'be', 'nl', 'tr', 'gr', 'ar', 'mx', 'ua', 'cl', 'co', 'pe', 'tw', 'vn', 'jp', 'au', 'hk',
 ])
 
 export function Flag({ code, className = 'h-3.5 w-5' }: { code: string; className?: string }) {

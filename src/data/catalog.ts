@@ -5,6 +5,7 @@ import { EMEA_MASTERS, EUROPE_TEAMS, LEC } from './europe.ts'
 import { KOREA_TEAMS, LCK, LCK_CL } from './korea.ts'
 import { LATAM_TEAMS, LIGA_REGIONAL_NORTE, LIGA_REGIONAL_SUR } from './latam.ts'
 import { LCS, NACL, NORTH_AMERICA_TEAMS } from './northAmerica.ts'
+import { LCP, LJL, PACIFIC_TEAMS, PCS, VCS } from './pacific.ts'
 import { COUNTRIES, LATAM_DUAL_RESIDENCY, MOBILITY, REGIONS } from './regions.ts'
 
 function indexById<T extends { id: string }>(items: readonly T[]): Record<string, T> {
@@ -25,6 +26,10 @@ const LEAGUES: readonly LeagueData[] = [
   NACL,
   LIGA_REGIONAL_SUR,
   LIGA_REGIONAL_NORTE,
+  LCP,
+  VCS,
+  LJL,
+  PCS,
 ]
 
 const TEAMS: readonly TeamData[] = [
@@ -34,6 +39,7 @@ const TEAMS: readonly TeamData[] = [
   ...EUROPE_TEAMS,
   ...NORTH_AMERICA_TEAMS,
   ...LATAM_TEAMS,
+  ...PACIFIC_TEAMS,
 ]
 
 export const CATALOG: Catalog = {
