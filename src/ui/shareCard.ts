@@ -6,6 +6,7 @@ import logos from '../data/logos.json'
 import { summarize } from '../engine/summary.ts'
 import type { CareerState } from '../engine/types.ts'
 import { kdaText, ROLE_LABEL } from './format.ts'
+import { ovrColor } from './ovr.ts'
 
 export const GAME_URL = 'https://anscarpetta.github.io/carreira-esports-web/'
 
@@ -52,8 +53,8 @@ export async function drawCareerCard(canvas: HTMLCanvasElement, career: CareerSt
 
   // Fundo
   const gradient = ctx.createLinearGradient(0, 0, W, H)
-  gradient.addColorStop(0, '#0b1220')
-  gradient.addColorStop(1, '#162238')
+  gradient.addColorStop(0, '#09090b')
+  gradient.addColorStop(1, '#17171c')
   ctx.fillStyle = gradient
   ctx.fillRect(0, 0, W, H)
   ctx.strokeStyle = GOLD
@@ -98,7 +99,7 @@ export async function drawCareerCard(canvas: HTMLCanvasElement, career: CareerSt
     ctx.fillStyle = MUTED
     ctx.font = font(700, 24)
     ctx.fillText(label, x + 112, 400)
-    ctx.fillStyle = i === 0 ? GOLD : '#ffffff'
+    ctx.fillStyle = i === 0 ? ovrColor(s.peakOvr) : '#ffffff'
     ctx.font = font(900, 72)
     ctx.fillText(value, x + 112, 480)
   })

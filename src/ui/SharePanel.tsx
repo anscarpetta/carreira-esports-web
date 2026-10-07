@@ -86,16 +86,16 @@ export function SharePanel({ career }: { career: CareerState }) {
           )}
         </div>
         <div className="flex flex-1 flex-col gap-2">
-          <button type="button" onClick={share} disabled={!preview} className="rounded-xl bg-gold px-4 py-2.5 font-black text-night disabled:opacity-50">
+          <button type="button" onClick={share} disabled={!preview} className="rounded-full bg-white px-4 py-2.5 font-black text-night disabled:opacity-50">
             Compartilhar
           </button>
-          <button type="button" onClick={copyImage} disabled={!preview} className="rounded-xl border border-line px-4 py-2.5 font-bold disabled:opacity-50">
+          <button type="button" onClick={copyImage} disabled={!preview} className="rounded-full border border-white/30 px-4 py-2.5 font-bold disabled:opacity-50">
             Copiar imagem
           </button>
-          <button type="button" onClick={save} disabled={!preview} className="rounded-xl border border-line px-4 py-2.5 font-bold disabled:opacity-50">
+          <button type="button" onClick={save} disabled={!preview} className="rounded-full border border-white/30 px-4 py-2.5 font-bold disabled:opacity-50">
             Salvar imagem
           </button>
-          <button type="button" onClick={copyLink} className="rounded-xl border border-line px-4 py-2.5 font-bold">
+          <button type="button" onClick={copyLink} className="rounded-full border border-white/30 px-4 py-2.5 font-bold">
             Copiar link do jogo
           </button>
           {status && (

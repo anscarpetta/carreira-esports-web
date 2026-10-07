@@ -5,6 +5,7 @@ import { art, of } from '../../engine/grammar.ts'
 import { teamForm, trendOf } from '../../engine/teams.ts'
 import type { CareerState, Decision, DecisionOption, Outcome, TeamMove } from '../../engine/types.ts'
 import { EXPECTED_ROLE_LABEL, percent, TREND_LABEL } from '../format.ts'
+import { tint } from '../ovr.ts'
 import { TeamBadge } from '../TeamBadge.tsx'
 
 export type PanelStage =
@@ -20,7 +21,7 @@ function Outcomes({ outcomes }: { outcomes: readonly Outcome[] }) {
     <ul className="mt-1.5 flex flex-col gap-0.5 text-sm">
       {outcomes.map((outcome) => (
         <li key={outcome.text} className="flex gap-2">
-          <span className="w-10 shrink-0 font-black text-gold tabular-nums">{percent(outcome.probability)}</span>
+          <span className="w-10 shrink-0 font-black text-white tabular-nums">{percent(outcome.probability)}</span>
           <span className="text-slate-300">{outcome.text}</span>
         </li>
       ))}
@@ -100,13 +101,19 @@ function OptionCard({
   const dimmed = busy && !chosen
   const teamId = 'teamId' in option ? option.teamId : null
   const expected = 'expectedRole' in option ? option.expectedRole : null
+  const teamColor = teamId ? CATALOG.teams[teamId]?.color : null
 
   return (
     <button
       type="button"
       disabled={busy}
       onClick={() => onChoose(option.id)}
-      className={`w-full rounded-xl border p-3 text-left transition ${chosen ? 'border-gold bg-gold/10' : 'border-line bg-night/40 hover:border-gold-soft'} ${dimmed ? 'opacity-35' : ''} focus-visible:outline-2 focus-visible:outline-gold disabled:cursor-default`}
+      className={`w-full rounded-xl border p-3 text-left transition ${chosen ? 'ring-2 ring-white' : 'hover:brightness-125'} ${teamColor ? '' : 'border-line bg-raised'} ${dimmed ? 'opacity-35' : ''} focus-visible:outline-2 focus-visible:outline-white disabled:cursor-default`}
+      style={
+        teamColor
+          ? { background: `linear-gradient(135deg, ${tint(teamColor, 0.24)}, ${tint(teamColor, 0.08)})`, borderColor: tint(teamColor, 0.4) }
+          : undefined
+      }
     >
       <div className="flex items-center justify-between gap-3">
         <p className="font-black">{optionTitle(option, career)}</p>
@@ -199,7 +206,7 @@ export function DecisionPanel({
         <button
           type="button"
           onClick={onViewSummary}
-          className="mt-4 rounded-xl bg-gold px-6 py-3 font-black text-night focus-visible:outline-2 focus-visible:outline-gold-soft"
+          className="mt-4 rounded-full bg-white px-6 py-3 font-black text-night focus-visible:outline-2 focus-visible:outline-white"
         >
           Ver resumo
         </button>
@@ -214,7 +221,7 @@ export function DecisionPanel({
     <section className="rounded-2xl border border-line bg-panel p-4 sm:p-5" aria-label="Decisão" aria-live="polite">
       {career.teamMove && stage.kind === 'choosing' && <TeamMoveBanner move={career.teamMove} />}
       {career.news.length > 0 && stage.kind === 'choosing' && (
-        <div className="mb-4 rounded-xl border border-line bg-night/50 p-3">
+        <div className="mb-4 rounded-xl border border-line bg-raised p-3">
           <p className="text-[0.65rem] font-bold tracking-widest text-muted uppercase">Notícias</p>
           <ul className="mt-1 flex flex-col gap-0.5 text-sm text-slate-300">
             {career.news.slice(0, 5).map((line) => (
@@ -223,7 +230,7 @@ export function DecisionPanel({
           </ul>
         </div>
       )}
-      <p className="text-xs font-bold tracking-widest text-gold uppercase">Decisão</p>
+      <p className="text-xs font-bold tracking-widest text-muted uppercase">Decisão</p>
       <h2 className="mt-1 text-xl font-black">{decision.title}</h2>
       <p className="mt-1 text-sm text-muted">{decision.description}</p>
 
@@ -235,7 +242,7 @@ export function DecisionPanel({
 
       {stage.kind === 'suspense' && <Suspense eventKey={stage.eventKey} />}
       {(stage.kind === 'result' || (stage.kind === 'simulating' && stage.text)) && (
-        <p className="mt-4 rounded-xl bg-night/60 p-3 text-center font-black text-gold-soft" role="status">
+        <p className="mt-4 rounded-xl bg-raised p-3 text-center font-black text-white" role="status">
           Resultado: {stage.text}
         </p>
       )}

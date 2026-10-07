@@ -2,17 +2,14 @@ import { CATALOG } from '../../data/catalog.ts'
 import { art, of } from '../../engine/grammar.ts'
 import type { SplitRecord, TeamMove } from '../../engine/types.ts'
 import { kdaText, SQUAD_LABEL } from '../format.ts'
+import { OvrBadge } from '../OvrBadge.tsx'
+import { tint } from '../ovr.ts'
 import { TeamBadge } from '../TeamBadge.tsx'
 
-function OvrChange({ before, after }: { before: number; after: number }) {
+function OvrDiff({ before, after }: { before: number; after: number }) {
   const diff = after - before
-  if (diff === 0) return <span className="text-muted">{after}</span>
-  return (
-    <span>
-      {after}{' '}
-      <span className={diff > 0 ? 'text-emerald-400' : 'text-rose-400'}>{diff > 0 ? `+${diff}` : diff}</span>
-    </span>
-  )
+  if (diff === 0) return null
+  return <span className={`text-[0.7rem] font-black ${diff > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{diff > 0 ? `+${diff}` : diff}</span>
 }
 
 function moveText(move: TeamMove): string {
@@ -30,7 +27,12 @@ function Row({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
   const s = record.stats
   return (
     <li
-      className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${champion ? 'border-gold/70 bg-gold/10' : 'border-line bg-panel'} ${fresh ? 'animate-[rise_0.4s_ease-out]' : ''}`}
+      className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${champion ? 'border-gold/70' : 'border-white/5'} ${fresh ? 'animate-[rise_0.4s_ease-out]' : ''}`}
+      style={{
+        background: champion
+          ? `linear-gradient(90deg, ${tint('#c8a24a', 0.22)}, ${tint(team?.color ?? '#17171c', 0.1)})`
+          : `linear-gradient(90deg, ${tint(team?.color ?? '#17171c', 0.2)}, #17171c 75%)`,
+      }}
     >
       <TeamBadge teamId={record.teamId} size="sm" />
       <div className="min-w-0 flex-1">
@@ -65,13 +67,14 @@ function Row({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
         )}
       </div>
       <div className="text-right text-xs tabular-nums">
-        <p className="font-bold">
+        <p className="flex items-center justify-end gap-1.5 font-bold">
           {record.breakout && (
-            <span className="mr-1" title="Explosão: salto de evolução neste split" aria-label="Explosão">
+            <span title="Explosão: salto de evolução neste split" aria-label="Explosão">
               🚀
             </span>
           )}
-          OVR <OvrChange before={record.ovr} after={record.ovrAfter} />
+          <OvrDiff before={record.ovr} after={record.ovrAfter} />
+          <OvrBadge ovr={record.ovrAfter} size="sm" />
         </p>
         <p className="text-muted">
           {s.games > 0 ? `${s.games}j · ${s.kills}/${s.deaths}/${s.assists} · KDA ${kdaText(s.kills, s.deaths, s.assists)}` : 'Sem jogos'}

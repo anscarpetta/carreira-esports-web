@@ -35,7 +35,7 @@ export function Intro({
           {SIMULATION_MODES.map((option) => (
             <label
               key={option}
-              className="cursor-pointer rounded-xl border border-line bg-panel p-4 transition-colors hover:border-gold-soft has-checked:border-gold has-checked:bg-gold/10 has-focus-visible:outline-2 has-focus-visible:outline-gold"
+              className="cursor-pointer rounded-xl border border-line bg-panel p-4 transition-colors hover:border-white/40 has-checked:border-white has-checked:bg-white/10 has-focus-visible:outline-2 has-focus-visible:outline-white"
             >
               <input
                 type="radio"
@@ -56,7 +56,7 @@ export function Intro({
         <button
           type="button"
           onClick={onStart}
-          className="w-full rounded-xl bg-gold px-6 py-3 font-black text-night focus-visible:outline-2 focus-visible:outline-gold-soft sm:w-auto"
+          className="w-full rounded-full bg-white px-6 py-3 font-black text-night focus-visible:outline-2 focus-visible:outline-white sm:w-auto"
         >
           Começar carreira
         </button>

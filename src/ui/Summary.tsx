@@ -5,6 +5,7 @@ import type { CareerState } from '../engine/types.ts'
 import { kdaText, money, retirementText, ROLE_LABEL, SQUAD_LABEL } from './format.ts'
 import { AchievementsButton } from './AchievementsDialog.tsx'
 import { Flag } from './Flag.tsx'
+import { OvrBadge } from './OvrBadge.tsx'
 import { SharePanel } from './SharePanel.tsx'
 import { TeamBadge } from './TeamBadge.tsx'
 
@@ -62,7 +63,13 @@ export function Summary({
         ].map(([label, value]) => (
           <div key={label} className="rounded-xl border border-line bg-panel p-3 text-center">
             <p className="text-[0.65rem] font-bold tracking-wide text-muted uppercase">{label}</p>
-            <p className="text-xl font-black tabular-nums">{value}</p>
+            {label === 'OVR máximo' ? (
+              <div className="mt-1 flex justify-center">
+                <OvrBadge ovr={Number(value)} />
+              </div>
+            ) : (
+              <p className="text-xl font-black tabular-nums">{value}</p>
+            )}
           </div>
         ))}
       </section>
@@ -129,10 +136,10 @@ export function Summary({
       </section>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-        <button type="button" onClick={onReplay} className="rounded-xl bg-gold px-6 py-3 font-black text-night">
+        <button type="button" onClick={onReplay} className="rounded-full bg-white px-6 py-3 font-black text-night">
           Jogar novamente
         </button>
-        <button type="button" onClick={onNewCareer} className="rounded-xl border border-line px-6 py-3 font-bold">
+        <button type="button" onClick={onNewCareer} className="rounded-full border border-white/30 px-6 py-3 font-bold">
           Nova identidade
         </button>
         <AchievementsButton className="px-6 py-3" />
