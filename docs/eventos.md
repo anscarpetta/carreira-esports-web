@@ -63,6 +63,21 @@ As porcentagens são um ponto de partida para calibrar. Cada evento indica, entr
 | 28 | **Jogar com dor na final** (lesão no melhor momento) | Titular, a caminho de uma final | Jogar: alta chance de título / piora a lesão · Se recuperar: baixa chance |
 | 29 | **A call do Barão na final** (pênalti decisivo) | Numa final | Forçar o Barão / Esperar o Ancião: 50% título |
 
+## Eventos da fatia 1 (só CBLOL)
+
+**Entram (23):** 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29.
+
+**Ficam para depois (6):**
+
+| Evento | Entra na fatia | Motivo |
+|---|---|---|
+| 11 Mandado de volta ao academy | 2 | Depende do academy e do tier 2 |
+| 20 Proposta para virar streamer | 2 | Depende da mecânica de pausa e retorno, que combina com a volta por projetos de tier 3 |
+| 15 Saudade de casa · 16 Proposta da LPL/LCS · 17 Visto atrasado | 3 | Dependem de outras regiões |
+| 10 Liga ou internacional? | 4 | Depende dos torneios internacionais |
+
+O bootcamp na Coreia (1) entra já na fatia 1: é uma viagem de treino, não uma transferência. O importado coreano (8) também entra, porque o CBLOL tem coreanos.
+
 ## Fora da lista (sem equivalente no LoL)
 
 O **"Avô de outra nacionalidade"**, porque não há seleções. O **sistema de residência** cumpre esse papel: ele não é um evento, acontece automaticamente depois de alguns anos fora.

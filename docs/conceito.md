@@ -6,7 +6,9 @@ Documentos de apoio:
 - [Análise do Copero](referencia-copero.md)
 - [Pesquisa de mobilidade entre regiões](pesquisa-mobilidade.md)
 - [Pesquisa de força das regiões e ciclos dos times](pesquisa-ciclos-e-forca.md)
-- [Design dos sistemas (em discussão)](design-sistemas.md)
+- [Design dos sistemas](design-sistemas.md)
+- [Catálogo de eventos](eventos.md)
+- [Fluxo de telas](telas.md)
 
 ## Decidido
 
@@ -44,9 +46,11 @@ Documentos de apoio:
   | Começo | Aos **16 anos**, direto no CBLOL, com 3 ofertas. A regra dos 18 para estrear no tier 1 só entra na fatia 2, junto com academy e tiers 2 e 3 |
   | Modos | Intensa, Normal e Expressa |
   | Decisões | Transferências entre times do CBLOL, ficar, eventos e aposentadoria |
-  | Eventos | Só os que fazem sentido dentro do Brasil |
+  | Eventos | 23 dos 29 do catálogo ([lista](eventos.md#eventos-da-fatia-1-só-cblol)) |
   | Resultados | Partidas, KDA, abates, assistências, títulos do CBLOL, prêmios do split e valor de mercado |
   | Fim | Resumo da carreira |
+  | Telas | Cópia do padrão do Copero: intro → identidade → carreira → resumo ([fluxo](telas.md)) |
+  | Pausa e retorno | Fatia 2, junto com os tiers 2 e 3 |
 - **Eventos de carreira:** o [catálogo](eventos.md) apresentado foi aprovado como base. O ajuste fino fica para o playtest.
 
 Detalhes de cada sistema em [design-sistemas.md](design-sistemas.md).
