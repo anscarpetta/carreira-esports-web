@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest'
 import type { Title } from '../engine/types.ts'
 import { groupTrophies, trophyImage } from './trophies.ts'
 
-const title = (kind: Title['kind'], leagueId: string, name: string): Title => ({
+const title = (kind: Title['kind'], leagueId: string, name: string, splitIndex: Title['splitIndex'] = 1): Title => ({
   kind,
   leagueId,
   name,
   year: 2027,
-  splitIndex: 0,
+  splitIndex,
   teamId: 't1',
 })
 
@@ -15,8 +15,9 @@ describe('vitrine de troféus', () => {
   it('agrupa por competição, com os internacionais primeiro', () => {
     const groups = groupTrophies([
       title('league', 'circuito-desafiante', 'Circuito Desafiante Etapa 1'),
-      title('league', 'cblol', 'CBLOL Split 1'),
-      title('league', 'cblol', 'CBLOL Split 2'),
+      title('league', 'cblol', 'CBLOL Cup', 0),
+      title('league', 'cblol', 'CBLOL Split 1', 1),
+      title('league', 'cblol', 'CBLOL Split 2', 2),
       title('msi', 'msi', 'MSI'),
       title('worlds', 'worlds', 'Worlds'),
     ])
@@ -24,12 +25,14 @@ describe('vitrine de troféus', () => {
       ['worlds', 'Worlds', 1],
       ['msi', 'MSI', 1],
       ['cblol', 'CBLOL', 2],
+      ['cblol-cup', 'CBLOL Cup', 1],
       ['circuito-desafiante', 'Circuito Desafiante', 1],
     ])
   })
 
   it('usa o desenho da taça real ou a genérica', () => {
     expect(trophyImage('worlds')).toMatch(/trophies\/worlds\.svg$/)
+    expect(trophyImage('cblol-cup')).toMatch(/cblol_cup\.svg$/)
     expect(trophyImage('circuito-desafiante')).toMatch(/circuito_desafiante\.svg$/)
     // Sem desenho: taça genérica com a faixa na cor da liga.
     expect(trophyImage('ldl')).toMatch(/^data:image\/svg\+xml/)
