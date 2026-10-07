@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { CATALOG } from '../data/catalog.ts'
+import { ACHIEVEMENTS, achievedIds } from '../engine/achievements.ts'
 import { createCareer, decide } from '../engine/career.ts'
+import { unlock } from './achievementsStore.ts'
+import { Toasts, type Toast } from './career/Toasts.tsx'
 import { DEFAULT_MODE, type SimulationMode } from '../engine/modes.ts'
 import type { CareerState } from '../engine/types.ts'
 import { CareerScreen } from './career/CareerScreen.tsx'
@@ -45,6 +48,21 @@ export default function App() {
     writeSave({ mode, identity, career })
   }, [mode, identity, career])
 
+  // Ao abrir o resumo, verifica as conquistas e comemora as novas.
+  const [achievementToasts, setAchievementToasts] = useState<Toast[]>([])
+  const dismissAchievements = useCallback(() => setAchievementToasts([]), [])
+  function openSummary() {
+    setScreen('summary')
+    if (!career || career.phase !== 'summary') return
+    const fresh = unlock(achievedIds(career, CATALOG))
+    setAchievementToasts(
+      fresh.map((id) => {
+        const achievement = ACHIEVEMENTS.find((a) => a.id === id)!
+        return { id: `ach-${id}`, icon: achievement.icon, text: `Conquista desbloqueada: ${achievement.title}` }
+      }),
+    )
+  }
+
   useEffect(() => {
     window.scrollTo({ top: 0 })
   }, [screen])
@@ -68,7 +86,7 @@ export default function App() {
         )}
         {screen === 'identity' && <Identity initial={identity} onConfirm={start} onBack={() => setScreen('intro')} />}
         {screen === 'career' && career && (
-          <CareerScreen career={career} onCareerChange={setCareer} onViewSummary={() => setScreen('summary')} />
+          <CareerScreen career={career} onCareerChange={setCareer} onViewSummary={openSummary} />
         )}
         {screen === 'summary' && career && (
           <Summary
@@ -79,6 +97,7 @@ export default function App() {
         )}
       </main>
       <Disclaimer />
+      <Toasts items={achievementToasts} onDismiss={dismissAchievements} />
     </div>
   )
 }

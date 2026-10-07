@@ -1,4 +1,5 @@
 import { SIMULATION_MODES, type SimulationMode } from '../engine/modes.ts'
+import { AchievementsButton } from './AchievementsDialog.tsx'
 
 const MODE_TEXT: Record<SimulationMode, { title: string; description: string }> = {
   intense: { title: 'Intensa', description: '1 decisão por split, imersão total.' },
@@ -64,6 +65,7 @@ export function Intro({
             Continuar a carreira salva
           </button>
         )}
+        <AchievementsButton />
       </div>
     </section>
   )

@@ -54,6 +54,10 @@ describe('jogo completo pela interface', () => {
     expect(screen.getByText('Resumo da carreira')).toBeTruthy()
     expect(screen.getByText('Teste')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Jogar novamente' })).toBeTruthy()
+    expect(screen.getByRole('region', { name: 'Compartilhar' })).toBeTruthy()
+    // O botão de conquistas mostra o progresso e abre a lista.
+    fireEvent.click(screen.getByRole('button', { name: /Conquistas \(\d+\/\d+\)/ }))
+    expect(screen.getByText('Campeão mundial')).toBeTruthy()
   })
 
   it('mostra a revelação animada e depois a próxima decisão', () => {

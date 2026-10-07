@@ -224,3 +224,42 @@ Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito
 
 ### Testes: 66
 - Os testes de região agora incluem Vietnã, Japão e Taiwan, e o Worlds tem 17 classificados.
+
+## Fatia 7: card compartilhável e conquistas ✅
+
+### Card compartilhável
+- No resumo, uma imagem de **1080 × 1350** (formato de post) com nick, bandeira, rota, anos, OVR máximo, títulos, jogos, KDA, vitrine, prêmios e os logos dos times, com o link do jogo no rodapé.
+- **Botões:** Compartilhar (menu nativo do celular, com a imagem), Copiar imagem, Salvar imagem e Copiar link do jogo.
+
+### Conquistas (18)
+
+| Conquista | Como desbloquear |
+|---|---|
+| 🌍 Campeão mundial | Ganhar o Worlds |
+| 🇧🇷 O impossível | Ganhar o Worlds com um time do CBLOL |
+| 💎 Grand Slam | Ganhar First Stand, MSI e Worlds na mesma carreira |
+| 👑 Ano de ouro | Ganhar a liga, o MSI e o Worlds no mesmo ano |
+| 🏆 Rei do Brasil | Ganhar 5 títulos do CBLOL |
+| 🛡️ Lenda de um time só | Jogar todo o tier 1 por um só time (4+ anos) e ganhar a liga e um internacional |
+| 🪜 Do tier 3 ao topo | Começar no tier 3 e ganhar uma liga de tier 1 |
+| ✈️ Rota do Ceos | Sendo brasileiro, jogar um tier 1 fora do Brasil |
+| 🇰🇷 Primeiro brasileiro na LCK | Sendo brasileiro, jogar a LCK |
+| 🧭 Andarilho | Jogar em 3 regiões |
+| 🧳 Mala de viagem | Jogar por 8 times |
+| ⭐ Máquina de MVP | Ser MVP de 5 splits |
+| 🗡️ Mata-gigantes | Ganhar MSI ou Worlds com um time de estrutura pequena |
+| 🌟 Prodígio | Ser titular no tier 1 aos 18 anos |
+| 🧓 Veterano | Jogar até os 30 anos |
+| 🎥 A volta do streamer | Largar o competitivo para fazer lives e voltar |
+| 💍 Ringless | Ser titular no tier 1 por 3 anos sem nenhum título |
+| 📦 Produto de exportação | Ganhar uma liga de tier 1 fora da sua região |
+
+- Ficam salvas no navegador e valem para todas as carreiras.
+- Botão "🏅 Conquistas (n/18)" na intro e no resumo, com filtro (todas, concluídas, pendentes).
+- Ao abrir o resumo, as conquistas novas aparecem em pop-up.
+
+### Outros ajustes
+- A vitrine do resumo agrupa os prêmios por tipo e liga ("9× Seleção do Circuito Desafiante"), em vez de split a split.
+
+### Testes: 71
+- Novos testes cobrem as conquistas (O impossível, Rota do Ceos, Ringless e carreiras simuladas), e o teste do jogo completo agora confere o painel de compartilhamento e a lista de conquistas.
