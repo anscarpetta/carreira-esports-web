@@ -235,6 +235,18 @@ export function offseasonUpdate(
     scored.sort((a, b) => b.score - a.score)
 
     if (upper.promotion === 'guest_series') {
+      // O desafiante pode vir de mais de uma liga (Desafiante e Liga Regional Sur).
+      const extra = (upper.challengerLeagueIds ?? [lower.id]).filter((id) => id !== lower.id && catalog.leagues[id])
+      for (const leagueId of extra) {
+        for (const team of leagueTeams(teams, leagueId)
+          .filter((t) => !isAcademy(catalog, t.id))
+          .sort((a, b) => a.id.localeCompare(b.id))) {
+          const score = seasonScore(r, team, context.placements)
+          r = score.rng
+          scored.push({ team, score: score.value })
+        }
+      }
+      scored.sort((a, b) => b.score - a.score)
       const guests = leagueTeams(teams, upper.id)
         .filter((t) => t.guest)
         .sort((a, b) => a.id.localeCompare(b.id))
@@ -244,14 +256,16 @@ export function offseasonUpdate(
         const series = playSeries(r, guest.rating, challenger.rating, 5)
         r = series.rng
         if (series.value.aWon) return
-        const down = moveTeam(r, guest, lower, false)
+        // O convidado rebaixado vai para a liga de onde veio o desafiante.
+        const challengerLeague = catalog.leagues[challenger.leagueId ?? lower.id] ?? lower
+        const down = moveTeam(r, guest, challengerLeague, false)
         r = down.rng
         const up = moveTeam(r, challenger, upper, true)
         r = up.rng
         teams[guest.id] = down.team
         teams[challenger.id] = up.team
-        changes.push({ kind: 'relegated', teamId: guest.id, from: upper.id, to: lower.id })
-        changes.push({ kind: 'promoted', teamId: challenger.id, from: lower.id, to: upper.id })
+        changes.push({ kind: 'relegated', teamId: guest.id, from: upper.id, to: challengerLeague.id })
+        changes.push({ kind: 'promoted', teamId: challenger.id, from: challengerLeague.id, to: upper.id })
       })
     } else {
       const upperScored: { team: TeamState; score: number }[] = []
