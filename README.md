@@ -8,8 +8,8 @@ Projeto de aprendizado de desenvolvimento pareado com IA (Claude Code).
 
 0. Preparação (repo, git, arquivo de decisões) ✅
 1. Conceito ✅
-2. Jogo e jogabilidade → MVP definido (em andamento)
-3. Planejamento técnico + esqueleto publicado
+2. Jogo e jogabilidade → MVP definido ✅
+3. Planejamento técnico + esqueleto publicado (em andamento)
 4. Desenvolvimento em fatias (implementa → testa → publica)
 5. Playtest final
 6. Lançamento
