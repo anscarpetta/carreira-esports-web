@@ -97,3 +97,51 @@ Meta combinada: 30 / 40 / 25 / 5. A aposentadoria média aos ~27 anos bate com a
 - **Flamengo, Liberty, Rensga e Vorax** aparecem no tier 3 como organizações tentando voltar; Netshoes Miners e Isurus ficam de fora, como reservas.
 - Sem logo na Leaguepedia: Team Solid, KUMA e RAMPAGE (aparece a sigla na cor do time).
 - Saves da fatia 1 não são compatíveis com o motor novo: o jogo começa uma carreira nova.
+
+## Fatia 3: Europa, LCS, LPL e LCK (tiers 1 e 2), nacionalidade e mobilidade ✅
+
+### O que mudou no jogo
+- **Escolha de nacionalidade:** Brasil, Coreia do Sul, China, EUA, Canadá e 12 países europeus (incluindo Portugal). A carreira começa nos tiers de base da região:
+
+  | Região | Tier 2 (onde a carreira começa) | Tier 1 |
+  |---|---|---|
+  | Coreia | LCK CL (os 10 academies: T1 Esports Academy, Gen.G Global Academy, HLE Challengers…) | LCK (10) |
+  | China | LDL (academies + RNG; times do Split 3 de 2025) | LPL (14) |
+  | Europa | EMEA Masters (12 times: Solary, Galions, KC Blue, KOI Fénix, G2 NORD, Los Heretics…) | LEC (10) |
+  | América do Norte | NACL 2026 (NRG, Cupid, Conviction, Dorado e times universitários) | LCS (8) |
+
+- **Força real do tier 1:** todos os 58 times do ranking da Riot de 13/07/2026 (pós-MSI). A escala virou `OVR = 80 + (Elo − 1200) / 22`, para o HLE (97,7) e o BLG (98) caberem abaixo de 99.
+  - O caso RED (79,1) × Vitality (81,8) dá ~42% por jogo, coerente com a Demacia Cup.
+- **Ligas franqueadas** (LCK, LPL, LEC, LCS e os tiers 2 delas): sem rebaixamento e sem saída de organizações. O acesso e o rebaixamento continuam só no Brasil.
+- **Importados:**
+  - Um time de fora só contrata o jogador para ser **titular** (ele ocupa uma vaga de importado).
+  - A chance segue a **matriz de mobilidade** da pesquisa: coreanos saem bastante (China, CBLOL, LCS); europeus vão para a LCS; chineses quase nunca saem; brasileiros raramente saem (LCS ~1%, Coreia e China ~0,2%).
+  - Selo "Vaga de importado" nas ofertas e "Importado" no cartão do jogador.
+- **Residência:** 3 anos (9 splits) numa região tornam o jogador residente. Ele deixa de ser importado e passa a receber propostas de todos os tiers daquela região.
+- **Visto atrasado (caso Ceos):** na primeira ida para outra região, há 35% de chance de perder o primeiro split.
+- **Eventos novos:** "Saudade de casa" (ficar com −5 OVR temporário ou voltar para a sua região) e "Proposta milionária" (coreanos → LPL; europeus e brasileiros → LCS; um time mais rico e mais fraco; +2 ou −2 OVR).
+- **Notícias** filtradas pela região em que você joga.
+- **Bandeiras** em PNG do flagcdn (domínio público), no lugar dos desenhos em SVG.
+- **111 times com logo real.** Academies chineses sem logo próprio (AL Young, WBG Youth) usam o logo do time principal.
+
+### Calibração por nacionalidade (modo normal, 2.000 carreiras cada)
+
+| Nacionalidade | Não firmam no tier 1 | Sólidos | Craques | Lendas | Jogam fora da região |
+|---|---|---|---|---|---|
+| Brasil | 31% | 42% | 22% | 5% | ~4% (LCS 3%) |
+| Coreia | 70% | 12% | 16% | 3% | 22% no CBLOL, 9% na LPL, 10% na LCS |
+| China | 81% | 4% | 12% | 3% | <1% |
+| França | 63% | 14% | 20% | 3% | ~20% na LCS |
+| EUA | 52% | 24% | 22% | 2% | ~8% |
+
+Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito fortes, e o tier 1 tem poucas vagas. É o "modo difícil" natural que a pesquisa sugeria.
+
+### Testes: 62
+- Novos testes cobrem: cada região começando nos próprios tiers de base, importado só como titular, residência após 3 anos e chineses quase nunca jogando fora.
+
+### Decisões que tomei sozinho (para revisar)
+- **LDL 2026:** não achei a temporada de 2026 nas wikis, então usei os times do Split 3 de 2025.
+- **EMEA Masters como tier 2 europeu**, com os 12 melhores da edição de verão de 2026. Na vida real são ligas nacionais (LFL, Prime League etc.) que classificam para a EMEA Masters.
+- **Nomes dos splits:** LCK Cup / Road to MSI / Season; LEC Versus / Spring / Summer; LCS Lock-In / Spring / Summer; LPL Split 1–3; NACL Kickoff / Spring / Summer.
+- **Idade mínima de 18 anos no tier 1** para todas as regiões (na vida real a LCK aceita 17).
+- O jogo diferencia a vaga de importado pelo papel (só titular), sem controlar o elenco inteiro de cada time.

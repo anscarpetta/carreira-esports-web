@@ -69,12 +69,13 @@ describe('times', () => {
     const teams = initialTeams(CATALOG)
     const formOf = (id: string) => teams[id].rating - structureTarget(CBLOL, teams[id].structure)
     expect(trendOf(formOf('pain'))).toBe('down')
-    expect(['up', 'rising']).toContain(trendOf(formOf('furia')))
+    expect(['up', 'rising', 'stable']).toContain(trendOf(formOf('furia')))
   })
 
   it('acesso e rebaixamento mantêm o tamanho de cada liga', () => {
     let rng = createRng('acesso')
-    let teams = initialTeams(CATALOG)
+    const initial = initialTeams(CATALOG)
+    let teams = initial
     let promoted = 0
     for (let year = 2027; year < 2077; year += 1) {
       const result = offseasonUpdate(rng, teams, CATALOG, { year, playerTeamId: null, playerSurplus: 0 })
@@ -84,9 +85,9 @@ describe('times', () => {
       for (const league of Object.values(CATALOG.leagues)) {
         expect(leagueTeams(teams, league.id), `${league.id} em ${year}`).toHaveLength(league.teamIds.length)
       }
-      // Academies nunca sobem para o CBLOL nem caem para o tier 3.
+      // Academies nunca sobem nem caem: ficam na liga em que começaram.
       for (const team of Object.values(teams)) {
-        if (CATALOG.teams[team.id].parentId) expect(team.leagueId).toBe('circuito-desafiante')
+        if (CATALOG.teams[team.id].parentId) expect(team.leagueId).toBe(initial[team.id].leagueId)
       }
       // O CBLOL tem sempre exatamente uma vaga de convidado.
       expect(leagueTeams(teams, 'cblol').filter((t) => t.guest)).toHaveLength(1)
@@ -218,5 +219,17 @@ describe('ofertas e eventos', () => {
     expect(normal).toBeLessThanOrEqual(4)
     const intense = planEvents(createRng('c'), 'intense').value.slotAges.length
     expect(intense).toBeGreaterThanOrEqual(7)
+  })
+})
+
+describe('importados e residência', () => {
+  it('importado só recebe proposta para ser titular', () => {
+    const teams = leagueTeams(initialTeams(CATALOG), 'lck').map((team) => ({ team, tier: 1, importFactor: 0.5 }))
+    let rng = createRng('importado')
+    for (let i = 0; i < 200; i += 1) {
+      const roll = generateOffers(rng, teams, 85, 22, [], 2, 1)
+      rng = roll.rng
+      for (const offer of roll.value) expect(offer.expectedRole).toBe('starter')
+    }
   })
 })

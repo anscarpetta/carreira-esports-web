@@ -53,6 +53,8 @@ export interface LeagueData {
   readonly guestTeamIds?: readonly string[]
   // Nome feminino ("a Qualificatória Aberta"), para os textos.
   readonly feminine?: boolean
+  // Liga franqueada: times não saem nem são rebaixados.
+  readonly franchised?: boolean
 }
 
 export interface TeamData {
@@ -72,9 +74,24 @@ export interface TeamData {
   readonly parentId?: string
 }
 
+export interface Region {
+  readonly id: string
+  readonly name: string
+}
+
+export interface Country {
+  readonly code: string
+  readonly name: string
+  readonly region: string
+}
+
 export interface Catalog {
   readonly leagues: Readonly<Record<string, LeagueData>>
   readonly teams: Readonly<Record<string, TeamData>>
+  readonly regions: Readonly<Record<string, Region>>
+  readonly countries: Readonly<Record<string, Country>>
+  // Chance relativa de contratar um importado: MOBILITY[origem][destino].
+  readonly mobility: Readonly<Record<string, Readonly<Record<string, number>>>>
   readonly startYear: number
 }
 
@@ -302,4 +319,6 @@ export interface CareerState {
   readonly seasonPlacements: Readonly<Record<string, readonly number[]>>
   // Notícias da última pré-temporada (acesso, rebaixamento, projetos).
   readonly news: readonly string[]
+  // Splits jogados em cada região (3 anos numa região dão residência).
+  readonly residency: Readonly<Record<string, number>>
 }

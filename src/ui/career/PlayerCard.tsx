@@ -1,5 +1,5 @@
 import { CATALOG } from '../../data/catalog.ts'
-import { ageOf } from '../../engine/career.ts'
+import { ageOf, isImportIn } from '../../engine/career.ts'
 import { summarize } from '../../engine/summary.ts'
 import type { CareerState } from '../../engine/types.ts'
 import { kdaText, money, ROLE_LABEL } from '../format.ts'
@@ -34,6 +34,11 @@ export function PlayerCard({ career, ovrHighlight }: { career: CareerState; ovrH
           </p>
           <p className="text-sm text-muted">
             Valor: <span className="font-bold text-slate-200">{money(player.marketValue)}</span>
+            {!career.paused && career.teamId && isImportIn(career, CATALOG, career.teams[career.teamId]?.leagueId ?? null) && (
+              <span className="ml-2 rounded-full bg-sky-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold text-sky-300 uppercase">
+                Importado
+              </span>
+            )}
           </p>
         </div>
         <div className="flex flex-col items-center gap-1 text-center">

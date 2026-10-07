@@ -20,8 +20,8 @@ function demoSave(): ReturnType<typeof loadSave> {
   const seed = params.get('demo')
   if (!seed) return null
   const mode = (params.get('mode') ?? 'normal') as SimulationMode
-  const identity: IdentityData = { nick: 'Demo', role: 'mid' }
-  let career = createCareer({ seed, mode, nick: identity.nick, role: identity.role, nationality: 'BR' }, CATALOG)
+  const identity: IdentityData = { nick: 'Demo', role: 'mid', nationality: params.get('nat') ?? 'BR' }
+  let career = createCareer({ seed, mode, ...identity }, CATALOG)
   const steps = Number(params.get('steps') ?? 3)
   for (let i = 0; i < steps && career.phase === 'career'; i += 1) {
     const options = career.decision!.options
@@ -51,7 +51,7 @@ export default function App() {
 
   function start(id: IdentityData) {
     setIdentity(id)
-    setCareer(createCareer({ seed: newSeed(), mode, nick: id.nick, role: id.role, nationality: 'BR' }, CATALOG))
+    setCareer(createCareer({ seed: newSeed(), mode, nick: id.nick, role: id.role, nationality: id.nationality }, CATALOG))
     setScreen('career')
   }
 

@@ -7,13 +7,13 @@ describe('strength', () => {
     expect(winProbability(78, 78)).toBeCloseTo(0.5)
   })
 
-  it('reproduz a escala do Elo: 5 de OVR (100 Elo) dá ~36% ao mais fraco', () => {
-    expect(winProbability(75, 80)).toBeCloseTo(0.36, 2)
+  it('reproduz a escala do Elo: 5 de OVR (110 Elo) dá ~35% ao mais fraco', () => {
+    expect(winProbability(75, 80)).toBeCloseTo(0.346, 2)
   })
 
   it('o melhor do CBLOL contra o 5º da LEC fica na faixa de 35–45% por jogo', () => {
-    // RED (79,2) contra Vitality (~82,5): o caso da Demacia Cup 2026.
-    const p = winProbability(79.2, 82.5)
+    // RED (79,1) contra Vitality (81,8): o caso da Demacia Cup 2026.
+    const p = winProbability(79.1, 81.8)
     expect(p).toBeGreaterThan(0.35)
     expect(p).toBeLessThan(0.45)
   })
