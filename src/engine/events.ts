@@ -20,6 +20,7 @@ export const NO_EFFECTS: Effects = {
   pauseSplits: 0,
   pause: null,
   internationalBonus: 0,
+  potential: 0,
 }
 
 export interface EventContext {
@@ -65,7 +66,8 @@ export interface EventChoiceDef {
 
 export interface EventDef {
   readonly key: string
-  readonly weight: number
+  // Peso no sorteio; pode depender do momento da carreira.
+  readonly weight: number | ((ctx: EventContext) => number)
   // Quantas vezes pode acontecer na mesma carreira (padrão: 1). Treinos se repetem.
   readonly repeatable?: number
   readonly title: (ctx: EventContext) => string
@@ -106,7 +108,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'go',
         label: 'Ir para a Coreia',
         outcomes: [
-          { probability: 0.65, text: '+3 OVR', effects: { ovr: 3 } },
+          { probability: 0.65, text: '+5 OVR', effects: { ovr: 5 } },
           { probability: 0.35, text: '−2 OVR (choque cultural e cansaço)', effects: { ovr: -2 } },
         ],
       },
@@ -126,7 +128,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'grind',
         label: 'Virar as noites',
         outcomes: [
-          { probability: 0.8, text: '+3 OVR', effects: { ovr: 3 } },
+          { probability: 0.8, text: '+4 OVR', effects: { ovr: 4 } },
           { probability: 0.2, text: 'Tendinite: −2 OVR', effects: { ovr: -2 } },
         ],
       },
@@ -145,7 +147,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'change',
         label: 'Mudar a mecânica',
         outcomes: [
-          { probability: 0.5, text: '+2 OVR', effects: { ovr: 2 } },
+          { probability: 0.5, text: '+4 OVR', effects: { ovr: 4 } },
           { probability: 0.5, text: '−2 OVR', effects: { ovr: -2 } },
         ],
       },
@@ -165,7 +167,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'switch',
         label: 'Trocar o setup',
         outcomes: [
-          { probability: 0.7, text: '+2 OVR', effects: { ovr: 2 } },
+          { probability: 0.7, text: '+4 OVR', effects: { ovr: 4 } },
           { probability: 0.3, text: '−2 OVR', effects: { ovr: -2 } },
         ],
       },
@@ -183,7 +185,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'take',
         label: 'Tomar',
         outcomes: [
-          { probability: 0.75, text: '+5 OVR', effects: { ovr: 5 } },
+          { probability: 0.75, text: '+7 OVR', effects: { ovr: 7 } },
           { probability: 0.25, text: 'Pego no antidoping: suspensão de 2 splits', effects: { suspensionSplits: 2 } },
         ],
       },
@@ -202,7 +204,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'adapt',
         label: 'Ampliar o pool',
         outcomes: [
-          { probability: 0.5, text: '+2 OVR', effects: { ovr: 2 } },
+          { probability: 0.5, text: '+4 OVR', effects: { ovr: 4 } },
           { probability: 0.5, text: '−2 OVR', effects: { ovr: -2 } },
         ],
       },
@@ -419,7 +421,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'accept',
         label: 'Aceitar',
         outcomes: [
-          { probability: 0.5, text: '+2 OVR (ninguém descobre)', effects: { ovr: 2 } },
+          { probability: 0.5, text: '+4 OVR (ninguém descobre)', effects: { ovr: 4 } },
           { probability: 0.5, text: 'Banimento de 6 splits', effects: { suspensionSplits: 6 } },
         ],
       },
@@ -437,7 +439,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'accept',
         label: 'Estudar',
         outcomes: [
-          { probability: 1, text: `+1 OVR (maturidade); ${loseSpot(ctx).toLowerCase()}`, effects: { ovr: 1, roleShift: -1 } },
+          { probability: 1, text: `+2 OVR (maturidade); ${loseSpot(ctx).toLowerCase()}`, effects: { ovr: 2, roleShift: -1 } },
         ],
       },
       { key: 'refuse', label: 'Focar só no jogo', outcomes: nothing },
@@ -529,7 +531,7 @@ export const TRAINING_EVENTS: readonly EventDef[] = [
         key: 'study',
         label: 'Estudar tudo',
         outcomes: [
-          { probability: 0.75, text: '+2 OVR', effects: { ovr: 2 } },
+          { probability: 0.75, text: '+4 OVR', effects: { ovr: 4 } },
           { probability: 0.25, text: 'Não absorveu nada: sem mudanças', effects: {} },
         ],
       },
@@ -547,8 +549,8 @@ export const TRAINING_EVENTS: readonly EventDef[] = [
         key: 'accept',
         label: 'Aceitar a mentoria',
         outcomes: [
-          { probability: 0.7, text: '+3 OVR', effects: { ovr: 3 } },
-          { probability: 0.3, text: '+1 OVR', effects: { ovr: 1 } },
+          { probability: 0.7, text: '+5 OVR', effects: { ovr: 5 } },
+          { probability: 0.3, text: '+2 OVR', effects: { ovr: 2 } },
         ],
       },
       { key: 'refuse', label: 'Seguir no seu ritmo', outcomes: nothing },
@@ -566,14 +568,14 @@ export const TRAINING_EVENTS: readonly EventDef[] = [
         key: 'all_in',
         label: 'Jogar todas as scrims',
         outcomes: [
-          { probability: 0.6, text: '+3 OVR', effects: { ovr: 3 } },
+          { probability: 0.6, text: '+5 OVR', effects: { ovr: 5 } },
           { probability: 0.4, text: 'Moral abalada: −1 OVR', effects: { ovr: -1 } },
         ],
       },
       {
         key: 'some',
         label: 'Jogar só algumas',
-        outcomes: [{ probability: 1, text: '+1 OVR', effects: { ovr: 1 } }],
+        outcomes: [{ probability: 1, text: '+2 OVR', effects: { ovr: 2 } }],
       },
     ],
   },
@@ -627,7 +629,7 @@ export const SLICE_3_EVENTS: readonly EventDef[] = [
         label: 'Aceitar a proposta',
         join: 'money',
         outcomes: [
-          { probability: 0.5, text: '+2 OVR (motivado pelo novo desafio)', effects: { ovr: 2 } },
+          { probability: 0.5, text: '+4 OVR (motivado pelo novo desafio)', effects: { ovr: 4 } },
           { probability: 0.5, text: '−2 OVR (se acomodou)', effects: { ovr: -2 } },
         ],
       },
@@ -671,12 +673,45 @@ export const SLICE_4_EVENTS: readonly EventDef[] = [
   },
 ]
 
+// Evento secreto (playtest, out/2026): a virada. Raro, e mais comum quando a carreira vai mal.
+// É o único evento que sobe o teto oculto (potencial): o jogador mediano pode virar craque.
+export const SECRET_EVENT_KEY = 'legend_invite'
+
+// Carreira travada: fora da titularidade, ou já com 20+ anos longe do tier 1.
+export function struggling(ctx: EventContext): boolean {
+  return ctx.squadRole !== 'starter' || (ctx.age >= 20 && ctx.league.tier >= 2)
+}
+
+const SECRET_EVENTS: readonly EventDef[] = [
+  {
+    key: SECRET_EVENT_KEY,
+    weight: (ctx) => (struggling(ctx) ? 30 : 10),
+    title: () => 'Convite secreto',
+    description: () =>
+      'Uma lenda aposentada viu algo em você e oferece um treino fechado, longe dos holofotes. Ninguém sabe direito o que acontece lá dentro.',
+    condition: (ctx) => ctx.age <= 27,
+    choices: () => [
+      {
+        key: 'accept',
+        label: 'Aceitar o convite',
+        outcomes: [
+          { probability: 0.55, text: '+6 OVR e você passa a poder ir mais longe', effects: { ovr: 6, potential: 6 } },
+          { probability: 0.3, text: 'Virada lendária: +9 OVR e um novo teto', effects: { ovr: 9, potential: 9 } },
+          { probability: 0.15, text: 'O método não funcionou: −2 OVR', effects: { ovr: -2 } },
+        ],
+      },
+      { key: 'refuse', label: 'Recusar', outcomes: nothing },
+    ],
+  },
+]
+
 export const ALL_EVENTS: readonly EventDef[] = [
   ...EVENTS,
   ...TRAINING_EVENTS,
   ...SLICE_2_EVENTS,
   ...SLICE_3_EVENTS,
   ...SLICE_4_EVENTS,
+  ...SECRET_EVENTS,
 ]
 
 export const EVENTS_BY_KEY: Readonly<Record<string, EventDef>> = Object.fromEntries(
@@ -720,7 +755,13 @@ export function pickEvent(rng: Rng, ctx: EventContext, plan: EventPlan): Roll<Ev
   const times = (key: string) => plan.doneEventKeys.filter((done) => done === key).length
   const eligible = ALL_EVENTS.filter((event) => times(event.key) < (event.repeatable ?? 1) && event.condition(ctx))
   if (eligible.length === 0) return { rng, value: null }
-  return pickWeighted(rng, eligible.map((event) => ({ item: event as EventDef | null, weight: event.weight })))
+  return pickWeighted(
+    rng,
+    eligible.map((event) => ({
+      item: event as EventDef | null,
+      weight: typeof event.weight === 'function' ? event.weight(ctx) : event.weight,
+    })),
+  )
 }
 
 export function withEffects(partial: Partial<Effects>): Effects {

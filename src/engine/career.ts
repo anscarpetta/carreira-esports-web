@@ -280,6 +280,20 @@ function finish(state: CareerState, reason: RetirementReason): CareerState {
 }
 
 // Botão "Encerrar carreira": disponível a qualquer momento.
+// Código secreto (easter egg na tela): uma vez por carreira, sobe OVR e teto.
+// Funciona como trapaça assumida: a carreira fica marcada e não conta para as conquistas.
+export const SECRET_BOOST = 5
+
+export function secretBoost(state: CareerState): CareerState {
+  if (state.phase !== 'career' || state.secretBoost) return state
+  const potential = Math.min(99, state.player.potential + SECRET_BOOST)
+  return {
+    ...state,
+    secretBoost: true,
+    player: { ...state.player, potential, ovr: clampOvr(Math.min(potential, state.player.ovr + SECRET_BOOST)) },
+  }
+}
+
 export function retire(state: CareerState): CareerState {
   if (state.phase !== 'career') return state
   return finish({ ...state, step: state.step + 1, lastResult: null }, 'voluntary')
@@ -378,7 +392,11 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
   s = {
     ...s,
     firstTeamId: s.firstTeamId ?? s.teamId,
-    player: { ...s.player, ovr: eventOvr(s.player, effects.ovr) },
+    // O boost secreto sobe o teto antes do ganho, para o ganho caber no teto novo.
+    player: (() => {
+      const raised = { ...s.player, potential: Math.min(99, s.player.potential + (effects.potential ?? 0)) }
+      return { ...raised, ovr: eventOvr(raised, effects.ovr) }
+    })(),
     suspensionSplits: s.suspensionSplits + effects.suspensionSplits,
     pauseSplits: s.pauseSplits + effects.pauseSplits,
     // Sem efeito novo, mantém o que já estava valendo (ex.: evento logo antes da janela).

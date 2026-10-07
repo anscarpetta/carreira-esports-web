@@ -2,10 +2,12 @@ import { useState, type CSSProperties, type PointerEvent } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
 import { ageOf, isImportIn } from '../../engine/career.ts'
 import { art, of } from '../../engine/grammar.ts'
+import { SECRET_EVENT_KEY } from '../../engine/events.ts'
 import { teamForm, trendOf } from '../../engine/teams.ts'
 import type { CareerState, Decision, DecisionOption, Outcome, TeamMove } from '../../engine/types.ts'
 import { EXPECTED_ROLE_LABEL, percent, TREND_LABEL } from '../format.ts'
 import { tint } from '../ovr.ts'
+import { Sparkles } from '../Sparkles.tsx'
 import { TeamBadge } from '../TeamBadge.tsx'
 
 export type PanelStage =
@@ -241,9 +243,15 @@ export function DecisionPanel({
 
   if (!decision) return null
   const busy = stage.kind !== 'choosing'
+  const secret = decision.eventKey === SECRET_EVENT_KEY
 
   return (
-    <section className="rounded-2xl border border-line bg-panel p-4 sm:p-5" aria-label="Decisão" aria-live="polite">
+    <section
+      className={`rounded-2xl border bg-panel p-4 sm:p-5 ${secret ? 'shine-border border-gold/50' : 'border-line'}`}
+      style={secret ? ({ '--shine-color': '#e6c979' } as CSSProperties) : undefined}
+      aria-label="Decisão"
+      aria-live="polite"
+    >
       {career.teamMove && stage.kind === 'choosing' && <TeamMoveBanner move={career.teamMove} />}
       {career.news.length > 0 && stage.kind === 'choosing' && (
         <div className="mb-4 rounded-xl border border-line bg-raised p-3">
@@ -255,8 +263,12 @@ export function DecisionPanel({
           </ul>
         </div>
       )}
-      <p className="text-xs font-bold tracking-widest text-muted uppercase">Decisão</p>
-      <h2 className="mt-1 text-xl font-black">{decision.title}</h2>
+      <p className={`text-xs font-bold tracking-widest uppercase ${secret ? 'text-gold' : 'text-muted'}`}>
+        {secret ? '✨ Evento secreto' : 'Decisão'}
+      </p>
+      <h2 className="mt-1 text-xl font-black">
+        {secret ? <Sparkles className="text-gold-soft">{decision.title}</Sparkles> : decision.title}
+      </h2>
       <p className="mt-1 text-sm text-muted">{decision.description}</p>
 
       {/* Grade de cards: 2 colunas; um card sobrando fica centralizado (como no Copero). */}

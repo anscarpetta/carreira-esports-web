@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
-import { ageOf, decide, retire } from '../../engine/career.ts'
+import { ageOf, decide, retire, SECRET_BOOST, secretBoost } from '../../engine/career.ts'
 import { of } from '../../engine/grammar.ts'
 import type { CareerState } from '../../engine/types.ts'
 import { celebrate, partyFor } from '../celebrate.ts'
@@ -136,6 +136,14 @@ export function CareerScreen({
     setReveal({ prev: career, next, optionId, stage: next.lastResult?.random ? 'suspense' : 'result', rows: 0 })
   }
 
+  // Código secreto: uma vez por carreira, fora da revelação.
+  function secret() {
+    if (reveal || career.phase !== 'career' || career.secretBoost) return
+    onCareerChange(secretBoost(career))
+    setToasts([{ id: 'secret-boost', icon: '✨', text: `Boost secreto: +${SECRET_BOOST} OVR e um teto mais alto` }])
+    celebrate('international', '#a855f7')
+  }
+
   // O que aparece na tela durante a revelação.
   const shown = useMemo<CareerState>(() => {
     if (!reveal) return career
@@ -161,7 +169,7 @@ export function CareerScreen({
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-4 px-4 py-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-6">
       <div className="flex flex-col gap-4">
-        <PlayerCard career={shown} ovrHighlight={ovrHighlight} />
+        <PlayerCard career={shown} ovrHighlight={ovrHighlight} onSecret={secret} />
         <DecisionPanel
           career={panelCareer}
           decision={panelCareer.decision}

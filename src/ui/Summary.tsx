@@ -51,6 +51,9 @@ export function Summary({
           {ROLE_LABEL[player.role]} · <Flag code={player.nationality} /> · {years}
           {career.retirement && ` · ${retirementText(career.retirement.reason)} aos ${career.retirement.age} anos`}
         </p>
+        {career.secretBoost && (
+          <p className="mt-2 text-xs font-bold text-fuchsia-300">✨ Carreira com boost secreto: não conta para as conquistas</p>
+        )}
         {worlds > 0 && (
           <p className="mt-3 text-lg font-black text-gold-soft">
             <Sparkles count={10} className="px-3 py-1">

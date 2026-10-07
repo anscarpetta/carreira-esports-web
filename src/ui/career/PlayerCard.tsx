@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
 import logos from '../../data/logos.json'
 import { ageOf, isImportIn } from '../../engine/career.ts'
@@ -14,7 +15,29 @@ import { groupTrophies } from '../trophies.ts'
 
 const WITH_LOGO = new Set<string>(logos)
 
-export function PlayerCard({ career, ovrHighlight }: { career: CareerState; ovrHighlight: number | null }) {
+// Código secreto: 5 toques no selo de OVR em até 2,5 segundos.
+const SECRET_TAPS = 5
+const SECRET_WINDOW_MS = 2500
+
+export function PlayerCard({
+  career,
+  ovrHighlight,
+  onSecret,
+}: {
+  career: CareerState
+  ovrHighlight: number | null
+  onSecret?: () => void
+}) {
+  const taps = useRef<number[]>([])
+  function tap() {
+    if (!onSecret) return
+    const now = Date.now()
+    taps.current = [...taps.current.filter((t) => now - t < SECRET_WINDOW_MS), now]
+    if (taps.current.length >= SECRET_TAPS) {
+      taps.current = []
+      onSecret()
+    }
+  }
   const { player } = career
   const summary = summarize(career)
   const teamId = career.paused ? null : career.teamId
@@ -29,7 +52,7 @@ export function PlayerCard({ career, ovrHighlight }: { career: CareerState; ovrH
     <TiltCard max={5}>
       <section className="rounded-2xl border border-line bg-panel p-3 sm:p-4" aria-label="Seu jogador">
         <div className="flex items-stretch gap-3">
-          <div className="relative">
+          <div className="relative select-none" onPointerDown={tap}>
             <OvrBadge ovr={player.ovr} size="lg" label animated />
             {ovrHighlight !== null && ovrHighlight !== 0 && (
               <span

@@ -457,3 +457,17 @@ Tudo respeita "reduzir movimento" do sistema: sem animação, sem confete e sem 
   - Vitrine do resumo, agrupada por competição ("7× LCP" em vez de "4× LCP Split 2" e "2× LCP Split 3").
   - Tag "Campeão" na trajetória e aviso de título.
   - Card de compartilhar.
+
+## Talento pronto e viradas (out/2026)
+
+- **Vantagem inicial por região:** o coreano saía do banco só aos 19,3 anos em média (o brasileiro, aos 16,1), porque a liga de entrada dele (LCK CL, força 74–80) é muito mais forte que a Qualificatória Aberta (54–60). Com a vantagem, ele vira titular aos 17,1.
+- **Ganhos maiores nos eventos** (perdas iguais), **evento secreto** que sobe o teto e **código secreto** (ver [conceito](conceito.md)).
+- **Resultado** (400 carreiras por nacionalidade, modo normal):
+
+  | Nacionalidade | Titular até os 17 | Convite secreto | Ganhou o Worlds | Nunca / sólido / craque / lenda |
+  |---|---|---|---|---|
+  | Brasil | 99% | 5% | 0% | 28 / 42 / 22 / 7,5 |
+  | Coreia | 68% | 5% | 7,8% | 23 / 49 / 24 / 4,5 |
+  | China | 70% | 8,8% | 5,3% | 35 / 40 / 22 / 3 |
+
+- **Para revisar no playtest:** lendas brasileiras subiram de 6% para 7,5% com os ganhos maiores.
