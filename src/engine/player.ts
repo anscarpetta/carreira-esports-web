@@ -61,11 +61,11 @@ const GROWTH: Record<DevelopmentProfile, Record<number, readonly [number, number
     23: [-1, 1], 24: [-2, 0], 25: [-3, 0], 26: [-3, -1], 27: [-4, -1], 28: [-4, -2],
   },
   normal: {
-    16: [3, 8], 17: [3, 8], 18: [2, 7], 19: [1, 6], 20: [1, 5], 21: [0, 3], 22: [0, 2],
+    16: [2, 6], 17: [2, 7], 18: [2, 7], 19: [1, 6], 20: [1, 5], 21: [0, 3], 22: [0, 2],
     23: [-1, 2], 24: [-1, 1], 25: [-2, 1], 26: [-3, 0], 27: [-3, -1], 28: [-4, -1], 29: [-4, -2],
   },
   late: {
-    16: [2, 6], 17: [2, 6], 18: [2, 6], 19: [2, 6], 20: [1, 5], 21: [1, 4], 22: [0, 3],
+    16: [1, 5], 17: [1, 5], 18: [2, 6], 19: [2, 6], 20: [1, 5], 21: [1, 4], 22: [0, 3],
     23: [0, 2], 24: [0, 1], 25: [-1, 1], 26: [-2, 1], 27: [-3, 0], 28: [-3, -1], 29: [-4, -1],
   },
 }
@@ -133,8 +133,8 @@ export function applyDevelopment(player: Player, delta: number): Player {
 // Papel no time: compara o OVR do jogador com a força do time.
 export function squadRoleFor(playerOvr: number, teamRating: number): SquadRole {
   const diff = playerOvr - teamRating
-  if (diff >= -3) return 'starter'
-  if (diff >= -7) return 'reserve'
+  if (diff >= -2) return 'starter'
+  if (diff >= -6) return 'reserve'
   return 'bench'
 }
 

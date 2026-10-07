@@ -323,3 +323,78 @@ describe('janelas com 3 cards', () => {
     expect(seen.veteran).toBeGreaterThan(0)
   })
 })
+
+describe('tier 1 só com titulares', () => {
+  async function randomCareers(count: number, seedPrefix: string, onDecision?: (s: CareerState, next: CareerState) => void) {
+    const { createRng, int } = await import('./rng.ts')
+    let rng = createRng(seedPrefix)
+    const careers: CareerState[] = []
+    for (let i = 0; i < count; i += 1) {
+      const nationality = ['BR', 'KR', 'FR', 'US'][i % 4]
+      let state = createCareer({ ...INPUT, nationality, mode: i % 2 ? 'intense' : 'normal', seed: `${seedPrefix}-${i}` }, CATALOG)
+      for (let guard = 0; guard < 300 && state.phase === 'career'; guard += 1) {
+        const roll = int(rng, 0, state.decision!.options.length - 1)
+        rng = roll.rng
+        const next = decide(state, state.decision!.options[roll.value].id, CATALOG)
+        onDecision?.(state, next)
+        state = next
+      }
+      careers.push(state)
+    }
+    return careers
+  }
+
+  it('no tier 1 ninguém joga como reserva: ou é titular, ou está fora (no academy, o registro é do academy)', async () => {
+    const careers = await randomCareers(60, 'titular')
+    for (const career of careers) {
+      for (const record of career.history) {
+        if (!record.leagueId || CATALOG.leagues[record.leagueId].tier !== 1) continue
+        expect(record.squadRole).not.toBe('reserve')
+        if (record.squadRole === 'bench') expect(record.stats.games).toBe(0)
+      }
+    }
+  })
+
+  it('propostas de times de tier 1 são sempre para titular', async () => {
+    let seen = 0
+    await randomCareers(60, 'propostas', (state) => {
+      for (const option of state.decision!.options) {
+        if (!('teamId' in option) || option.type === 'stay') continue
+        const leagueId = state.teams[option.teamId]?.leagueId
+        if (leagueId && CATALOG.leagues[leagueId].tier === 1) {
+          expect(option.expectedRole).toBe('starter')
+          seen += 1
+        }
+      }
+    })
+    expect(seen).toBeGreaterThan(50)
+  })
+
+  it('evento na pré-temporada é seguido pela janela, sem simular splits no meio', async () => {
+    let chained = 0
+    await randomCareers(60, 'cadeia', (state, next) => {
+      const decision = state.decision!
+      if (decision.kind !== 'event' || decision.window !== '3-1' || next.phase !== 'career') return
+      if (next.teamId !== state.teamId || state.paused) return
+      const chose = next.history.length === state.history.length
+      if (chose) {
+        expect(['transfer_window', 'released', 'demoted', 'org_left']).toContain(next.decision!.kind)
+        chained += 1
+      }
+    })
+    expect(chained).toBeGreaterThan(5)
+  })
+
+  it('quem perde a vaga no tier 1 pode descer para o academy do próprio time', async () => {
+    let demoted = 0
+    await randomCareers(80, 'rebaixado', (state) => {
+      const decision = state.decision!
+      if (decision.kind !== 'demoted') return
+      demoted += 1
+      expect(decision.options).toHaveLength(3)
+      const academy = decision.options[0]
+      expect('teamId' in academy && CATALOG.teams[academy.teamId].parentId).toBe(state.teamId)
+    })
+    expect(demoted).toBeGreaterThan(0)
+  })
+})

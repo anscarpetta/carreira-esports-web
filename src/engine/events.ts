@@ -75,6 +75,13 @@ export interface EventDef {
 }
 
 const always = (): boolean => true
+
+// Perder espaço dura só o próximo split. No tier 1 não há reserva: o jogador atua no
+// academy do time (ou fica fora, se o time não tiver academy).
+function loseSpot(ctx: EventContext): string {
+  if (ctx?.league?.tier === 1) return ctx.academyId ? 'Vai para o academy no próximo split' : 'Fica fora do time no próximo split'
+  return 'Menos jogos no próximo split'
+}
 const nothing: readonly EventOutcomeDef[] = [{ probability: 1, text: 'Sem mudanças', effects: {} }]
 
 export const INJURIES: readonly { item: { name: string; ovr: number }; weight: number }[] = [
@@ -212,7 +219,7 @@ export const EVENTS: readonly EventDef[] = [
     title: () => 'Troca de rota',
     description: () => 'O coach precisa de você em outra rota por um tempo.',
     condition: always,
-    choices: () => [
+    choices: (ctx) => [
       {
         key: 'accept',
         label: 'Aceitar',
@@ -227,7 +234,7 @@ export const EVENTS: readonly EventDef[] = [
       {
         key: 'refuse',
         label: 'Recusar',
-        outcomes: [{ probability: 1, text: 'Menos jogos no período', effects: { roleShift: -1 } }],
+        outcomes: [{ probability: 1, text: loseSpot(ctx), effects: { roleShift: -1 } }],
       },
     ],
   },
@@ -239,13 +246,13 @@ export const EVENTS: readonly EventDef[] = [
     // Só no tier 1 e fora da Coreia (academy não contrata importado para disputar vaga).
     condition: (ctx) =>
       ctx.squadRole === 'starter' && ctx.league.tier === 1 && ctx.league.region !== 'KR' && !ctx.isAcademy,
-    choices: () => [
+    choices: (ctx) => [
       {
         key: 'compete',
         label: 'Disputar a vaga',
         outcomes: [
           { probability: 0.5, text: 'Você segue titular', effects: { forcedRole: 'starter' } },
-          { probability: 0.5, text: 'Reserva no período', effects: { forcedRole: 'reserve' } },
+          { probability: 0.5, text: `Perde a vaga: ${loseSpot(ctx).toLowerCase()}`, effects: { forcedRole: 'reserve' } },
         ],
       },
       { key: 'exit', label: 'Pedir para sair', join: 'exit', outcomes: [] },
@@ -344,11 +351,11 @@ export const EVENTS: readonly EventDef[] = [
     title: () => 'Flame na solo queue',
     description: () => 'Um clipe seu xingando um aliado viralizou, e a Riot está de olho.',
     condition: always,
-    choices: () => [
+    choices: (ctx) => [
       {
         key: 'apologize',
         label: 'Pedir desculpas',
-        outcomes: [{ probability: 1, text: 'Menos jogos no período', effects: { roleShift: -1 } }],
+        outcomes: [{ probability: 1, text: loseSpot(ctx), effects: { roleShift: -1 } }],
       },
       {
         key: 'ignore',
@@ -366,18 +373,18 @@ export const EVENTS: readonly EventDef[] = [
     title: () => 'Criticou o coach na live',
     description: () => 'Depois de uma derrota dura, você criticou o coach ao vivo. O clima pesou.',
     condition: always,
-    choices: () => [
+    choices: (ctx) => [
       {
         key: 'apologize',
         label: 'Pedir desculpas',
-        outcomes: [{ probability: 1, text: 'Menos jogos no período', effects: { roleShift: -1 } }],
+        outcomes: [{ probability: 1, text: loseSpot(ctx), effects: { roleShift: -1 } }],
       },
       {
         key: 'double_down',
         label: 'Bancar a crítica',
         outcomes: [
           { probability: 0.5, text: 'O coach é demitido: titular no período', effects: { forcedRole: 'starter' } },
-          { probability: 0.5, text: 'Afastado: banco no período', effects: { forcedRole: 'bench' } },
+          { probability: 0.5, text: `Afastado: ${loseSpot(ctx).toLowerCase()}`, effects: { forcedRole: 'bench' } },
         ],
       },
     ],
@@ -388,11 +395,11 @@ export const EVENTS: readonly EventDef[] = [
     title: () => 'Familiar critica o time',
     description: () => 'Seu irmão detonou o time nas redes sociais.',
     condition: always,
-    choices: () => [
+    choices: (ctx) => [
       {
         key: 'support_family',
         label: 'Apoiar seu irmão',
-        outcomes: [{ probability: 1, text: 'Menos jogos no período', effects: { roleShift: -1 } }],
+        outcomes: [{ probability: 1, text: loseSpot(ctx), effects: { roleShift: -1 } }],
       },
       {
         key: 'support_team',
@@ -425,12 +432,12 @@ export const EVENTS: readonly EventDef[] = [
     title: () => 'Terminar os estudos',
     description: () => 'Sua família quer que você conclua o ensino médio junto com a carreira.',
     condition: (ctx) => ctx.age <= 18,
-    choices: () => [
+    choices: (ctx) => [
       {
         key: 'accept',
         label: 'Estudar',
         outcomes: [
-          { probability: 1, text: '+1 OVR (maturidade), menos jogos no período', effects: { ovr: 1, roleShift: -1 } },
+          { probability: 1, text: `+1 OVR (maturidade); ${loseSpot(ctx).toLowerCase()}`, effects: { ovr: 1, roleShift: -1 } },
         ],
       },
       { key: 'refuse', label: 'Focar só no jogo', outcomes: nothing },
@@ -573,22 +580,6 @@ export const TRAINING_EVENTS: readonly EventDef[] = [
 ]
 
 export const SLICE_2_EVENTS: readonly EventDef[] = [
-  {
-    key: 'academy_demotion',
-    weight: 70,
-    title: () => 'De volta ao academy',
-    description: () => 'Você quase não está jogando. O coach quer que você ganhe ritmo no academy.',
-    condition: (ctx) => ctx.league.tier === 1 && ctx.squadRole !== 'starter' && ctx.age <= 22 && ctx.academyId !== null,
-    choices: () => [
-      {
-        key: 'accept',
-        label: 'Descer para o academy',
-        join: 'academy',
-        outcomes: [{ probability: 1, text: 'Titular no academy no período', effects: { forcedRole: 'starter' } }],
-      },
-      { key: 'exit', label: 'Pedir para sair', join: 'exit', outcomes: [] },
-    ],
-  },
   {
     key: 'streamer_offer',
     weight: 50,

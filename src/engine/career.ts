@@ -87,6 +87,7 @@ const NO_ACTIVE_EFFECTS: ActiveEffects = {
   titleOverride: null,
   internationalBonus: 0,
   splitsLeft: 0,
+  roleSplitsLeft: 0,
 }
 
 // Chance de lesão em cada decisão (no máximo 2 por carreira).
@@ -363,6 +364,7 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
     player: { ...s.player, ovr: eventOvr(s.player, effects.ovr) },
     suspensionSplits: s.suspensionSplits + effects.suspensionSplits,
     pauseSplits: s.pauseSplits + effects.pauseSplits,
+    // Sem efeito novo, mantém o que já estava valendo (ex.: evento logo antes da janela).
     effects: hasTemporary
       ? {
           tempOvr: effects.tempOvr,
@@ -372,8 +374,19 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
           titleOverride: effects.titleOverride,
           internationalBonus: effects.internationalBonus,
           splitsLeft: period,
+          // Ganhar a vaga vale o período inteiro; perder a vaga, só o próximo split.
+          roleSplitsLeft:
+            effects.forcedRole === 'starter' ? period : effects.forcedRole !== null || effects.roleShift < 0 ? 1 : 0,
         }
-      : NO_ACTIVE_EFFECTS,
+      : s.effects,
+  }
+
+  // Evento na pré-temporada não rouba a janela: sem troca de time, a janela vem em seguida.
+  const chainWindow =
+    decision.kind === 'event' && decision.window === '3-1' && option.type === 'event_choice' && !s.paused
+  if (chainWindow && s.teamId === state.teamId) {
+    const windowDecision = nextDecision(s, rng, catalog, { forceWindow: true })
+    return { ...windowDecision.state, rngState: windowDecision.rng.state }
   }
 
   for (let i = 0; i < period && s.phase === 'career'; i += 1) {
@@ -433,20 +446,37 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   let player = state.player
 
 
-  const team = state.teamId ? state.teams[state.teamId] : null
-  const league = team?.leagueId ? catalog.leagues[team.leagueId] : null
+  // Time do contrato (pode ser diferente de onde o jogador atua neste split).
+  const contractTeam = state.teamId ? state.teams[state.teamId] : null
+  let team = contractTeam
+  let league = team?.leagueId ? catalog.leagues[team.leagueId] : null
   const effects = state.effects.splitsLeft > 0 ? state.effects : NO_ACTIVE_EFFECTS
+  const roleEffects = effects.roleSplitsLeft > 0
   const ovrNow = clampOvr(player.ovr + effects.tempOvr)
 
-  // Quem tem menos de 18 anos não pode jogar o tier 1 (pode acontecer quando o time sobe de divisão).
-  const underage = league?.tier === 1 && age < MIN_TIER1_AGE
-
   let squad: SplitRecord['squadRole']
+  let outOfTeam = false
   if (state.suspensionSplits > 0) squad = 'suspended'
   else if (state.paused || state.pauseSplits > 0 || !team || !league) squad = 'paused'
-  else if (underage) squad = 'bench'
-  else squad = effects.forcedRole ?? shiftRole(squadRoleFor(ovrNow, team.rating), effects.roleShift)
-  const plays = !underage && (squad === 'starter' || squad === 'reserve' || squad === 'bench')
+  else {
+    const forced = roleEffects ? effects.forcedRole : null
+    squad = forced ?? shiftRole(squadRoleFor(ovrNow, team.rating), roleEffects ? effects.roleShift : 0)
+    // No tier 1 não existe reserva que joga de vez em quando: ou é titular, ou atua no
+    // academy do próprio time (menores de 18 também). Sem academy, fica fora do time.
+    const underage = league.tier === 1 && age < MIN_TIER1_AGE
+    if (league.tier === 1 && (underage || squad !== 'starter')) {
+      const academyId = academyOf(state, catalog, team.id)
+      if (academyId) {
+        team = state.teams[academyId]
+        league = catalog.leagues[team.leagueId!]
+        squad = forced && forced !== 'starter' ? forced : squadRoleFor(ovrNow, team.rating)
+      } else {
+        squad = 'bench'
+        outOfTeam = true
+      }
+    }
+  }
+  const plays = !outOfTeam && (squad === 'starter' || squad === 'reserve' || squad === 'bench')
 
   let stats = EMPTY_STATS
   let titles: Title[] = []
@@ -612,7 +642,14 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
       ? { ...state.residency, [league.region]: (state.residency[league.region] ?? 0) + 1 }
       : state.residency
   const nextEffects: ActiveEffects =
-    effects.splitsLeft > 1 ? { ...effects, splitsLeft: effects.splitsLeft - 1, titleOverride: null } : NO_ACTIVE_EFFECTS
+    effects.splitsLeft > 1
+      ? {
+          ...effects,
+          splitsLeft: effects.splitsLeft - 1,
+          roleSplitsLeft: Math.max(0, effects.roleSplitsLeft - 1),
+          titleOverride: null,
+        }
+      : NO_ACTIVE_EFFECTS
 
   let teams = state.teams
   let news = [...state.news, ...newsLines]
@@ -633,7 +670,10 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
       ...newsFor(update.changes, catalog, state.paused ? null : state.teamId, league?.region ?? regionOf(catalog, player.nationality)),
     ]
     // Registra quando o time do jogador sobe, cai ou sai da liga.
-    const move = !state.paused && team ? update.changes.find((c) => c.teamId === team.id && c.kind !== 'ambitious' && c.kind !== 'joined') : undefined
+    const move =
+      !state.paused && contractTeam
+        ? update.changes.find((c) => c.teamId === contractTeam.id && c.kind !== 'ambitious' && c.kind !== 'joined')
+        : undefined
     if (move) {
       teamMove = { kind: move.kind as TeamMove['kind'], teamId: move.teamId, from: move.from, to: move.to }
       finalRecord = { ...record, leagueChange: teamMove }
@@ -674,7 +714,10 @@ function academyOf(state: CareerState, catalog: Catalog, teamId: string): string
 
 function buildContext(state: CareerState, catalog: Catalog, team: TeamState, league: LeagueData): EventContext {
   const members = leagueTeams(state.teams, league.id).sort((a, b) => b.rating - a.rating)
-  const stronger = members.filter((t) => t.id !== team.id && t.rating > team.rating + 1.5)
+  // Super time: mais forte, e onde o jogador ainda seria titular (no tier 1 só se contrata titular).
+  const stronger = members.filter(
+    (t) => t.id !== team.id && t.rating > team.rating + 1.5 && squadRoleFor(state.player.ovr, t.rating) === 'starter',
+  )
   return {
     state,
     age: ageOf(state),
@@ -816,7 +859,12 @@ function eventDecision(
   }
 }
 
-function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { state: CareerState; rng: Rng } {
+function nextDecision(
+  stateIn: CareerState,
+  rngIn: Rng,
+  catalog: Catalog,
+  options: { readonly forceWindow?: boolean } = {},
+): { state: CareerState; rng: Rng } {
   let rng = rngIn
   const state = stateIn
   const age = ageOf(state)
@@ -865,10 +913,33 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
   }
   const league = catalog.leagues[team.leagueId]
 
-  // Fim de ciclo (só na pré-temporada): mais comum para quem passou muito tempo sem ser titular.
+  // Tier 1: perdeu o nível de titular. O time manda para o academy (ou libera, se não tiver).
   const role = squadRoleFor(state.player.ovr, team.rating)
-  let released = false
-  if (window === '3-1' && age >= 19) {
+  if (league.tier === 1 && role !== 'starter' && !options.forceWindow) {
+    const academyId = academyOf(state, catalog, team.id)
+    if (academyId) {
+      const academy = state.teams[academyId]
+      const academyName = catalog.teams[academyId]?.name ?? academyId
+      const decision: Decision = {
+        id: `${state.step}-demoted`,
+        kind: 'demoted',
+        window,
+        eventKey: null,
+        title: 'Rebaixado para o academy',
+        description: `A ${name} se reforçou e, para ser titular, agora é preciso OVR ${Math.ceil(team.rating - 2)} (o seu é ${state.player.ovr}). O time quer que você siga na ${academyName}, ou dá para procurar outro time.`,
+        options: [
+          teamOption('join', academyId, squadRoleFor(state.player.ovr, academy.rating)),
+          ...offersFor(2, [team.id, academyId]).map((offer) => teamOption('join', offer.teamId, offer.expectedRole)),
+        ],
+      }
+      return { rng, state: { ...state, decision } }
+    }
+  }
+
+  // Fim de ciclo (só na pré-temporada): mais comum para quem passou muito tempo sem ser titular.
+  // No tier 1, sem academy e sem nível de titular, o time também libera o jogador.
+  let released = league.tier === 1 && role !== 'starter' && !options.forceWindow
+  if (!released && !options.forceWindow && window === '3-1' && age >= 19) {
     if (state.benchStreak >= 6) released = true
     else if (state.benchStreak >= 3) {
       const cut = chance(rng, 0.6)
@@ -877,7 +948,7 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
     }
   }
   // Veteranos: a cada pré-temporada cresce a chance de o time apostar em alguém mais novo.
-  if (!released && window === '3-1' && age >= 27) {
+  if (!released && !options.forceWindow && window === '3-1' && age >= 27) {
     const renew = chance(rng, Math.min(0.9, 0.2 + 0.15 * (age - 27) + (role === 'starter' ? 0 : 0.25)))
     rng = renew.rng
     released = renew.value
@@ -900,7 +971,7 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
   }
 
   // Lesão: rara, no máximo duas por carreira.
-  if (state.eventPlan.injuries < MAX_INJURIES && state.step > 0) {
+  if (!options.forceWindow && state.eventPlan.injuries < MAX_INJURIES && state.step > 0) {
     const hurt = chance(rng, INJURY_CHANCE)
     rng = hurt.rng
     if (hurt.value) {
@@ -943,7 +1014,7 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
 
   // Evento de carreira, se houver um agendado para esta idade.
   const slot = pendingSlot(state.eventPlan, age)
-  if (slot !== null && state.eventPlan.lastEventAge !== age) {
+  if (!options.forceWindow && slot !== null && state.eventPlan.lastEventAge !== age) {
     const ctx = buildContext(state, catalog, team, league)
     const picked = pickEvent(rng, ctx, state.eventPlan)
     rng = picked.rng
@@ -958,7 +1029,7 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
   }
 
   // Janela de transferências comum: 2 times novos + ficar no time atual.
-  const options: DecisionOption[] = []
+  const cards: DecisionOption[] = []
 
   // Subir do academy para o time principal, se o desempenho justificar (conta como uma das 2 propostas).
   const parentId = catalog.teams[team.id]?.parentId
@@ -966,15 +1037,15 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
   const parentLeague = parent?.leagueId ? catalog.leagues[parent.leagueId] : null
   if (parent && parentLeague && (parentLeague.tier !== 1 || age >= MIN_TIER1_AGE)) {
     const parentRole = squadRoleFor(state.player.ovr, parent.rating)
-    if (parentRole !== 'bench') {
+    if (parentRole === 'starter') {
       const called = chance(rng, window === '3-1' ? 1 : 0.5)
       rng = called.rng
-      if (called.value) options.push(teamOption('join', parent.id, parentRole))
+      if (called.value) cards.push(teamOption('join', parent.id, parentRole))
     }
   }
-  const taken = options.map((o) => ('teamId' in o ? o.teamId : ''))
-  for (const offer of offersFor(2 - options.length, [team.id, ...taken])) {
-    options.push(teamOption('join', offer.teamId, offer.expectedRole))
+  const taken = cards.map((o) => ('teamId' in o ? o.teamId : ''))
+  for (const offer of offersFor(2 - cards.length, [team.id, ...taken])) {
+    cards.push(teamOption('join', offer.teamId, offer.expectedRole))
   }
 
   const decision: Decision = {
@@ -984,7 +1055,7 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
     eventKey: null,
     title: window === '3-1' ? `Pré-temporada ${state.next.year}` : 'Janela de transferências',
     description: 'Chegaram propostas. Você pode aceitar uma ou ficar no time.',
-    options: [...options, teamOption('stay', team.id, role)],
+    options: [...cards, teamOption('stay', team.id, role)],
   }
   return { rng, state: { ...state, decision } }
 }

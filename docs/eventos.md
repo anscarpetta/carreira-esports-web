@@ -111,3 +111,10 @@ Código: `src/engine/events.ts` (catálogo) e `src/engine/career.ts` (lesão, vi
 - **Mais eventos por carreira:** Intensa 10–12, Normal 5–6, Expressa 3. Podem acontecer a partir dos 16 anos.
 - **Correções de texto/contexto:** "O super time te quer" usa o nome da liga; o "Prodígio do academy" não aparece para quem já está num academy.
 - Os ganhos de OVR por evento param em **2 acima do potencial** (o talento tem margem, mas não infinita).
+
+## Playtest 3 (out/2026)
+
+- **De volta ao academy (11)** deixou de ser evento e virou a decisão automática **"Rebaixado para o academy"**, que aparece quando o jogador perde o nível de titular no tier 1.
+- **Perder espaço** (pedir desculpas, disputa de vaga, troca de rota recusada, estudos etc.) agora dura só o **próximo split**. O texto se adapta: no tier 1, "Vai para o academy no próximo split" (ou "Fica fora do time", se não houver academy); nos outros tiers, "Menos jogos no próximo split".
+- **O super time te quer** só aparece se o jogador seria titular no time mais forte.
+- **Evento na pré-temporada:** se não houver troca de time, a janela de transferências vem logo em seguida.

@@ -37,6 +37,13 @@ Documentos de apoio:
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
 - **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.
 - **Começo:** ofertas variadas entre academy, tier 2 e tier 3. Só é possível estrear no tier 1 a partir dos 18 anos. A organização pode subir ou descer o jogador entre o academy e o time principal.
+- **Tier 1 só com titulares (playtest 3, out/2026):**
+  - No tier 1 não existe reserva que joga de vez em quando: ou o jogador é titular, ou atua no academy do próprio time (sem academy, fica fora). Menores de 18 em time que subiu também atuam no academy.
+  - Times de tier 1 só fazem proposta para titular; quem ainda não tem nível recebe proposta do academy.
+  - Na janela, quem perdeu o nível de titular recebe a decisão **"Rebaixado para o academy"**: descer para o academy do time ou assinar com um dos 2 times interessados. Sem academy, é fim de ciclo.
+  - Perder espaço por evento (pedir desculpas, disputa de vaga etc.) dura só o próximo split.
+  - Régua de titular: até 2 pontos abaixo da força do time.
+- **Pré-temporada sem janela roubada:** um evento na janela 3→1 vem antes, e a janela de transferências aparece logo depois.
 - **Acesso e rebaixamento (playtest, out/2026):**
   - O convidado que foi campeão de algum split do ano, ou terminou entre os 3 primeiros na média, mantém a vaga sem série.
   - Na série, conta a força com o jogador em quadra.

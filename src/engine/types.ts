@@ -250,6 +250,7 @@ export type DecisionKind =
   | 'released'
   | 'org_left'
   | 'no_offers'
+  | 'demoted'
   | 'paused'
   | 'event'
 
@@ -297,6 +298,8 @@ export interface ActiveEffects {
   readonly internationalBonus: number
   // Por quantos splits os efeitos temporários ainda valem.
   readonly splitsLeft: number
+  // Por quantos splits o papel forçado/deslocado ainda vale (perder a vaga dura 1 split).
+  readonly roleSplitsLeft: number
 }
 
 export interface EventPlan {
