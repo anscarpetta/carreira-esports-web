@@ -233,3 +233,39 @@ describe('importados e residência', () => {
     }
   })
 })
+
+describe('internacionais', () => {
+  it('o Worlds tem campeão, vice e colocações para todos os 16 times', async () => {
+    const { INTERNATIONALS, qualifiers, simulateInternational } = await import('./international.ts')
+    const worlds = INTERNATIONALS.find((e) => e.id === 'worlds')!
+    let rng = createRng('worlds')
+    const teams = initialTeams(CATALOG)
+    for (let i = 0; i < 30; i += 1) {
+      const picked = qualifiers(rng, worlds, teams, CATALOG, null, {})
+      rng = picked.rng
+      expect(picked.teamIds).toHaveLength(16)
+      const entrants = picked.teamIds.map((id) => ({ id, rating: teams[id].rating }))
+      const result = simulateInternational(rng, worlds, entrants, null)
+      rng = result.rng
+      expect(Object.keys(result.placements)).toHaveLength(16)
+      expect(result.placements[result.championId]).toBe(1)
+      expect(result.placements[result.runnerUpId]).toBe(2)
+    }
+  })
+
+  it('times do CBLOL quase nunca ganham o Worlds', async () => {
+    const { INTERNATIONALS, qualifiers, simulateInternational } = await import('./international.ts')
+    const worlds = INTERNATIONALS.find((e) => e.id === 'worlds')!
+    let rng = createRng('milagre')
+    const teams = initialTeams(CATALOG)
+    let brazil = 0
+    for (let i = 0; i < 500; i += 1) {
+      const picked = qualifiers(rng, worlds, teams, CATALOG, null, {})
+      rng = picked.rng
+      const result = simulateInternational(rng, worlds, picked.teamIds.map((id) => ({ id, rating: teams[id].rating })), null)
+      rng = result.rng
+      if (teams[result.championId].leagueId === 'cblol') brazil += 1
+    }
+    expect(brazil).toBeLessThanOrEqual(2)
+  })
+})

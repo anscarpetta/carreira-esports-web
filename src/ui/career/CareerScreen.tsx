@@ -44,6 +44,12 @@ function celebrations(prev: CareerState, next: CareerState): Toast[] {
     for (const award of record.awards) {
       toasts.push({ id: `a-${award.kind}-${award.year}-${award.splitIndex}`, icon: '⭐', text: `${award.name} ${award.year}` })
     }
+    for (const title of record.international?.titles ?? []) {
+      toasts.push({ id: `i-${title.kind}-${title.year}`, icon: '🌍', text: `Campeão do ${title.name} ${title.year}!` })
+    }
+    for (const award of record.international?.awards ?? []) {
+      toasts.push({ id: `ia-${award.kind}-${award.year}-${award.splitIndex}`, icon: '⭐', text: `${award.name} ${award.year}` })
+    }
   }
   return toasts
 }

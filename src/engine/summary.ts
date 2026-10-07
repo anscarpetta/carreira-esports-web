@@ -35,9 +35,11 @@ export function summarize(state: CareerState): CareerSummary {
   let starterSplits = 0
 
   for (const record of state.history) {
+    const intl = record.international
     totals = addStats(totals, record.stats)
-    titles.push(...record.titles)
-    awards.push(...record.awards)
+    if (intl) totals = addStats(totals, intl.stats)
+    titles.push(...record.titles, ...(intl?.titles ?? []))
+    awards.push(...record.awards, ...(intl?.awards ?? []))
     peakOvr = Math.max(peakOvr, record.ovr, record.ovrAfter)
     peakMarketValue = Math.max(peakMarketValue, record.marketValue)
     if (record.squadRole === 'starter') starterSplits += 1
@@ -49,11 +51,18 @@ export function summarize(state: CareerState): CareerSummary {
         ...last,
         to: at,
         splits: last.splits + 1,
-        stats: addStats(last.stats, record.stats),
-        titles: last.titles + record.titles.length,
+        stats: addStats(addStats(last.stats, record.stats), intl?.stats ?? EMPTY_STATS),
+        titles: last.titles + record.titles.length + (intl?.titles.length ?? 0),
       }
     } else {
-      spells.push({ teamId: record.teamId, from: at, to: at, splits: 1, stats: record.stats, titles: record.titles.length })
+      spells.push({
+        teamId: record.teamId,
+        from: at,
+        to: at,
+        splits: 1,
+        stats: addStats(record.stats, intl?.stats ?? EMPTY_STATS),
+        titles: record.titles.length + (intl?.titles.length ?? 0),
+      })
     }
   }
 

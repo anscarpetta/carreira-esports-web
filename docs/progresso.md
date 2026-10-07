@@ -145,3 +145,32 @@ Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito
 - **Nomes dos splits:** LCK Cup / Road to MSI / Season; LEC Versus / Spring / Summer; LCS Lock-In / Spring / Summer; LPL Split 1–3; NACL Kickoff / Spring / Summer.
 - **Idade mínima de 18 anos no tier 1** para todas as regiões (na vida real a LCK aceita 17).
 - O jogo diferencia a vaga de importado pelo papel (só titular), sem controlar o elenco inteiro de cada time.
+
+## Fatia 4: First Stand, MSI e Worlds ✅
+
+### O que mudou no jogo
+- **Três torneios internacionais por ano:**
+
+  | Torneio | Quando | Vagas | Formato |
+  |---|---|---|---|
+  | First Stand | depois do split 1 | 1 por região (LCK, LPL, LEC, LCS, CBLOL) | todos contra todos (MD3) e final (MD5) |
+  | MSI | depois do split 2 | LCK 2, LPL 2, LEC 2, LCS 2, CBLOL 1 | todos contra todos (MD3) e playoffs com 4 (MD5) |
+  | Worlds | depois do split 3 | LCK 4, LPL 4, LEC 4, LCS 3, CBLOL 1 (16 times) | fase suíça (3 vitórias classificam, 3 derrotas eliminam) e mata-mata com 8 (MD5) |
+
+- **Classificação:** na liga do jogador vale a colocação real do split; nas outras, a força do time (com um pouco de sorte).
+- **Campanha na trajetória:** "🌍 MSI 2032: Semifinal · 19j · KDA 4,1", com 🏆 quando é campeão e pop-up 🌍.
+- **Títulos internacionais e MVP da final** entram na vitrine (Worlds e MSI primeiro).
+- **Notícias** com os campeões de cada torneio, mesmo quando você não está lá ("T1 é campeã do Worlds 2032").
+- **Evento "Liga ou internacional?"** (era o 10 do catálogo): priorizar a liga (+1,5 de força na liga, −3 nos internacionais) ou o contrário.
+- **Correção:** o craque do tier 1 deixou de ser tratado como "bom demais" pelos times da própria liga. Antes, um jogador de OVR 88 do CBLOL só recebia propostas de saída do tier 2 e 3.
+
+### Milagres "quase zero, nunca zero"
+- Num teste com 500 Worlds simulados, o CBLOL não foi campeão nenhuma vez.
+- Em 1.500 carreiras brasileiras simuladas: ~1,75 internacionais disputados por carreira e nenhum título. Coreanos e chineses ganham MSI e Worlds de vez em quando.
+
+### Testes: 65
+- Novos testes cobrem: o Worlds com 16 classificados e colocações completas, o CBLOL quase nunca campeão, e internacionais só para quem se classificou, sempre no torneio certo para o split.
+
+### Decisões que tomei sozinho (para revisar)
+- **Worlds com 16 vagas** (a LEC ficou com 4 para fechar a conta). Quando a LCP entrar (fatia 6), as vagas serão redistribuídas.
+- **First Stand com 1 vaga por região** (regra de 2026 para LCS e CBLOL, estendida às outras).

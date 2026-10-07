@@ -156,9 +156,10 @@ describe('carreira completa', () => {
   it('o resumo soma as estatísticas de todos os splits', () => {
     for (const career of careers.slice(0, 10)) {
       const summary = summarize(career)
-      const games = career.history.reduce((sum, r) => sum + r.stats.games, 0)
+      const games = career.history.reduce((sum, r) => sum + r.stats.games + (r.international?.stats.games ?? 0), 0)
       expect(summary.totals.games).toBe(games)
-      expect(summary.titles.length).toBe(career.history.reduce((sum, r) => sum + r.titles.length, 0))
+      const titles = career.history.reduce((sum, r) => sum + r.titles.length + (r.international?.titles.length ?? 0), 0)
+      expect(summary.titles.length).toBe(titles)
     }
   })
 
@@ -232,5 +233,24 @@ describe('regiões', () => {
       if (career.history.some((r) => r.leagueId && CATALOG.leagues[r.leagueId].region !== 'CN')) abroad += 1
     }
     expect(abroad).toBeLessThanOrEqual(3)
+  })
+
+  it('internacionais só para quem se classificou e com campanha coerente', () => {
+    const sample = ['BR', 'KR', 'FR'].flatMap((nationality) =>
+      Array.from({ length: 15 }, (_, i) => playToEnd(createCareer({ ...INPUT, nationality, seed: `intl-${nationality}-${i}` }, CATALOG))),
+    )
+    let seen = 0
+    for (const career of sample) {
+      for (const record of career.history) {
+        const intl = record.international
+        if (!intl) continue
+        expect(['first_stand', 'msi', 'worlds'][record.splitIndex]).toBe(intl.id)
+        expect(CATALOG.leagues[record.leagueId!].tier).toBe(1)
+        if (intl.titles.length > 0) expect(intl.placement).toBe(1)
+        expect(intl.stats.wins).toBeLessThanOrEqual(intl.stats.games)
+        seen += 1
+      }
+    }
+    expect(seen).toBeGreaterThan(0)
   })
 })

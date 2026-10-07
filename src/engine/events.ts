@@ -18,6 +18,7 @@ export const NO_EFFECTS: Effects = {
   titleOverride: null,
   pauseSplits: 0,
   pause: null,
+  internationalBonus: 0,
 }
 
 export interface EventContext {
@@ -559,7 +560,42 @@ export const SLICE_3_EVENTS: readonly EventDef[] = [
   },
 ]
 
-export const ALL_EVENTS: readonly EventDef[] = [...EVENTS, ...SLICE_2_EVENTS, ...SLICE_3_EVENTS]
+export const SLICE_4_EVENTS: readonly EventDef[] = [
+  {
+    key: 'club_priority',
+    weight: 80,
+    title: () => 'Liga ou internacional?',
+    description: () =>
+      'A comissão técnica quer focar a preparação. Treinar para a liga ou guardar estratégias para os internacionais?',
+    condition: (ctx) => ctx.squadRole === 'starter' && ctx.league.tier === 1 && ctx.teamRank <= 3,
+    choices: () => [
+      {
+        key: 'league',
+        label: 'Priorizar a liga',
+        outcomes: [
+          {
+            probability: 1,
+            text: 'Mais chance na liga, menos nos internacionais',
+            effects: { teamBonus: 1.5, internationalBonus: -3 },
+          },
+        ],
+      },
+      {
+        key: 'international',
+        label: 'Priorizar os internacionais',
+        outcomes: [
+          {
+            probability: 1,
+            text: 'Mais chance nos internacionais, menos na liga',
+            effects: { teamBonus: -1.5, internationalBonus: 3 },
+          },
+        ],
+      },
+    ],
+  },
+]
+
+export const ALL_EVENTS: readonly EventDef[] = [...EVENTS, ...SLICE_2_EVENTS, ...SLICE_3_EVENTS, ...SLICE_4_EVENTS]
 
 export const EVENTS_BY_KEY: Readonly<Record<string, EventDef>> = Object.fromEntries(
   ALL_EVENTS.map((event) => [event.key, event]),

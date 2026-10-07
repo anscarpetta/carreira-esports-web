@@ -22,7 +22,9 @@ export function Summary({
 }) {
   const s = summarize(career)
   const { player } = career
-  const titles = groupCount(s.titles.map((t) => t.name))
+  // Internacionais primeiro, do maior para o menor.
+  const order: Record<string, number> = { worlds: 0, msi: 1, first_stand: 2, league: 3 }
+  const titles = groupCount([...s.titles].sort((a, b) => order[a.kind] - order[b.kind]).map((t) => t.name))
   const awards = groupCount(s.awards.map((a) => a.name))
   const years = s.firstYear !== null && s.lastYear !== null ? `${s.firstYear}–${s.lastYear}` : '—'
 
@@ -105,6 +107,8 @@ export function Summary({
               <span className="truncate">
                 {r.splitName} {r.year} · {CATALOG.teams[r.teamId ?? '']?.shortName ?? 'Sem time'} · {SQUAD_LABEL[r.squadRole]}
                 {r.titles.length > 0 && ' 🏆'}
+                {r.international && ` · 🌍 ${r.international.name}: ${r.international.stage}`}
+                {(r.international?.titles.length ?? 0) > 0 && ' 🏆'}
               </span>
               <span className="shrink-0 text-muted tabular-nums">OVR {r.ovrAfter}</span>
             </li>
