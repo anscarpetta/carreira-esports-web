@@ -356,6 +356,16 @@ describe('vaga de convidado do CBLOL (caso da 9z)', () => {
 })
 
 describe('potencial regional', () => {
+  it('o coreano começa mais pronto, sem passar do próprio teto', () => {
+    for (let i = 0; i < 30; i += 1) {
+      const input = { nick: 'X', role: 'mid' as const, nationality: 'KR', startYear: 2027 }
+      const kr = createPlayer(createRng(`h${i}`), { ...input, region: 'KR' }).value
+      const br = createPlayer(createRng(`h${i}`), { ...input, nationality: 'BR', region: 'BR' }).value
+      expect(kr.ovr).toBeGreaterThan(br.ovr)
+      expect(kr.ovr).toBeLessThanOrEqual(kr.potential - 4)
+    }
+  })
+
   it('a base de talentos mais funda eleva o topo, não quem não vingaria', () => {
     expect(regionalPotential('BR', 84)).toBe(84)
     expect(regionalPotential('KR', 60)).toBe(60)

@@ -22,6 +22,11 @@ const POTENTIAL_BANDS: readonly { item: readonly [number, number]; weight: numbe
 // ou chinês precisa de teto para chegar lá. Sem isso, ninguém alcança um time capaz de ganhar o Worlds.
 export const REGION_TALENT: Readonly<Record<string, number>> = { KR: 13, CN: 12, EU: 5, NA: 3, PAC: 2 }
 
+// Vantagem inicial: na Coreia e na China o talento chega mais pronto, e a liga de entrada
+// (LCK CL, LDL, EMEA Masters…) é bem mais forte que a Qualificatória Aberta do Brasil.
+// Sem isso, o coreano passava 3 anos no banco antes da primeira chance.
+export const REGION_HEADSTART: Readonly<Record<string, number>> = { KR: 10, CN: 9, EU: 6, NA: 3, PAC: 2 }
+
 // Potencial na escala da região. O bônus cresce com o talento: a base mais funda eleva o topo,
 // não quem não vingaria (60 não ganha nada; 90 ganha o bônus inteiro).
 export function regionalPotential(region: string | undefined, potential: number): number {
@@ -51,7 +56,8 @@ export function createPlayer(rng: Rng, input: NewPlayerInput): Roll<Player> {
   const profile = pickWeighted(potential.rng, PROFILES)
   const base = int(profile.rng, 0, 4)
   // Quem tem mais potencial costuma começar melhor (o prodígio já chama atenção aos 16).
-  const ovr = 51 + Math.round((potential.value - 62) * 0.3) + base.value
+  const headstart = REGION_HEADSTART[input.region ?? ''] ?? 0
+  const ovr = Math.min(potential.value - 4, 51 + Math.round((potential.value - 62) * 0.3) + base.value + headstart)
   const player: Player = {
     nick: input.nick,
     role: input.role,

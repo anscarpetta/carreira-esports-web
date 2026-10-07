@@ -49,6 +49,7 @@ Documentos de apoio:
   | Brasil e LATAM | 0 (a referência) |
 
   Sem isso, ninguém alcançava um time capaz de ganhar o Worlds: em 1.600 carreiras simuladas, nenhum título.
+- **Vantagem inicial por região (out/2026):** o talento coreano e o chinês chegam mais prontos, e a liga de entrada deles (LCK CL, LDL) é bem mais forte que a Qualificatória Aberta. O OVR aos 16 ganha Coreia +10, China +9, Europa +6, LCS +3 e Pacífico +2 (sempre pelo menos 4 abaixo do potencial). Antes, o coreano só virava titular em média aos 19,3 anos; agora, aos 17,1, perto do brasileiro (16,1).
 - **Aposentadoria:** botão separado, discreto, disponível desde o começo, sem idade fixa. É possível pausar (streamer, agente livre) e voltar.
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
 - **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.
