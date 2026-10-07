@@ -173,6 +173,15 @@ export interface SplitRecord {
   readonly marketValue: number
   // Torneio internacional disputado logo depois deste split, se houver.
   readonly international?: InternationalRecord | null
+  // O time do jogador subiu, caiu ou saiu da liga na pré-temporada seguinte a este split.
+  readonly leagueChange?: TeamMove | null
+}
+
+export interface TeamMove {
+  readonly kind: 'promoted' | 'relegated' | 'left'
+  readonly teamId: string
+  readonly from: string | null
+  readonly to: string | null
 }
 
 export interface InternationalRecord {
@@ -342,4 +351,6 @@ export interface CareerState {
   readonly news: readonly string[]
   // Splits jogados em cada região (3 anos numa região dão residência).
   readonly residency: Readonly<Record<string, number>>
+  // Subida, queda ou saída do time do jogador na última pré-temporada (aviso em destaque).
+  readonly teamMove: TeamMove | null
 }

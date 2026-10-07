@@ -111,15 +111,45 @@ function leaguesByTier(catalog: Catalog): LeagueData[] {
 }
 
 // Desempenho do ano para decidir acesso e rebaixamento.
+// Usa a força da temporada que acabou (antes dos reforços da pré-temporada) e, quando há
+// colocações reais (liga do jogador), a campanha pesa bastante: 1º lugar médio vale ~+9.
 function seasonScore(
   rng: Rng,
   team: TeamState,
   placements: Readonly<Record<string, readonly number[]>> | undefined,
+  seasonRating: number,
 ): { rng: Rng; value: number } {
   const noise = normal(rng)
   const places = placements?.[team.id]
-  const bonus = places && places.length > 0 ? (4.5 - places.reduce((a, b) => a + b, 0) / places.length) * 0.8 : 0
-  return { rng: noise.rng, value: team.rating + noise.value * 1.5 + bonus }
+  const bonus = places && places.length > 0 ? (4.5 - places.reduce((a, b) => a + b, 0) / places.length) * 2.5 : 0
+  return { rng: noise.rng, value: seasonRating + noise.value * 1.5 + bonus }
+}
+
+// O convidado mantém a vaga sem série se foi campeão de algum split do ano ou terminou,
+// na média, entre os 3 primeiros. Sem colocações (liga que o jogador não acompanha),
+// vale a força: entre as 3 mais fortes da liga.
+export function guestKeepsSpot(
+  guest: TeamState,
+  members: readonly TeamState[],
+  placements: Readonly<Record<string, readonly number[]>> | undefined,
+): boolean {
+  const places = placements?.[guest.id]
+  if (places && places.length > 0) {
+    const average = places.reduce((a, b) => a + b, 0) / places.length
+    return places.includes(1) || average <= 3
+  }
+  const rank = [...members].sort((a, b) => b.rating - a.rating).findIndex((t) => t.id === guest.id)
+  return rank >= 0 && rank < 3
+}
+
+// Liga de origem de um time (nos dados de 2026), se for uma das ligas desafiantes da liga de cima.
+function originLeague(catalog: Catalog, teamId: string, upper: LeagueData): LeagueData | null {
+  const allowed = upper.challengerLeagueIds ?? (upper.lowerLeagueId ? [upper.lowerLeagueId] : [])
+  for (const id of allowed) {
+    const league = catalog.leagues[id]
+    if (league && (league.teamIds.includes(teamId) || league.reserveTeamIds.includes(teamId))) return league
+  }
+  return null
 }
 
 function moveTeam(rng: Rng, team: TeamState, to: LeagueData, guest: boolean): { rng: Rng; team: TeamState } {
@@ -228,7 +258,7 @@ export function offseasonUpdate(
       .sort((a, b) => a.id.localeCompare(b.id))
     const scored: { team: TeamState; score: number }[] = []
     for (const team of candidates) {
-      const score = seasonScore(r, team, context.placements)
+      const score = seasonScore(r, team, context.placements, current[team.id]?.rating ?? team.rating)
       r = score.rng
       scored.push({ team, score: score.value })
     }
@@ -241,7 +271,7 @@ export function offseasonUpdate(
         for (const team of leagueTeams(teams, leagueId)
           .filter((t) => !isAcademy(catalog, t.id))
           .sort((a, b) => a.id.localeCompare(b.id))) {
-          const score = seasonScore(r, team, context.placements)
+          const score = seasonScore(r, team, context.placements, current[team.id]?.rating ?? team.rating)
           r = score.rng
           scored.push({ team, score: score.value })
         }
@@ -250,29 +280,40 @@ export function offseasonUpdate(
       const guests = leagueTeams(teams, upper.id)
         .filter((t) => t.guest)
         .sort((a, b) => a.id.localeCompare(b.id))
-      guests.forEach((guest, i) => {
-        const challenger = scored[i]?.team
-        if (!challenger) return
-        const series = playSeries(r, guest.rating, challenger.rating, 5)
+      // Força do time na série, contando o jogador se ele for titular ali.
+      const seriesRating = (team: TeamState) =>
+        team.id === context.playerTeamId ? team.rating + 0.2 * context.playerSurplus : team.rating
+      const challengers = scored.map((x) => x.team)
+      let next = 0
+      for (const guest of guests) {
+        // Campanha forte garante a vaga: campeão de algum split ou média entre os 3 primeiros.
+        if (guestKeepsSpot(guest, leagueTeams(teams, upper.id), context.placements)) continue
+        const challenger = challengers[next]
+        next += 1
+        if (!challenger) continue
+        const series = playSeries(r, seriesRating(guest), seriesRating(challenger), 5)
         r = series.rng
-        if (series.value.aWon) return
-        // O convidado rebaixado vai para a liga de onde veio o desafiante.
+        if (series.value.aWon) continue
         const challengerLeague = catalog.leagues[challenger.leagueId ?? lower.id] ?? lower
-        const down = moveTeam(r, guest, challengerLeague, false)
+        // O convidado rebaixado volta para a liga de origem (ex.: a 9z volta para a Liga Regional Sur);
+        // se não veio de uma das ligas desafiantes, cai para a liga logo abaixo.
+        const home = originLeague(catalog, guest.id, upper)
+        const destination = home ?? lower
+        const down = moveTeam(r, guest, destination, false)
         r = down.rng
         const up = moveTeam(r, challenger, upper, true)
         r = up.rng
         teams[guest.id] = down.team
         teams[challenger.id] = up.team
-        changes.push({ kind: 'relegated', teamId: guest.id, from: upper.id, to: challengerLeague.id })
+        changes.push({ kind: 'relegated', teamId: guest.id, from: upper.id, to: destination.id })
         changes.push({ kind: 'promoted', teamId: challenger.id, from: challengerLeague.id, to: upper.id })
-      })
+      }
     } else {
       const upperScored: { team: TeamState; score: number }[] = []
       for (const team of leagueTeams(teams, upper.id)
         .filter((t) => !isAcademy(catalog, t.id))
         .sort((a, b) => a.id.localeCompare(b.id))) {
-        const score = seasonScore(r, team, context.placements)
+        const score = seasonScore(r, team, context.placements, current[team.id]?.rating ?? team.rating)
         r = score.rng
         upperScored.push({ team, score: score.value })
       }
@@ -291,7 +332,30 @@ export function offseasonUpdate(
     }
   }
 
-  // 3. Vagas abertas por organizações que saíram: sobe o melhor de baixo, em cascata.
+  // 3. Liga com time a mais (o convidado rebaixado voltou para a liga de origem, e o
+  // desafiante veio de outra): o pior time cai para a liga de baixo ou sai da pirâmide.
+  for (const league of leagues) {
+    let extra = leagueTeams(teams, league.id).length - league.teamIds.length
+    while (extra > 0) {
+      const weakest = leagueTeams(teams, league.id)
+        .filter((t) => !isAcademy(catalog, t.id) && !t.guest)
+        .sort((a, b) => a.rating - b.rating || a.id.localeCompare(b.id))[0]
+      if (!weakest) break
+      const lower = league.lowerLeagueId ? catalog.leagues[league.lowerLeagueId] : null
+      if (lower) {
+        const down = moveTeam(r, weakest, lower, false)
+        r = down.rng
+        teams[weakest.id] = down.team
+        changes.push({ kind: 'relegated', teamId: weakest.id, from: league.id, to: lower.id })
+      } else {
+        teams[weakest.id] = { ...weakest, leagueId: null, guest: false, ambitiousSince: null }
+        changes.push({ kind: 'left', teamId: weakest.id, from: league.id, to: null })
+      }
+      extra -= 1
+    }
+  }
+
+  // 4. Vagas abertas por organizações que saíram: sobe o melhor de baixo, em cascata.
   for (const league of leagues) {
     while (leagueTeams(teams, league.id).length < league.teamIds.length) {
       const lower = league.lowerLeagueId ? catalog.leagues[league.lowerLeagueId] : null
@@ -301,7 +365,13 @@ export function offseasonUpdate(
       if (pool.length === 0) break
       let picked: TeamState
       if (lower) {
-        picked = [...pool].sort((a, b) => b.rating - a.rating || a.id.localeCompare(b.id))[0]
+        // Sobe quem fez a melhor temporada (campanha real, quando há; senão, a força).
+        const merit = (t: TeamState) => {
+          const places = context.placements?.[t.id]
+          const bonus = places && places.length > 0 ? (4.5 - places.reduce((a, b) => a + b, 0) / places.length) * 2.5 : 0
+          return (current[t.id]?.rating ?? t.rating) + bonus
+        }
+        picked = [...pool].sort((a, b) => merit(b) - merit(a) || a.id.localeCompare(b.id))[0]
       } else {
         const choice = pick(r, [...pool].sort((a, b) => a.id.localeCompare(b.id)))
         r = choice.rng

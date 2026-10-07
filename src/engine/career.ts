@@ -17,7 +17,7 @@ import {
 import { internationalAfter, qualifiers, simulateInternational, stageReached } from './international.ts'
 import { simulateSplit, type PlayerTeamInput } from './league.ts'
 import { SPLITS_PER_DECISION, type SimulationMode } from './modes.ts'
-import { generateOffers, WINDOW_OFFERS, type OfferCandidate, type OfferTeam } from './offers.ts'
+import { guaranteedOffers, type OfferCandidate, type OfferTeam } from './offers.ts'
 import {
   applyDevelopment,
   createPlayer,
@@ -44,6 +44,7 @@ import type {
   ActiveEffects,
   Award,
   InternationalRecord,
+  TeamMove,
   CareerState,
   Catalog,
   Decision,
@@ -69,10 +70,13 @@ export interface NewCareerInput {
   readonly nationality: string
 }
 
-export const SAVE_VERSION = 3
+export const SAVE_VERSION = 4
 
 // Ninguém estreia no tier 1 antes dos 18 anos.
 export const MIN_TIER1_AGE = 18
+
+// A partir desta idade, o fim de ciclo oferece a aposentadoria como uma das 3 opções.
+export const VETERAN_AGE = 28
 
 const NO_ACTIVE_EFFECTS: ActiveEffects = {
   tempOvr: 0,
@@ -214,12 +218,13 @@ export function createCareer(input: NewCareerInput, catalog: Catalog): CareerSta
     seasonPlacements: {},
     news: [],
     residency: {},
+    teamMove: null,
   }
 
   // Primeira proposta: academies, Desafiante ou qualificatória (o tier 1 só a partir dos 18).
   const age = ageOf(base)
   const pool = offerPool(base, catalog, age)
-  const offers = generateOffers(rng, pool, base.player.ovr, age, [], 3, 1)
+  const offers = guaranteedOffers(rng, pool, base.player.ovr, age, [], 3, null)
   rng = offers.rng
   const chosen = [...offers.value]
   while (chosen.length < 3) {
@@ -294,7 +299,7 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
   }
 
   let rng = rngOf(state)
-  let s: CareerState = { ...state, step: state.step + 1, decision: null, lastResult: null, news: [] }
+  let s: CareerState = { ...state, step: state.step + 1, decision: null, lastResult: null, news: [], teamMove: null }
   let effects: Effects = NO_EFFECTS
 
   if (option.type === 'event_choice' || option.type === 'event_join') {
@@ -598,6 +603,8 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
 
   let teams = state.teams
   let news = [...state.news, ...newsLines]
+  let teamMove = state.teamMove
+  let finalRecord = record
   if (index === 2) {
     const surplus = squad === 'starter' && team ? player.ovr - team.rating : 0
     const update = offseasonUpdate(rng, teams, catalog, {
@@ -612,6 +619,12 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
       ...news,
       ...newsFor(update.changes, catalog, state.paused ? null : state.teamId, league?.region ?? regionOf(catalog, player.nationality)),
     ]
+    // Registra quando o time do jogador sobe, cai ou sai da liga.
+    const move = !state.paused && team ? update.changes.find((c) => c.teamId === team.id && c.kind !== 'ambitious' && c.kind !== 'joined') : undefined
+    if (move) {
+      teamMove = { kind: move.kind as TeamMove['kind'], teamId: move.teamId, from: move.from, to: move.to }
+      finalRecord = { ...record, leagueChange: teamMove }
+    }
   } else {
     const drift = midseasonDrift(rng, teams, catalog)
     rng = drift.rng
@@ -626,7 +639,8 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
       teams,
       news,
       development,
-      history: [...state.history, record],
+      history: [...state.history, finalRecord],
+      teamMove,
       residency,
       benchStreak,
       effects: nextEffects,
@@ -701,6 +715,7 @@ function offersDecision(
   title: string,
   description: string,
   offers: readonly OfferCandidate[],
+  withRetire = false,
 ): Decision {
   return {
     id: `${state.step}-${kind}`,
@@ -709,19 +724,10 @@ function offersDecision(
     eventKey: null,
     title,
     description,
-    options: [...offers.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)), waitOption(state)],
-  }
-}
-
-function noOffersDecision(state: CareerState): Decision {
-  return {
-    id: `${state.step}-no_offers`,
-    kind: 'no_offers',
-    window: windowFor(state.next.index),
-    eventKey: null,
-    title: 'Sem propostas',
-    description: 'Nenhum time quer contar com você agora. Dá para esperar como agente livre ou encerrar a carreira.',
-    options: [waitOption(state), { id: 'retire-no-offers', type: 'retire' }],
+    options: [
+      ...offers.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)),
+      ...(withRetire ? [{ id: `retire-${state.step}`, type: 'retire' as const }] : []),
+    ],
   }
 }
 
@@ -751,7 +757,7 @@ function eventDecision(
     if (choice.join === 'exit' || choice.join === 'home') {
       const region = choice.join === 'home' ? ctx.homeRegion : null
       const pool = offerPool(state, catalog, ctx.age, region)
-      const offers = generateOffers(rng, pool, state.player.ovr, ctx.age, [ctx.team.id], 2, 1)
+      const offers = guaranteedOffers(rng, pool, state.player.ovr, ctx.age, [ctx.team.id], 2, windowFor(state.next.index))
       rng = offers.rng
       targets = offers.value
     } else {
@@ -802,54 +808,60 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
   const age = ageOf(state)
   const window = windowFor(state.next.index)
   const pool = offerPool(state, catalog, age)
-  const { slots, chance: slotChance } = WINDOW_OFFERS[window]
+  // Toda janela tem 3 cards: propostas garantidas + ficar, aposentar ou esperar.
+  const offersFor = (count: number, exclude: readonly string[]) => {
+    const roll = guaranteedOffers(rng, pool, state.player.ovr, age, exclude, count, window)
+    rng = roll.rng
+    return roll.value
+  }
 
-  // Fora do competitivo: agente livre ou streamer esperando propostas.
+  // Fora do competitivo: agente livre ou streamer. 2 propostas + seguir esperando.
   if (state.paused) {
     const streamer = state.paused.reason === 'streamer'
-    const offers = generateOffers(rng, pool, state.player.ovr, age, [], slots, slotChance * (streamer ? 0.6 : 1))
-    rng = offers.rng
+    const offers = offersFor(2, [])
     const decision: Decision = {
       id: `${state.step}-paused`,
       kind: 'paused',
       window,
       eventKey: null,
       title: streamer ? 'Vida de streamer' : 'Agente livre',
-      description:
-        offers.value.length > 0
-          ? 'Chegaram propostas para você voltar ao competitivo.'
-          : 'Nenhuma proposta por enquanto. Você pode seguir esperando.',
-      options: [...offers.value.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)), waitOption(state)],
+      description: 'Chegaram propostas para você voltar ao competitivo. Ou dá para seguir esperando.',
+      options: [...offers.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)), waitOption(state)],
     }
     return { rng, state: { ...state, decision } }
   }
 
   const team = state.teamId ? state.teams[state.teamId] : null
-  if (!team) return { rng, state: { ...state, decision: noOffersDecision(state) } }
+  if (!team) {
+    const decision = offersDecision(state, 'org_left', 'Sem time', 'Você está livre no mercado.', offersFor(3, []))
+    return { rng, state: { ...state, decision } }
+  }
   const name = catalog.teams[team.id]?.name ?? team.id
 
-  // A organização saiu da liga: o jogador fica livre no mercado.
+  // A organização saiu da liga: o jogador fica livre no mercado (3 propostas).
   if (team.leagueId === null) {
-    const offers = generateOffers(rng, pool, state.player.ovr, age, [team.id], 2, 0.9)
-    rng = offers.rng
-    const decision =
-      offers.value.length > 0
-        ? offersDecision(
-            state,
-            'org_left',
-            `A ${name} encerrou o time`,
-            'A organização saiu do LoL. Você está livre no mercado.',
-            offers.value,
-          )
-        : noOffersDecision(state)
+    const decision = offersDecision(
+      state,
+      'org_left',
+      `A ${name} encerrou o time`,
+      'A organização saiu do LoL. Você está livre no mercado.',
+      offersFor(3, [team.id]),
+    )
     return { rng, state: { ...state, decision } }
   }
   const league = catalog.leagues[team.leagueId]
 
-  // Fim de ciclo: depois de muito tempo fora da equipe titular, o time não renova.
+  // Fim de ciclo (só na pré-temporada): mais comum para quem passou muito tempo sem ser titular.
   const role = squadRoleFor(state.player.ovr, team.rating)
-  let released =
-    window === '3-1' && age >= 21 && (state.benchStreak >= 6 || (role === 'bench' && state.benchStreak >= 3))
+  let released = false
+  if (window === '3-1' && age >= 19) {
+    if (state.benchStreak >= 6) released = true
+    else if (state.benchStreak >= 3) {
+      const cut = chance(rng, 0.6)
+      rng = cut.rng
+      released = cut.value
+    }
+  }
   // Veteranos: a cada pré-temporada cresce a chance de o time apostar em alguém mais novo.
   if (!released && window === '3-1' && age >= 27) {
     const renew = chance(rng, Math.min(0.9, 0.2 + 0.15 * (age - 27) + (role === 'starter' ? 0 : 0.25)))
@@ -857,12 +869,19 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
     released = renew.value
   }
   if (released) {
-    const offers = generateOffers(rng, pool, state.player.ovr, age, [team.id], 2, 0.75)
-    rng = offers.rng
-    const decision =
-      offers.value.length > 0
-        ? offersDecision(state, 'released', 'Fim de ciclo', `A ${name} decidiu não renovar o seu contrato.`, offers.value)
-        : noOffersDecision(state)
+    // Jovem: 3 times novos. Veterano: 2 times novos ou se aposentar.
+    const veteran = age >= VETERAN_AGE
+    const offers = offersFor(veteran ? 2 : 3, [team.id])
+    const decision = offersDecision(
+      state,
+      'released',
+      'Fim de ciclo',
+      veteran
+        ? `A ${name} decidiu não renovar o seu contrato. Aos ${age} anos, dá para seguir em outro time ou encerrar a carreira.`
+        : `A ${name} decidiu não renovar o seu contrato. Escolha o seu próximo time.`,
+      offers,
+      veteran,
+    )
     return { rng, state: { ...state, decision, benchStreak: 0 } }
   }
 
@@ -910,35 +929,33 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
     }
   }
 
-  // Janela de transferências comum.
-  const offers = generateOffers(rng, pool, state.player.ovr, age, [team.id], slots, slotChance)
-  rng = offers.rng
-  const options: DecisionOption[] = offers.value.map((offer) => teamOption('join', offer.teamId, offer.expectedRole))
+  // Janela de transferências comum: 2 times novos + ficar no time atual.
+  const options: DecisionOption[] = []
 
-  // Subir do academy para o time principal, se o desempenho justificar.
+  // Subir do academy para o time principal, se o desempenho justificar (conta como uma das 2 propostas).
   const parentId = catalog.teams[team.id]?.parentId
   const parent = parentId ? state.teams[parentId] : null
   const parentLeague = parent?.leagueId ? catalog.leagues[parent.leagueId] : null
   if (parent && parentLeague && (parentLeague.tier !== 1 || age >= MIN_TIER1_AGE)) {
     const parentRole = squadRoleFor(state.player.ovr, parent.rating)
-    if (parentRole !== 'bench' && !options.some((o) => 'teamId' in o && o.teamId === parent.id)) {
+    if (parentRole !== 'bench') {
       const called = chance(rng, window === '3-1' ? 1 : 0.5)
       rng = called.rng
-      if (called.value) options.unshift(teamOption('join', parent.id, parentRole))
+      if (called.value) options.push(teamOption('join', parent.id, parentRole))
     }
   }
+  const taken = options.map((o) => ('teamId' in o ? o.teamId : ''))
+  for (const offer of offersFor(2 - options.length, [team.id, ...taken])) {
+    options.push(teamOption('join', offer.teamId, offer.expectedRole))
+  }
 
-  const short = catalog.teams[team.id]?.shortName ?? team.id
   const decision: Decision = {
     id: `${state.step}-transfer_window`,
     kind: 'transfer_window',
     window,
     eventKey: null,
     title: window === '3-1' ? `Pré-temporada ${state.next.year}` : 'Janela de transferências',
-    description:
-      options.length > 0
-        ? 'Chegaram propostas. Você pode aceitar uma ou ficar no time.'
-        : `Nenhuma proposta nesta janela. Você segue na ${short}.`,
+    description: 'Chegaram propostas. Você pode aceitar uma ou ficar no time.',
     options: [...options, teamOption('stay', team.id, role)],
   }
   return { rng, state: { ...state, decision } }

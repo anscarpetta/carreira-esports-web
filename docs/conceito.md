@@ -21,11 +21,23 @@ Documentos de apoio:
 - **Dados: só clubes**, sem colegas de elenco. O que importa é a sua carreira.
 - **Nomes, fotos e logos 100% reais**, inclusive dos troféus. Risco conhecido: a política de fã da Riot restringe jogos e apps com IP dela, os logos são marcas dos times e as fotos têm direitos da Riot. Mitigação: projeto gratuito e sem paywall, aviso de não afiliação, assets em arquivo de dados para poderem ser trocados.
 - **Tempo:** a unidade é o **split** (3 por ano). Modos Intensa (1 decisão por split), Normal (por ano) e Expressa (a cada 2 anos). As transferências acontecem em qualquer janela, mas a frequência cai nesta ordem: 3→1, depois 2→3, depois 1→2.
+- **Janelas com 3 cards (playtest, out/2026):** toda janela de transferência mostra 3 opções:
+  - **Normal:** 2 times novos + ficar no time atual.
+  - **Fim de ciclo de jovem** (mais comum depois de desempenho ruim, na janela 3→1): 3 times novos.
+  - **Fim de ciclo de veterano** (28+): 2 times novos + aposentar.
+  - Sem time (agente livre ou streamer): 2 times novos + seguir esperando.
+  - Fora da pré-temporada, os times de tier 1 se mexem menos (a qualidade das propostas cai).
 - **Sucesso sem garantia:** distribuição-alvo de 30% que nunca se firmam, 40% sólidos, 25% craques e 5% lendas. Sem arquétipo no resumo.
 - **Aposentadoria:** botão separado, discreto, disponível desde o começo, sem idade fixa. É possível pausar (streamer, agente livre) e voltar.
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
 - **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.
 - **Começo:** ofertas variadas entre academy, tier 2 e tier 3. Só é possível estrear no tier 1 a partir dos 18 anos. A organização pode subir ou descer o jogador entre o academy e o time principal.
+- **Acesso e rebaixamento (playtest, out/2026):**
+  - O convidado que foi campeão de algum split do ano, ou terminou entre os 3 primeiros na média, mantém a vaga sem série.
+  - Na série, conta a força com o jogador em quadra.
+  - O convidado rebaixado volta para a liga de origem (ex.: a 9z volta para a Liga Regional Sur).
+  - Quem sobe é escolhido pela campanha do ano.
+  - A subida ou queda do time do jogador aparece em destaque na decisão e fica marcada na trajetória.
 - **Dinheiro:** como no Copero, só aparece o **valor de mercado**, como número de status. Não há salário, e nenhuma decisão é motivada por dinheiro.
 - **Estatísticas por split:** partidas, KDA, abates (kills) e assistências.
 - **Títulos:** liga (cada split), First Stand, MSI e Worlds. **Prêmios individuais:** MVP do split, seleção do split, MVP das finais e MVP do Worlds.

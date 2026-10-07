@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
-import { isImportIn } from '../../engine/career.ts'
+import { ageOf, isImportIn } from '../../engine/career.ts'
+import { art, of } from '../../engine/grammar.ts'
 import { teamForm, trendOf } from '../../engine/teams.ts'
-import type { CareerState, Decision, DecisionOption, Outcome } from '../../engine/types.ts'
+import type { CareerState, Decision, DecisionOption, Outcome, TeamMove } from '../../engine/types.ts'
 import { EXPECTED_ROLE_LABEL, percent, TREND_LABEL } from '../format.ts'
 import { TeamBadge } from '../TeamBadge.tsx'
 
@@ -77,7 +78,7 @@ function optionTitle(option: DecisionOption, career: CareerState): string {
   if (option.type === 'stay') return `Ficar na ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
   if (option.type === 'event_join') return `${option.label}: ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
   if (option.type === 'event_choice') return option.label
-  return 'Encerrar carreira'
+  return 'Aposentar-se'
 }
 
 function OptionCard({
@@ -123,7 +124,32 @@ function OptionCard({
       {option.type === 'wait' && (
         <p className="mt-1 text-sm text-muted">Você passa o período sem jogar e pode receber propostas depois.</p>
       )}
+      {option.type === 'retire' && (
+        <p className="mt-1 text-sm text-muted">Encerrar a carreira aqui, aos {ageOf(career)} anos, e ver o resumo.</p>
+      )}
     </button>
+  )
+}
+
+// Aviso em destaque quando o seu time sobe, cai ou sai da liga.
+export function TeamMoveBanner({ move }: { move: TeamMove }) {
+  const team = CATALOG.teams[move.teamId]?.name ?? move.teamId
+  const to = move.to ? CATALOG.leagues[move.to] : null
+  const from = move.from ? CATALOG.leagues[move.from] : null
+  const style =
+    move.kind === 'promoted'
+      ? 'border-emerald-400/60 bg-emerald-500/10 text-emerald-200'
+      : 'border-rose-400/60 bg-rose-500/10 text-rose-200'
+  const text =
+    move.kind === 'promoted'
+      ? `▲ A ${team} subiu para ${art(to)} ${to?.name}! A próxima temporada é no tier ${to?.tier}.`
+      : move.kind === 'relegated'
+        ? `▼ A ${team} caiu para ${art(to)} ${to?.name}. A próxima temporada é no tier ${to?.tier}.`
+        : `✖ A ${team} saiu ${of(from)} ${from?.name}.`
+  return (
+    <p className={`mb-4 rounded-xl border p-3 text-sm font-bold ${style}`} role="status">
+      {text}
+    </p>
   )
 }
 
@@ -183,6 +209,7 @@ export function DecisionPanel({
 
   return (
     <section className="rounded-2xl border border-line bg-panel p-4 sm:p-5" aria-label="Decisão" aria-live="polite">
+      {career.teamMove && stage.kind === 'choosing' && <TeamMoveBanner move={career.teamMove} />}
       {career.news.length > 0 && stage.kind === 'choosing' && (
         <div className="mb-4 rounded-xl border border-line bg-night/50 p-3">
           <p className="text-[0.65rem] font-bold tracking-widest text-muted uppercase">Notícias</p>
@@ -198,21 +225,9 @@ export function DecisionPanel({
       <p className="mt-1 text-sm text-muted">{decision.description}</p>
 
       <div className="mt-4 flex flex-col gap-2">
-        {decision.options
-          .filter((option) => option.type !== 'retire')
-          .map((option) => (
-            <OptionCard key={option.id} career={career} option={option} stage={stage} onChoose={onChoose} />
-          ))}
-        {decision.options.some((option) => option.type === 'retire') && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => onChoose(decision.options.find((o) => o.type === 'retire')!.id)}
-            className="rounded-xl bg-gold px-6 py-3 font-black text-night disabled:opacity-50"
-          >
-            Encerrar carreira
-          </button>
-        )}
+        {decision.options.map((option) => (
+          <OptionCard key={option.id} career={career} option={option} stage={stage} onChoose={onChoose} />
+        ))}
       </div>
 
       {stage.kind === 'suspense' && <Suspense eventKey={stage.eventKey} />}
@@ -227,7 +242,7 @@ export function DecisionPanel({
         </p>
       )}
 
-      {!busy && decision.kind !== 'no_offers' && (
+      {!busy && !decision.options.some((option) => option.type === 'retire') && (
         <div className="mt-4 text-center text-xs text-muted">
           {confirming ? (
             <span>

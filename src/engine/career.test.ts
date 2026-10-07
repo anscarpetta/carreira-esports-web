@@ -271,3 +271,55 @@ describe('regiões', () => {
     expect(seen).toBeGreaterThan(0)
   })
 })
+
+describe('janelas com 3 cards', () => {
+  it('toda janela tem 3 opções, nas combinações combinadas', async () => {
+    const { VETERAN_AGE } = await import('./career.ts')
+    const { chance, createRng, int } = await import('./rng.ts')
+    const seen: Record<string, number> = {}
+    let rng = createRng('cards')
+    for (let i = 0; i < 80; i += 1) {
+      const nationality = ['BR', 'KR', 'FR', 'AR', 'VN'][i % 5]
+      let state = createCareer({ ...INPUT, nationality, mode: i % 2 ? 'intense' : 'normal', seed: `cards-${i}` }, CATALOG)
+      for (let guard = 0; guard < 300 && state.phase === 'career'; guard += 1) {
+        const decision = state.decision!
+        const types = decision.options.map((o) => o.type)
+        const joins = types.filter((t) => t === 'join').length
+        const age = state.next.year - state.player.birthYear
+        if (decision.kind === 'transfer_window') {
+          expect(types).toHaveLength(3)
+          expect(joins).toBe(2)
+          expect(types).toContain('stay')
+          seen.window = (seen.window ?? 0) + 1
+        } else if (decision.kind === 'released') {
+          expect(types).toHaveLength(3)
+          if (age >= VETERAN_AGE) {
+            expect(joins).toBe(2)
+            expect(types).toContain('retire')
+            seen.veteran = (seen.veteran ?? 0) + 1
+          } else {
+            expect(joins).toBe(3)
+            seen.released = (seen.released ?? 0) + 1
+          }
+        } else if (decision.kind === 'paused') {
+          expect(types).toHaveLength(3)
+          expect(types).toContain('wait')
+          seen.paused = (seen.paused ?? 0) + 1
+        } else if (decision.kind === 'org_left') {
+          expect(joins).toBe(3)
+        }
+        // Escolhas aleatórias, com chance de se aposentar quando o card aparece.
+        const pickIndex = int(rng, 0, decision.options.length - 1)
+        rng = pickIndex.rng
+        const quit = chance(rng, 0.5)
+        rng = quit.rng
+        const retireCard = decision.options.find((o) => o.type === 'retire')
+        const option = retireCard && quit.value ? retireCard : decision.options[pickIndex.value]
+        state = decide(state, option.id, CATALOG)
+      }
+    }
+    expect(seen.window).toBeGreaterThan(100)
+    expect(seen.released).toBeGreaterThan(0)
+    expect(seen.veteran).toBeGreaterThan(0)
+  })
+})
