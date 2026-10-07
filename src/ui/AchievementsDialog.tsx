@@ -13,7 +13,7 @@ export function AchievementsButton({ className = '' }: { className?: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`rounded-xl border border-line px-4 py-2 text-sm font-bold hover:border-gold-soft ${className}`}
+        className={`rounded-xl border border-line px-4 py-2 text-sm font-bold hover:border-white/40 ${className}`}
       >
         🏅 Conquistas ({done}/{ACHIEVEMENTS.length})
       </button>

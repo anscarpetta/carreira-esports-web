@@ -40,7 +40,10 @@ export default function App() {
   const [identity, setIdentity] = useState<IdentityData | null>(saved?.identity ?? null)
   const [career, setCareer] = useState<CareerState | null>(saved?.career ?? null)
   const [screen, setScreen] = useState<Screen>(() => {
-    if ((import.meta.env.DEV || import.meta.env.VITE_DEMO === '1') && new URLSearchParams(window.location.search).get('screen') === 'summary') return 'summary'
+    if (import.meta.env.DEV || import.meta.env.VITE_DEMO === '1') {
+      const demoScreen = new URLSearchParams(window.location.search).get('screen')
+      if (demoScreen === 'summary' || demoScreen === 'identity') return demoScreen
+    }
     return saved?.career?.phase === 'career' ? 'career' : 'intro'
   })
 

@@ -7,6 +7,7 @@ const SIZES = {
   sm: 'size-7 text-[0.6rem]',
   md: 'size-10 text-xs',
   lg: 'size-14 text-sm',
+  xl: 'size-20 text-base',
 } as const
 
 // Logo do time sobre fundo claro (muitos logos têm partes pretas).

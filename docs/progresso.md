@@ -381,3 +381,37 @@ Aposentadoria média aos ~29 anos.
 - **Menos lesões:** a chance passou a ser por split jogado (0,7%), então dá ~0,2 lesão por carreira em qualquer modo. Antes era 4% por decisão, até ~1,4 por carreira no Intensa. A tendinite da maratona de solo queue caiu de 30% para 20%.
 - **Calibração (normal):** 29% não vingam · 43% sólidos · 20% craques · 7% lendas. As lendas a mais vêm de títulos: o titular estabelecido fica mais tempo nos times grandes.
 - **83 testes.**
+
+---
+
+## Redesign 1 (out/2026): identidade visual no estilo do Copero
+
+- **Fundo em 3 camadas:** #09090B (fundo), #101014 (caixas), #17171C (cartões dentro das caixas).
+- **Selo de OVR colorido** (número branco na caixinha), na escala laranja → amarelo → verde → verde forte → azul → roxo:
+
+  | OVR | Cor |
+  |---|---|
+  | até 59 | laranja |
+  | 60–69 | amarelo |
+  | 70–76 | verde |
+  | 77–82 | verde forte |
+  | 83–89 | azul |
+  | 90+ | roxo |
+
+  Aparece no cartão do jogador, na trajetória, no resumo e no card compartilhável.
+- **Cor do time:** cards de proposta e linhas da trajetória com a cor do time em baixa opacidade; cartão do jogador com a cor e o logo do time ao fundo.
+- **Botões em pílula:** branco para a ação principal, contorno para a secundária.
+- **Tela de identidade:** um painel só, em 3 colunas (empilhadas no celular):
+  - **Identidade:** prévia do cartão e o campo de nick.
+  - **Nacionalidade:** busca (sem acento) e lista rolável com bandeiras.
+  - **Rota:** mapa de Summoner's Rift com as 5 rotas.
+- **Bibliotecas:** só a `lucide-react` (ícones do ecossistema shadcn/21st.dev). O resto é Tailwind.
+
+## Redesign 2 (out/2026): tela de carreira como a do Copero
+
+- **Trajetória em tabela por idade:** uma faixa por idade (16 a 30, ou além disso se a carreira for mais longa), na cor do time daquela idade. As idades futuras aparecem apagadas.
+  - Cada split vira uma linha com time, split, função, colocação, OVR (com a variação), jogos e KDA.
+  - As tags (🏆 campeão, ⭐ prêmios, 🌍 internacional, 🚀 explosão, ▲/▼ acesso) quebram a linha no celular em vez de serem cortadas.
+  - A linha "Escolhendo o próximo passo…" mostra a idade e o OVR atuais enquanto a decisão está em aberto.
+- **Propostas em grade:** cards verticais em 2 colunas, com o verbo ("Assinar com", "Ficar na", "Subir para"…), o nome, o logo grande, a liga e o tier, a força com a tendência e os selos. Com um número ímpar de cards, o último fica centralizado.
+- **Vitrine de títulos** no cartão do jogador, com os títulos agrupados e os internacionais primeiro (ex.: "🏆 2× CBLOL").
