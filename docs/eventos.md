@@ -1,4 +1,6 @@
-# Catálogo de eventos de carreira (rascunho)
+# Catálogo de eventos de carreira
+
+**Status:** aprovado como base. O ajuste fino (porcentagens, cortes, novos eventos) vem do playtest.
 
 Seguem o modelo do Copero:
 - **Poucos por carreira:** ~3–4 no modo Normal e ~6–7 no Intensa.
@@ -36,7 +38,7 @@ As porcentagens são um ponto de partida para calibrar. Cada evento indica, entr
 | 13 | **Salários atrasados** (crise no clube) | Time de estrutura baixa | Ficar e lutar: menos chance de título · Buscar saída |
 | 14 | **Hate no Twitter** (ira da torcida) | Mais de 22 anos, desempenho ruim | Ficar: −2 temporário (pressão mental) · Sair |
 | 15 | **Saudade de casa** (volta para casa; caso Ceos) | Jogando fora do seu país | Ficar: −5 temporário · Voltar para o seu país |
-| 16 | **Proposta da LPL / LCS** (dinheiro × títulos) | OVR alto, fora da China | Ir para um time mais rico e mais fraco · Ficar |
+| 16 | **Proposta milionária da LPL / LCS** | OVR alto, fora da China | Aceitar (vai para um time mais rico, normalmente mais fraco): 50% +2 OVR (motivado pelo novo desafio) / 50% −2 OVR (se acomodou) · Recusar: nada |
 | 17 | **Visto atrasado** (caso Ceos) | Acabou de se transferir para outro país | Automático: perde o 1º split (fica no banco) |
 | 18 | **A organização saiu da liga** (caso Flamengo) | Time de estrutura baixa ou projeto que falhou | Automático: vira agente livre e recebe ofertas |
 | 19 | **Retorno triunfal** | Primeiro clube, já veterano | Voltar como titular para encerrar a carreira |
@@ -49,7 +51,7 @@ As porcentagens são um ponto de partida para calibrar. Cada evento indica, entr
 | 21 | **Flame na solo queue** (punição da Riot) | — | Pedir desculpas: menos jogos · Ignorar: 50% nada / 50% suspensão |
 | 22 | **Criticou o coach na live** (declaração polêmica) | — | Pedir desculpas: menos jogos |
 | 23 | **Familiar critica o time** (postagem polêmica) | — | Apoiar a família: menos jogos · Apoiar o time: −2 temporário |
-| 24 | **Proposta de manipulação** (teste de honestidade; houve casos reais) | — | Aceitar: 50% "nada" / 50% banimento longo · Recusar: nada |
+| 24 | **Proposta de manipulação** (teste de honestidade; houve casos reais) | — | Aceitar: 50% +2 OVR (como no Copero) / 50% banimento longo · Recusar: nada |
 | 25 | **Concluir os estudos** | Menos de 20 anos | Aceitar: +1 OVR (maturidade), papel menor por um tempo · Recusar: nada |
 
 ## E. Saúde e clímax
@@ -65,6 +67,6 @@ As porcentagens são um ponto de partida para calibrar. Cada evento indica, entr
 
 O **"Avô de outra nacionalidade"**, porque não há seleções. O **sistema de residência** cumpre esse papel: ele não é um evento, acontece automaticamente depois de alguns anos fora.
 
-## Pendências
+## Decisões
 
-- **Sem dinheiro no jogo, alguns eventos não têm motivação real**, como a proposta de manipulação e a proposta da LPL ou da LCS. O Copero contornou isso dando OVR, o que não faz muito sentido. Opções: (a) incluir **salário ou valor de mercado** como número de status, (b) dar outro tipo de recompensa, ou (c) cortar esses eventos.
+- **Sem salário.** Como no Copero, só existe o valor de mercado, como número de status. Os eventos ligados a dinheiro continuam, mas o efeito deles cai no **OVR**: a proposta milionária (16) pode motivar ou acomodar o jogador, e a manipulação (24) usa a recompensa do Copero (+2 OVR). Avaliar no playtest.

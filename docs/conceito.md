@@ -24,23 +24,36 @@ Documentos de apoio:
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
 - **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.
 - **Começo:** ofertas variadas entre academy, tier 2 e tier 3. Só é possível estrear no tier 1 a partir dos 18 anos. A organização pode subir ou descer o jogador entre o academy e o time principal.
-
+- **Dinheiro:** como no Copero, só aparece o **valor de mercado**, como número de status. Não há salário, e nenhuma decisão é motivada por dinheiro.
 - **Estatísticas por split:** partidas, KDA, abates (kills) e assistências.
 - **Títulos:** liga (cada split), First Stand, MSI e Worlds. **Prêmios individuais:** MVP do split, seleção do split, MVP das finais e MVP do Worlds.
 - **Escopo em fatias**, nesta ordem:
   1. Tier 1 do Brasil (CBLOL)
-  2. Tier 2 do Brasil (Circuito Desafiante) e acesso
+  2. Tiers 2 e 3 do Brasil e acesso (o mesmo sistema de promoção serve aos dois)
   3. Tiers 1 e 2 da Europa, LCS, LPL e LCK
   4. First Stand, MSI e Worlds
   5. LATAM (só tier 2)
   6. Tiers 1 e 2 da LCP
+  7. Card compartilhável e conquistas
+- **Fatia 1 (MVP):**
+
+  | Item | Na fatia 1 |
+  |---|---|
+  | Regiões | Só o CBLOL 2026 (8 times reais, com estrutura, momento e tendência) |
+  | Nacionalidade | Fixa em Brasil |
+  | Começo | Aos **16 anos**, direto no CBLOL, com 3 ofertas. A regra dos 18 para estrear no tier 1 só entra na fatia 2, junto com academy e tiers 2 e 3 |
+  | Modos | Intensa, Normal e Expressa |
+  | Decisões | Transferências entre times do CBLOL, ficar, eventos e aposentadoria |
+  | Eventos | Só os que fazem sentido dentro do Brasil |
+  | Resultados | Partidas, KDA, abates, assistências, títulos do CBLOL, prêmios do split e valor de mercado |
+  | Fim | Resumo da carreira |
+- **Eventos de carreira:** o [catálogo](eventos.md) apresentado foi aprovado como base. O ajuste fino fica para o playtest.
 
 Detalhes de cada sistema em [design-sistemas.md](design-sistemas.md).
 
 ## Em aberto
 
-- Catálogo de eventos de carreira do LoL: [rascunho](eventos.md).
-- Tier 3: quais ligas (e se entra no escopo, já que as fatias só citam tiers 1 e 2).
+- Tier 3 do Brasil: quais ligas e times (pesquisa de dados).
 
 ## Depois
 
