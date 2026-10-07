@@ -42,7 +42,8 @@ Documentos de apoio:
   - Times de tier 1 só fazem proposta para titular; quem ainda não tem nível recebe proposta do academy.
   - Na janela, quem perdeu o nível de titular recebe a decisão **"Rebaixado para o academy"**: descer para o academy do time ou assinar com um dos 2 times interessados. Sem academy, é fim de ciclo.
   - Perder espaço por evento (pedir desculpas, disputa de vaga etc.) dura só o próximo split.
-  - Régua de titular: até 2 pontos abaixo da força do time.
+  - Régua de titular: até 2 pontos abaixo da força do time para quem chega; **titular estabelecido** (titular do time no split anterior) só perde a vaga se ficar mais de 5 pontos abaixo. O reforço do elenco não derruba quem está rendendo.
+- **Lesões mais raras:** ~0,2 por carreira, em qualquer modo (a chance agora é por split jogado).
 - **Pré-temporada sem janela roubada:** um evento na janela 3→1 vem antes, e a janela de transferências aparece logo depois.
 - **Acesso e rebaixamento (playtest, out/2026):**
   - O convidado que foi campeão de algum split do ano, ou terminou entre os 3 primeiros na média, mantém a vaga sem série.

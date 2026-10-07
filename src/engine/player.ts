@@ -11,10 +11,10 @@ export const MAX_AGE = 35
 // (scripts/simulate.ts) para chegar perto de 30% / 40% / 25% / 5%.
 // Teto oculto. Os maiores do Brasil chegam a 81–84 no auge; 84+ é coisa de lenda.
 const POTENTIAL_BANDS: readonly { item: readonly [number, number]; weight: number }[] = [
-  { item: [60, 70], weight: 18 },
-  { item: [71, 78], weight: 48 },
-  { item: [79, 83], weight: 31 },
-  { item: [84, 90], weight: 3 },
+  { item: [60, 70], weight: 21 },
+  { item: [71, 78], weight: 50 },
+  { item: [79, 83], weight: 27 },
+  { item: [84, 90], weight: 2 },
 ]
 
 const PROFILES: readonly { item: DevelopmentProfile; weight: number }[] = [

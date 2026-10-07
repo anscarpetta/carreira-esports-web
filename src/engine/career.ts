@@ -91,8 +91,24 @@ const NO_ACTIVE_EFFECTS: ActiveEffects = {
 }
 
 // Chance de lesão em cada decisão (no máximo 2 por carreira).
-const INJURY_CHANCE = 0.04
+// Chance de lesão por split jogado (aplicada a cada decisão, conforme os splits do período):
+// ~0,3 lesão por carreira, em qualquer modo.
+const INJURY_CHANCE_PER_SPLIT = 0.007
 const MAX_INJURIES = 2
+
+// Titular estabelecido (foi titular deste time no split anterior) só perde a vaga se ficar
+// bem abaixo do nível do time: o reforço do elenco não derruba quem está rendendo.
+const INCUMBENT_MARGIN = 3
+
+function isIncumbent(state: CareerState, teamId: string): boolean {
+  const last = state.history.at(-1)
+  return !!last && last.teamId === teamId && last.squadRole === 'starter'
+}
+
+export function roleAt(state: CareerState, teamId: string, ovr = state.player.ovr): SquadRole {
+  const team = state.teams[teamId]
+  return squadRoleFor(ovr + (isIncumbent(state, teamId) ? INCUMBENT_MARGIN : 0), team.rating)
+}
 
 function rngOf(state: CareerState): Rng {
   return { seed: state.seed, state: state.rngState }
@@ -460,7 +476,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   else if (state.paused || state.pauseSplits > 0 || !team || !league) squad = 'paused'
   else {
     const forced = roleEffects ? effects.forcedRole : null
-    squad = forced ?? shiftRole(squadRoleFor(ovrNow, team.rating), roleEffects ? effects.roleShift : 0)
+    squad = forced ?? shiftRole(roleAt(state, team.id, ovrNow), roleEffects ? effects.roleShift : 0)
     // No tier 1 não existe reserva que joga de vez em quando: ou é titular, ou atua no
     // academy do próprio time (menores de 18 também). Sem academy, fica fora do time.
     const underage = league.tier === 1 && age < MIN_TIER1_AGE
@@ -723,7 +739,7 @@ function buildContext(state: CareerState, catalog: Catalog, team: TeamState, lea
     age: ageOf(state),
     team,
     league,
-    squadRole: squadRoleFor(state.player.ovr, team.rating),
+    squadRole: roleAt(state, team.id),
     trend: trendOf(teamForm(team, league)),
     teamRank: members.findIndex((t) => t.id === team.id) + 1,
     nextSplitName: league.splitNames[state.next.index],
@@ -914,7 +930,7 @@ function nextDecision(
   const league = catalog.leagues[team.leagueId]
 
   // Tier 1: perdeu o nível de titular. O time manda para o academy (ou libera, se não tiver).
-  const role = squadRoleFor(state.player.ovr, team.rating)
+  const role = roleAt(state, team.id)
   if (league.tier === 1 && role !== 'starter' && !options.forceWindow) {
     const academyId = academyOf(state, catalog, team.id)
     if (academyId) {
@@ -972,7 +988,7 @@ function nextDecision(
 
   // Lesão: rara, no máximo duas por carreira.
   if (!options.forceWindow && state.eventPlan.injuries < MAX_INJURIES && state.step > 0) {
-    const hurt = chance(rng, INJURY_CHANCE)
+    const hurt = chance(rng, INJURY_CHANCE_PER_SPLIT * SPLITS_PER_DECISION[state.mode])
     rng = hurt.rng
     if (hurt.value) {
       const injury = pickWeighted(rng, INJURIES)

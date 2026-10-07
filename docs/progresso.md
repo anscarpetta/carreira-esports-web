@@ -375,3 +375,9 @@ Aposentadoria média aos ~29 anos.
 
 ### Testes: 82
 - Novos testes cobrem: nenhum reserva jogando no tier 1, propostas de tier 1 só para titular, evento da pré-temporada seguido da janela, e a decisão de rebaixamento com o academy do próprio time. O teste de estresse com 3.000 carreiras roda sem erros.
+
+### Ajustes no mesmo PR (feedback durante o playtest 3)
+- **"De volta ao academy" depois de ir ao Worlds:** a Gen.G se reforçou na pré-temporada e o titular de OVR 89 ficou "abaixo da régua". Agora existe o **titular estabelecido**: quem foi titular do time no split anterior só perde a vaga se ficar mais de 5 pontos abaixo da força do time.
+- **Menos lesões:** a chance passou a ser por split jogado (0,7%), então dá ~0,2 lesão por carreira em qualquer modo. Antes era 4% por decisão, até ~1,4 por carreira no Intensa. A tendinite da maratona de solo queue caiu de 30% para 20%.
+- **Calibração (normal):** 29% não vingam · 43% sólidos · 20% craques · 7% lendas. As lendas a mais vêm de títulos: o titular estabelecido fica mais tempo nos times grandes.
+- **83 testes.**

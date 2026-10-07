@@ -126,8 +126,8 @@ export const EVENTS: readonly EventDef[] = [
         key: 'grind',
         label: 'Virar as noites',
         outcomes: [
-          { probability: 0.7, text: '+3 OVR', effects: { ovr: 3 } },
-          { probability: 0.3, text: 'Tendinite: −2 OVR', effects: { ovr: -2 } },
+          { probability: 0.8, text: '+3 OVR', effects: { ovr: 3 } },
+          { probability: 0.2, text: 'Tendinite: −2 OVR', effects: { ovr: -2 } },
         ],
       },
       { key: 'rest', label: 'Priorizar o descanso', outcomes: nothing },

@@ -398,3 +398,23 @@ describe('tier 1 só com titulares', () => {
     expect(demoted).toBeGreaterThan(0)
   })
 })
+
+describe('titular estabelecido', () => {
+  it('reforço do time não derruba quem foi titular no split anterior', async () => {
+    const { roleAt } = await import('./career.ts')
+    const base = createCareer(INPUT, CATALOG)
+    const team = { ...base.teams.loud, rating: 82 }
+    const state: CareerState = {
+      ...base,
+      teamId: 'loud',
+      teams: { ...base.teams, loud: team },
+      player: { ...base.player, ovr: 78 },
+    }
+    // Recém-chegado: 4 abaixo da força do time não é titular.
+    expect(roleAt(state, 'loud')).not.toBe('starter')
+    // Titular no split anterior: segue titular (só cai se ficar mais de 5 abaixo).
+    const last = { ...state, history: [{ ...({} as CareerState['history'][number]), teamId: 'loud', squadRole: 'starter' as const }] }
+    expect(roleAt(last, 'loud')).toBe('starter')
+    expect(roleAt({ ...last, player: { ...last.player, ovr: 76 } }, 'loud')).not.toBe('starter')
+  })
+})
