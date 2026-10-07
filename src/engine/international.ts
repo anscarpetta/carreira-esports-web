@@ -18,9 +18,9 @@ export interface InternationalDef {
 }
 
 export const INTERNATIONALS: readonly InternationalDef[] = [
-  { id: 'first_stand', name: 'First Stand', afterSplit: 0, slots: { KR: 1, CN: 1, EU: 1, NA: 1, BR: 1 }, format: 'groups' },
-  { id: 'msi', name: 'MSI', afterSplit: 1, slots: { KR: 2, CN: 2, EU: 2, NA: 2, BR: 1 }, format: 'groups' },
-  { id: 'worlds', name: 'Worlds', afterSplit: 2, slots: { KR: 4, CN: 4, EU: 4, NA: 3, BR: 1 }, format: 'swiss' },
+  { id: 'first_stand', name: 'First Stand', afterSplit: 0, slots: { KR: 1, CN: 1, EU: 1, NA: 1, BR: 1, PAC: 1 }, format: 'groups' },
+  { id: 'msi', name: 'MSI', afterSplit: 1, slots: { KR: 2, CN: 2, EU: 2, NA: 2, BR: 1, PAC: 2 }, format: 'groups' },
+  { id: 'worlds', name: 'Worlds', afterSplit: 2, slots: { KR: 4, CN: 4, EU: 3, NA: 3, BR: 1, PAC: 2 }, format: 'swiss' },
 ]
 
 export function internationalAfter(splitIndex: SplitIndex): InternationalDef | null {

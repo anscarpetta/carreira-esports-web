@@ -202,7 +202,7 @@ describe('carreira completa', () => {
 })
 
 describe('regiões', () => {
-  const START: Record<string, string> = { BR: 'BR', KR: 'KR', CN: 'CN', FR: 'EU', US: 'NA', AR: 'LATAM', MX: 'LATAM' }
+  const START: Record<string, string> = { BR: 'BR', KR: 'KR', CN: 'CN', FR: 'EU', US: 'NA', AR: 'LATAM', MX: 'LATAM', VN: 'PAC', JP: 'PAC', TW: 'PAC' }
 
   it('cada nacionalidade começa nos tiers de base da própria região', () => {
     for (const [nationality, region] of Object.entries(START)) {

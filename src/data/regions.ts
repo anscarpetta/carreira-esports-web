@@ -10,6 +10,7 @@ export const REGIONS: readonly Region[] = [
   { id: 'EU', name: 'Europa' },
   { id: 'NA', name: 'América do Norte' },
   { id: 'LATAM', name: 'América Latina' },
+  { id: 'PAC', name: 'Pacífico' },
 ]
 
 export const COUNTRIES: readonly Country[] = [
@@ -36,6 +37,11 @@ export const COUNTRIES: readonly Country[] = [
   { code: 'MX', name: 'México', region: 'LATAM' },
   { code: 'CO', name: 'Colômbia', region: 'LATAM' },
   { code: 'PE', name: 'Peru', region: 'LATAM' },
+  { code: 'VN', name: 'Vietnã', region: 'PAC' },
+  { code: 'TW', name: 'Taiwan', region: 'PAC' },
+  { code: 'JP', name: 'Japão', region: 'PAC' },
+  { code: 'HK', name: 'Hong Kong', region: 'PAC' },
+  { code: 'AU', name: 'Austrália', region: 'PAC' },
 ]
 
 // Regra de 2026: jogadores latino-americanos (exceto brasileiros) têm dupla residência,
@@ -47,10 +53,12 @@ export const LATAM_DUAL_RESIDENCY = { regions: ['BR', 'NA'], untilYear: 2027 } a
 // Coreanos são exportados para todo lado; chineses quase nunca saem; europeus vão
 // para a LCS pelo dinheiro; brasileiros raramente saem (o Ceos foi o 1º no tier 1).
 export const MOBILITY: Readonly<Record<string, Readonly<Record<string, number>>>> = {
-  KR: { CN: 0.2, NA: 0.08, BR: 0.06, EU: 0.04 },
+  KR: { CN: 0.2, NA: 0.08, BR: 0.06, EU: 0.04, PAC: 0.12 },
   CN: { KR: 0.002, NA: 0.002, EU: 0.001, BR: 0.001 },
   EU: { NA: 0.15, KR: 0.004, CN: 0.006, BR: 0.006 },
   NA: { EU: 0.03, KR: 0.004, CN: 0.004, BR: 0.006 },
   BR: { NA: 0.012, EU: 0.004, KR: 0.002, CN: 0.002 },
   LATAM: { BR: 0.15, NA: 0.1, EU: 0.008, KR: 0.002, CN: 0.002 },
+  // Taiwaneses e vietnamitas já jogaram na LPL; na LCK, só um caso (LazyFeel, 2025).
+  PAC: { CN: 0.05, NA: 0.02, KR: 0.004, EU: 0.005, BR: 0.004 },
 }
