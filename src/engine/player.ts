@@ -1,72 +1,45 @@
-// Jogador: criação (com potencial e perfil ocultos), evolução por idade,
-// papel no time e valor de mercado.
+// Jogador: criação, evolução por idade, papel no time e valor de mercado.
+//
+// Não existe teto oculto (out/2026): o caminho é definido pelo OVR. Ele sobe sozinho até os 22,
+// com sorte (e explosões), fica estável até os 26 e cai a partir dos 27. Depois disso, só os
+// ganhos dos eventos (as apostas) fazem o jogador subir.
 
 import { chance, float, int, pickWeighted, type Rng, type Roll } from './rng.ts'
-import type { DevelopmentProfile, Player, Role, SquadRole } from './types.ts'
+import type { Player, Role, SquadRole } from './types.ts'
 
 export const START_AGE = 16
 export const MAX_AGE = 35
 
-// Distribuição do potencial (teto oculto) ao nascer. Calibrada pela simulação em massa
-// (scripts/simulate.ts) para chegar perto de 30% / 40% / 25% / 5%. É mais baixa que o teto
-// real da carreira: todo ganho de OVR por evento sobe o teto junto, então as apostas que o
-// jogador aceita é que decidem até onde ele vai. Os maiores do Brasil chegam a 81–84 no auge.
-const POTENTIAL_BANDS: readonly { item: readonly [number, number]; weight: number }[] = [
-  { item: [57, 67], weight: 21 },
-  { item: [68, 74], weight: 44 },
-  { item: [75, 80], weight: 34 },
-  { item: [81, 84], weight: 1 },
-]
-
-// Profundidade da base de talentos de cada região: soma ao potencial de quem nasceu lá.
-// O Brasil é a referência (0); o topo da LCK e da LPL fica nos 90 altos, então o craque coreano
-// ou chinês precisa de teto para chegar lá. Sem isso, ninguém alcança um time capaz de ganhar o Worlds.
-export const REGION_TALENT: Readonly<Record<string, number>> = { KR: 13, CN: 12, EU: 5, NA: 3, PAC: 2 }
+// OVR aos 16 (antes da vantagem da região). Calibrado pela simulação em massa
+// (scripts/simulate.ts) para chegar perto de 30% / 40% / 25% / 5% no Brasil.
+const START_OVR: readonly [number, number] = [50, 58]
 
 // Vantagem inicial: na Coreia e na China o talento chega mais pronto, e a liga de entrada
 // (LCK CL, LDL, EMEA Masters…) é bem mais forte que a Qualificatória Aberta do Brasil.
-// Sem isso, o coreano passava 3 anos no banco antes da primeira chance.
-export const REGION_HEADSTART: Readonly<Record<string, number>> = { KR: 10, CN: 9, EU: 6, NA: 3, PAC: 2 }
+export const REGION_HEADSTART: Readonly<Record<string, number>> = { KR: 17, CN: 16, EU: 9, NA: 3, PAC: 2 }
 
-// Potencial na escala da região. O bônus cresce com o talento: a base mais funda eleva o topo,
-// não quem não vingaria (60 não ganha nada; 90 ganha o bônus inteiro).
-export function regionalPotential(region: string | undefined, potential: number): number {
-  const lift = (REGION_TALENT[region ?? ''] ?? 0) * Math.max(0, Math.min(1, (potential - 60) / 30))
-  return Math.min(99, potential + Math.round(lift))
-}
-
-const PROFILES: readonly { item: DevelopmentProfile; weight: number }[] = [
-  { item: 'early', weight: 15 },
-  { item: 'normal', weight: 70 },
-  { item: 'late', weight: 15 },
-]
+// Quem chega mais pronto cresce um pouco menos depois: o coreano e o chinês já foram
+// lapidados no sistema de trainees. Multiplica a subida natural (não a explosão).
+export const REGION_GROWTH: Readonly<Record<string, number>> = { KR: 0.6, CN: 0.6, EU: 0.8 }
 
 export interface NewPlayerInput {
   readonly nick: string
   readonly role: Role
   readonly nationality: string
   readonly startYear: number
-  // Região de origem (para a profundidade de talentos).
+  // Região de origem (para a vantagem inicial).
   readonly region?: string
 }
 
 export function createPlayer(rng: Rng, input: NewPlayerInput): Roll<Player> {
-  const band = pickWeighted(rng, POTENTIAL_BANDS)
-  const rolled = int(band.rng, band.value[0], band.value[1])
-  const potential = { rng: rolled.rng, value: regionalPotential(input.region, rolled.value) }
-  const profile = pickWeighted(potential.rng, PROFILES)
-  const base = int(profile.rng, 0, 4)
-  // Quem tem mais potencial costuma começar melhor (o prodígio já chama atenção aos 16).
-  const headstart = REGION_HEADSTART[input.region ?? ''] ?? 0
-  const ovr = Math.min(potential.value - 4, 51 + Math.round((potential.value - 62) * 0.3) + base.value + headstart)
+  const base = int(rng, START_OVR[0], START_OVR[1])
+  const ovr = base.value + (REGION_HEADSTART[input.region ?? ''] ?? 0)
   const player: Player = {
     nick: input.nick,
     role: input.role,
     nationality: input.nationality,
     birthYear: input.startYear - START_AGE,
     ovr,
-    potential: potential.value,
-    profile: profile.value,
     marketValue: marketValue(ovr, START_AGE),
   }
   return { rng: base.rng, value: player }
@@ -76,37 +49,21 @@ export function ageIn(player: Player, year: number): number {
   return year - player.birthYear
 }
 
-// Faixa de evolução anual (mín, máx) por idade e perfil.
-const GROWTH: Record<DevelopmentProfile, Record<number, readonly [number, number]>> = {
-  early: {
-    16: [4, 9], 17: [4, 9], 18: [3, 7], 19: [1, 5], 20: [0, 3], 21: [0, 2], 22: [-1, 1],
-    23: [-1, 1], 24: [-2, 0], 25: [-3, 0], 26: [-3, -1], 27: [-4, -1], 28: [-4, -2],
-  },
-  normal: {
-    16: [2, 6], 17: [2, 7], 18: [2, 7], 19: [1, 6], 20: [1, 5], 21: [0, 3], 22: [0, 2],
-    23: [-1, 2], 24: [-1, 1], 25: [-2, 1], 26: [-3, 0], 27: [-3, -1], 28: [-4, -1], 29: [-4, -2],
-  },
-  late: {
-    16: [1, 5], 17: [1, 5], 18: [2, 6], 19: [2, 6], 20: [1, 5], 21: [1, 4], 22: [0, 3],
-    23: [0, 2], 24: [0, 1], 25: [-1, 1], 26: [-2, 1], 27: [-3, 0], 28: [-3, -1], 29: [-4, -1],
-  },
-}
+// Subida natural por split, conforme a idade: sorteio de 0 a N (pesos) e, para o jovem titular,
+// chance de explosão (+4 ou +5 no split).
+const GROWTH: readonly { maxAge: number; steps: readonly number[]; breakout: number }[] = [
+  // pesos de 0, 1, 2, 3
+  { maxAge: 18, steps: [22, 55, 19, 4], breakout: 0.04 },
+  { maxAge: 20, steps: [40, 50, 10], breakout: 0.025 },
+  { maxAge: 22, steps: [60, 40], breakout: 0 },
+]
 
-function growthRange(profile: DevelopmentProfile, age: number): readonly [number, number] {
-  const table = GROWTH[profile]
-  if (table[age]) return table[age]
-  return age < 16 ? table[16] : [-5, -2]
-}
+// Queda anual (mín, máx) a partir dos 27; dividida pelos 3 splits.
+const DECLINE: Record<number, readonly [number, number]> = { 27: [-3, -1], 28: [-4, -1], 29: [-4, -2] }
+const LATE_DECLINE: readonly [number, number] = [-5, -2]
+export const DECLINE_AGE = 27
 
-// Evolução de um split. A faixa anual da idade é dividida pelos 3 splits, com variação, e:
-// - quem está longe do potencial cresce mais rápido enquanto é jovem (a subida meteórica);
-// - minutos importam: jovem titular (até no academy) evolui mais; quem não joga, menos;
-// - jovem titular com espaço para crescer pode "explodir" (+2 a +5 num split);
-// - o potencial é um teto.
-export const BREAKOUT_CHANCE = 0.08
-
-const GAP_FACTOR: Record<number, number> = { 16: 0.07, 17: 0.07, 18: 0.07, 19: 0.05, 20: 0.05, 21: 0.03, 22: 0.03 }
-
+// Minutos importam: jovem titular (até no academy) evolui mais; quem não joga, menos.
 function minutesFactor(age: number, squad: SquadRole | 'out'): number {
   if (age < 20) return squad === 'starter' ? 1.25 : squad === 'reserve' ? 1 : squad === 'bench' ? 0.7 : 0.6
   return squad === 'starter' ? 1 : squad === 'reserve' ? 0.6 : squad === 'bench' ? 0.5 : 0.4
@@ -117,35 +74,44 @@ export interface SplitDevelopment {
   readonly breakout: boolean
 }
 
-export function rollSplitDevelopment(rng: Rng, player: Player, age: number, squad: SquadRole | 'out'): Roll<SplitDevelopment> {
-  const [min, max] = growthRange(player.profile, age)
-  const base = float(rng, min / 3, max / 3)
-  let r = base.rng
-  const gap = Math.max(0, player.potential - player.ovr)
-  let value = base.value
-  if (value > 0 || gap > 0) value += (gap * (GAP_FACTOR[age] ?? 0)) / 3
-  if (value > 0) value *= minutesFactor(age, squad)
-  else if (squad === 'out') value -= 0.2
+export function rollSplitDevelopment(
+  rng: Rng,
+  _player: Player,
+  age: number,
+  squad: SquadRole | 'out',
+  region?: string,
+): Roll<SplitDevelopment> {
+  let r = rng
+  // Dos 23 aos 26: estável.
+  if (age > 22 && age < DECLINE_AGE) return { rng: r, value: { delta: 0, breakout: false } }
 
-  // Arredondamento sorteado: 1,4 vira 1 (60%) ou 2 (40%).
-  const whole = Math.floor(value)
-  const fraction = chance(r, value - whole)
-  r = fraction.rng
-  let delta = whole + (fraction.value ? 1 : 0)
+  // A partir dos 27: queda.
+  if (age >= DECLINE_AGE) {
+    const [min, max] = DECLINE[age] ?? LATE_DECLINE
+    const fall = float(r, min / 3, max / 3)
+    r = fall.rng
+    const whole = Math.floor(fall.value)
+    const fraction = chance(r, fall.value - whole)
+    return { rng: fraction.rng, value: { delta: whole + (fraction.value ? 1 : 0), breakout: false } }
+  }
 
-  let breakout = false
-  if (age <= 21 && squad === 'starter' && gap >= 5) {
-    const explodes = chance(r, BREAKOUT_CHANCE)
+  const band = GROWTH.find((g) => age <= g.maxAge)!
+  // Jovem titular pode explodir: +4 ou +5 no split.
+  if (squad === 'starter' && band.breakout > 0) {
+    const explodes = chance(r, band.breakout)
     r = explodes.rng
     if (explodes.value) {
-      const jump = int(r, 2, 5)
-      r = jump.rng
-      delta += jump.value
-      breakout = true
+      const jump = int(r, 4, 5)
+      return { rng: jump.rng, value: { delta: jump.value, breakout: true } }
     }
   }
-  if (delta > 0) delta = Math.min(delta, gap)
-  return { rng: r, value: { delta: delta + 0, breakout: breakout && delta >= 2 } }
+  const step = pickWeighted(r, band.steps.map((weight, value) => ({ item: value, weight })))
+  r = step.rng
+  // Os minutos ajustam a subida, com arredondamento sorteado (1,25 vira 1 ou 2).
+  const value = step.value * minutesFactor(age, squad) * (REGION_GROWTH[region ?? ''] ?? 1)
+  const whole = Math.floor(value)
+  const fraction = chance(r, value - whole)
+  return { rng: fraction.rng, value: { delta: whole + (fraction.value ? 1 : 0), breakout: false } }
 }
 
 export function applyDevelopment(player: Player, delta: number): Player {

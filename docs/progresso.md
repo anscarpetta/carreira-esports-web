@@ -487,3 +487,21 @@ Tudo respeita "reduzir movimento" do sistema: sem animação, sem confete e sem 
   | China | 6% | 5% | 43 / 37 / 17 / 4 |
 
 - **Para revisar no playtest:** um jogador de verdade aceita mais apostas que o simulador (que sorteia), então deve chegar mais longe que esses números. Lendas brasileiras seguem um pouco acima de 5%, metade delas por acumular 8+ títulos do CBLOL.
+
+## Sem teto oculto (out/2026)
+
+- **Decisão:** o potencial oculto e os perfis (precoce/normal/tardio) saíram. O caminho do jogador é o OVR que ele vê: subida natural por split até os 22 (0 a 3, com explosão de +4 ou +5), estável até os 26, queda a partir dos 27. Depois dos 22, só os ups dos eventos fazem subir.
+- **Ups com −1:** +4→+3, +5→+4, +7→+6; os +2 continuam +2. Convite secreto: +5 / +8 (−2). Código secreto: +5 de OVR.
+- **Vantagem inicial maior, subida menor** para quem vem de ligas de entrada fortes: com um número só (o OVR) definindo tudo, dar mais OVR inicial ao coreano fazia ele ganhar o Worlds em 16% das carreiras. Ele chega mais pronto (+17) e cresce 60% do brasileiro.
+- **Saves:** versão 5; carreiras em andamento recomeçam.
+- **Resultado** (400 carreiras por nacionalidade, modo normal; o simulador escolhe as opções dos eventos ao acaso):
+
+  | Nacionalidade | 1º titular (idade média) | Pico p50 / p90 | Ganhou o Worlds | Nunca / sólido / craque / lenda |
+  |---|---|---|---|---|
+  | Brasil | 16,5 | 76 / 85 | 0% | 30 / 42 / 19 / 9,5 |
+  | Coreia | 17,3 | 85 / 93 | 6,5% | 12,5 / 63 / 18 / 6,5 |
+  | China | 17,2 | 84 / 92 | 7% | 26 / 60 / 9 / 5 |
+  | Alemanha | ~18 | 79 / 87 | 1% | 40 / 43,5 / 11,5 / 5 |
+  | EUA | — | 77 / 86 | 0,3% | 42 / 44 / 9 / 5 |
+
+- **Para revisar no playtest:** coreanos e chineses ficaram concentrados em "sólido" (a subida menor reduz a variação); lendas brasileiras em 9,5%.

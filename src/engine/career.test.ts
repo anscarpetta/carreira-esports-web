@@ -52,14 +52,11 @@ describe('criação da carreira', () => {
     }
   })
 
-  it('o OVR inicial fica abaixo do nível do CBLOL e o potencial é um teto plausível', () => {
+  it('o OVR inicial fica abaixo do nível do CBLOL', () => {
     for (let i = 0; i < 50; i += 1) {
       const { player } = createCareer({ ...INPUT, seed: `p${i}` }, CATALOG)
       expect(player.ovr).toBeGreaterThanOrEqual(50)
       expect(player.ovr).toBeLessThan(68)
-      // O teto inicial é mais baixo: são os ganhos dos eventos que o empurram para cima.
-      expect(player.potential).toBeGreaterThanOrEqual(55)
-      expect(player.potential).toBeLessThanOrEqual(91)
     }
   })
 })
@@ -436,7 +433,6 @@ describe('viradas', () => {
     const start = createCareer(INPUT, CATALOG)
     const boosted = secretBoost(start)
     expect(boosted.player.ovr).toBe(start.player.ovr + SECRET_BOOST)
-    expect(boosted.player.potential).toBe(start.player.potential + SECRET_BOOST)
     expect(boosted.secretBoost).toBe(true)
     expect(secretBoost(boosted)).toBe(boosted)
     expect(secretBoost(retire(start)).secretBoost).toBeUndefined()
@@ -456,43 +452,13 @@ describe('viradas', () => {
     expect(bestGain(SECRET_EVENT_KEY)).toBeGreaterThan(Math.max(...others.map(bestGain)))
   })
 
-  it('todo ganho de OVR por evento sobe o teto na mesma medida', () => {
-    // A mentoria do veterano só tem resultados positivos (+5 ou +2).
-    for (let i = 0; i < 400; i += 1) {
-      let state = createCareer({ ...INPUT, seed: `teto-${i}` }, CATALOG)
-      for (let step = 0; step < 40 && state.phase === 'career'; step += 1) {
-        const decision = state.decision!
-        if (decision.eventKey === 'veteran_mentor') {
-          const accept = decision.options.find((o) => 'choiceKey' in o && o.choiceKey === 'accept')!
-          const after = decide(state, accept.id, CATALOG)
-          expect([2, 5]).toContain(after.player.potential - state.player.potential)
-          return
-        }
-        state = decide(state, decision.options[0].id, CATALOG)
-      }
-    }
-    throw new Error('nenhuma mentoria encontrada em 400 carreiras')
-  })
-
-  it('a virada do evento secreto passa do teto antigo', () => {
-    // Procura uma carreira em que o convite aparece e aceita.
-    for (let i = 0; i < 400; i += 1) {
-      let state = createCareer({ ...INPUT, seed: `virada-${i}` }, CATALOG)
-      for (let step = 0; step < 40 && state.phase === 'career'; step += 1) {
-        const decision = state.decision!
-        if (decision.eventKey === SECRET_EVENT_KEY) {
-          const before = state.player
-          const accept = decision.options.find((o) => 'choiceKey' in o && o.choiceKey === 'accept')!
-          const after = decide(state, accept.id, CATALOG)
-          if (after.player.potential > before.potential) {
-            expect(after.player.ovr).toBeGreaterThan(before.ovr)
-            return
-          }
-          break
-        }
-        state = decide(state, decision.options[0].id, CATALOG)
-      }
-    }
-    throw new Error('nenhuma virada encontrada em 400 carreiras')
+  it('os ups ficaram 1 ponto menores, e os +2 seguem +2', () => {
+    const base = { age: 21, squadRole: 'starter', league: { tier: 1 } } as unknown as EventContext
+    const gains = Object.values(EVENTS_BY_KEY)
+      .filter((event) => event.key !== SECRET_EVENT_KEY)
+      .flatMap((event) => event.choices(base).flatMap((choice) => choice.outcomes.map((o) => o.effects.ovr ?? 0)))
+      .filter((gain) => gain > 0)
+    expect(Math.max(...gains)).toBe(6)
+    expect(Math.min(...gains)).toBe(2)
   })
 })

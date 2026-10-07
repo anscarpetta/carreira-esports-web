@@ -4,7 +4,7 @@ import { computeAwards } from './awards.ts'
 import { ALL_EVENTS, EVENTS, planEvents } from './events.ts'
 import { simulateSplit } from './league.ts'
 import { generateOffers } from './offers.ts'
-import { createPlayer, marketValue, regionalPotential, rollSplitDevelopment, shiftRole, squadRoleFor } from './player.ts'
+import { createPlayer, DECLINE_AGE, marketValue, rollSplitDevelopment, shiftRole, squadRoleFor } from './player.ts'
 import { createRng } from './rng.ts'
 import { generateStats, kda } from './stats.ts'
 import { initialTeams, leagueTeams, offseasonUpdate, structureTarget, trendOf } from './teams.ts'
@@ -137,51 +137,49 @@ describe('jogador', () => {
     expect(marketValue(80, 30)).toBeLessThan(marketValue(80, 22))
   })
 
-  const prospect = (ovr: number, potential: number, profile: 'early' | 'normal' = 'normal') => ({
-    ...createPlayer(createRng('pot'), { nick: 'x', role: 'top', nationality: 'BR', startYear: 2027 }).value,
-    ovr,
-    potential,
-    profile,
-  })
+  const prospect = createPlayer(createRng('pot'), { nick: 'x', role: 'top', nationality: 'BR', startYear: 2027 }).value
 
-  it('a evolução respeita o potencial', () => {
-    const player = prospect(70, 71)
-    let rng = createRng('evo')
-    for (let i = 0; i < 300; i += 1) {
-      const roll = rollSplitDevelopment(rng, player, 18, 'starter')
-      rng = roll.rng
-      expect(roll.value.delta).toBeLessThanOrEqual(1)
-    }
-  })
-
-  it('jovem titular evolui mais que jovem no banco, e quem está longe do potencial cresce rápido', () => {
-    const average = (ovr: number, potential: number, squad: 'starter' | 'bench', profile: 'early' | 'normal' = 'normal') => {
-      let rng = createRng(`media-${ovr}-${potential}-${squad}-${profile}`)
-      let total = 0
-      for (let i = 0; i < 2000; i += 1) {
-        const roll = rollSplitDevelopment(rng, prospect(ovr, potential, profile), 17, squad)
-        rng = roll.rng
-        total += roll.value.delta
-      }
-      return total / 2000
-    }
-    expect(average(60, 85, 'starter')).toBeGreaterThan(average(60, 85, 'bench'))
-    expect(average(60, 90, 'starter')).toBeGreaterThan(average(60, 70, 'starter'))
-    // Um prodígio (perfil precoce) titular ganha, em média, mais de 3 de OVR por split (≈ +10 por ano).
-    expect(average(60, 90, 'starter', 'early')).toBeGreaterThan(3)
-    expect(average(60, 90, 'starter', 'early')).toBeGreaterThan(average(60, 90, 'starter', 'normal'))
-  })
-
-  it('jovem titular com espaço para crescer às vezes explode', () => {
-    let rng = createRng('explosao')
+  // Média e extremos da subida de um split, em muitas rodadas.
+  const sample = (age: number, squad: 'starter' | 'bench', region?: string) => {
+    let rng = createRng(`media-${age}-${squad}-${region}`)
+    const deltas: number[] = []
     let breakouts = 0
-    for (let i = 0; i < 1000; i += 1) {
-      const roll = rollSplitDevelopment(rng, prospect(65, 88), 18, 'starter')
+    for (let i = 0; i < 2000; i += 1) {
+      const roll = rollSplitDevelopment(rng, prospect, age, squad, region)
       rng = roll.rng
+      deltas.push(roll.value.delta)
       if (roll.value.breakout) breakouts += 1
     }
-    expect(breakouts).toBeGreaterThan(60)
-    expect(breakouts).toBeLessThan(200)
+    return { avg: deltas.reduce((a, b) => a + b, 0) / deltas.length, min: Math.min(...deltas), max: Math.max(...deltas), breakouts }
+  }
+
+  it('a subida natural vai até os 22, diminui com a idade e o titular cresce mais', () => {
+    const young = sample(17, 'starter')
+    expect(young.min).toBe(0)
+    expect(young.max).toBeLessThanOrEqual(5)
+    expect(young.avg).toBeGreaterThan(sample(17, 'bench').avg)
+    expect(young.avg).toBeGreaterThan(sample(20, 'starter').avg)
+    expect(sample(20, 'starter').avg).toBeGreaterThan(sample(22, 'starter').avg)
+    expect(sample(22, 'starter').max).toBeLessThanOrEqual(1)
+  })
+
+  it('dos 23 aos 26 o OVR fica estável e a partir dos 27 cai', () => {
+    expect(sample(24, 'starter')).toMatchObject({ min: 0, max: 0 })
+    const old = sample(DECLINE_AGE, 'starter')
+    expect(old.max).toBeLessThanOrEqual(0)
+    expect(old.avg).toBeLessThan(0)
+  })
+
+  it('só o jovem titular explode, com +4 ou +5', () => {
+    const starter = sample(18, 'starter')
+    expect(starter.breakouts).toBeGreaterThan(40)
+    expect(starter.breakouts).toBeLessThan(150)
+    expect(sample(18, 'bench').breakouts).toBe(0)
+    expect(sample(21, 'starter').breakouts).toBe(0)
+  })
+
+  it('o coreano chega mais pronto, mas cresce menos depois', () => {
+    expect(sample(17, 'starter', 'KR').avg).toBeLessThan(sample(17, 'starter', 'BR').avg)
   })
 })
 
@@ -355,29 +353,13 @@ describe('vaga de convidado do CBLOL (caso da 9z)', () => {
   })
 })
 
-describe('potencial regional', () => {
-  it('o coreano começa mais pronto, sem passar do próprio teto', () => {
+describe('vantagem inicial por região', () => {
+  it('o coreano e o chinês começam mais prontos', () => {
     for (let i = 0; i < 30; i += 1) {
       const input = { nick: 'X', role: 'mid' as const, nationality: 'KR', startYear: 2027 }
       const kr = createPlayer(createRng(`h${i}`), { ...input, region: 'KR' }).value
       const br = createPlayer(createRng(`h${i}`), { ...input, nationality: 'BR', region: 'BR' }).value
       expect(kr.ovr).toBeGreaterThan(br.ovr)
-      expect(kr.ovr).toBeLessThanOrEqual(kr.potential - 4)
     }
-  })
-
-  it('a base de talentos mais funda eleva o topo, não quem não vingaria', () => {
-    expect(regionalPotential('BR', 84)).toBe(84)
-    expect(regionalPotential('KR', 60)).toBe(60)
-    expect(regionalPotential('KR', 75)).toBeGreaterThan(75)
-    expect(regionalPotential('KR', 90)).toBe(99)
-    expect(regionalPotential('KR', 84)).toBeGreaterThan(regionalPotential('EU', 84))
-  })
-
-  it('o craque coreano tem teto para ser titular nos melhores times da LCK', () => {
-    const lck = Object.values(CATALOG.teams).filter((team) => team.rating >= 94)
-    expect(lck.length).toBeGreaterThan(0)
-    // Titular precisa estar no máximo 2 pontos abaixo da força do time.
-    expect(regionalPotential('KR', 90)).toBeGreaterThanOrEqual(Math.max(...lck.map((team) => team.rating)) - 2)
   })
 })

@@ -7,7 +7,6 @@ export type Role = 'top' | 'jungle' | 'mid' | 'adc' | 'support'
 
 export const ROLES: readonly Role[] = ['top', 'jungle', 'mid', 'adc', 'support']
 
-export type DevelopmentProfile = 'early' | 'normal' | 'late'
 
 // Papel do jogador no time durante um split.
 export type SquadRole = 'starter' | 'reserve' | 'bench'
@@ -120,9 +119,6 @@ export interface Player {
   readonly nationality: string
   readonly birthYear: number
   readonly ovr: number
-  // Ocultos: teto e perfil de desenvolvimento.
-  readonly potential: number
-  readonly profile: DevelopmentProfile
   readonly marketValue: number
 }
 
@@ -287,8 +283,6 @@ export interface Effects {
   readonly pause: 'streamer' | null
   // Bônus na força do time nos torneios internacionais do período.
   readonly internationalBonus: number
-  // Aumento do teto oculto (só o boost secreto).
-  readonly potential: number
 }
 
 export interface ActiveEffects {

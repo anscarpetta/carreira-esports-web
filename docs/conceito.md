@@ -33,29 +33,36 @@ Documentos de apoio:
   - Sem time (agente livre ou streamer): 2 times novos + seguir esperando.
   - Fora da pré-temporada, os times de tier 1 se mexem menos (a qualidade das propostas cai).
 - **Sucesso sem garantia:** distribuição-alvo de 30% que nunca se firmam, 40% sólidos, 25% craques e 5% lendas. Sem arquétipo no resumo.
-- **Evolução (playtest 2, out/2026):** split a split e mais variável.
-  - Quem está longe do potencial cresce mais rápido enquanto é jovem (a subida meteórica de um Tatu ou de um duduhh).
-  - Jovem titular, inclusive no academy, evolui mais (+25% até os 19); quem não joga evolui menos.
-  - 🚀 **Explosão:** jovem titular com espaço para crescer tem 8% de chance por split de um salto de +2 a +5.
-  - O teto realista: no Brasil, 90% dos jogadores ficam até OVR 83 (os maiores chegam a 81–84).
-- **Talento por região (out/2026):** o potencial depende da região de nascimento, porque a base de talentos da Coreia e da China é mais funda. O bônus cresce com o talento: quem não vingaria continua não vingando, mas o topo coreano chega aos 90 altos, onde estão os titulares de T1, Gen.G e HLE.
+- **Evolução sem teto oculto (out/2026):** não existe potencial nem perfil de desenvolvimento. O caminho do jogador é o OVR que você vê.
+  - **Subida natural por split, até os 22**, com sorte:
 
-  | Região | Bônus máximo (potencial 90) |
-  |---|---|
-  | Coreia | +13 |
-  | China | +12 |
-  | Europa | +5 |
-  | América do Norte | +3 |
-  | Pacífico | +2 |
-  | Brasil e LATAM | 0 (a referência) |
+    | Idade | Subida por split | 🚀 Explosão (só titular) |
+    |---|---|---|
+    | 16–18 | 0 a 3 (o +1 é o mais comum) | 4% de chance de +4 ou +5 |
+    | 19–20 | 0 a 2 | 2,5% |
+    | 21–22 | 0 ou 1 | — |
+    | 23–26 | estável | — |
+    | 27+ | cai (−1 a −2 por ano, mais depois dos 29) | — |
 
-  Sem isso, ninguém alcançava um time capaz de ganhar o Worlds: em 1.600 carreiras simuladas, nenhum título.
-- **Vantagem inicial por região (out/2026):** o talento coreano e o chinês chegam mais prontos, e a liga de entrada deles (LCK CL, LDL) é bem mais forte que a Qualificatória Aberta. O OVR aos 16 ganha Coreia +10, China +9, Europa +6, LCS +3 e Pacífico +2 (sempre pelo menos 4 abaixo do potencial). Antes, o coreano só virava titular em média aos 19,3 anos; agora, aos 17,1, perto do brasileiro (16,1).
+  - **Minutos importam:** jovem titular, inclusive no academy, evolui mais (+25% até os 19); quem não joga evolui menos.
+  - **Depois dos 22, só os ups dos eventos fazem subir**: a aposta passa a ser a decisão central da carreira.
+  - Referência: no Brasil, o jogador mediano chega a ~76 no auge, e 10% passam de 85.
+- **Vantagem inicial por região (out/2026):** o talento de fora chega mais pronto, porque a liga de entrada (LCK CL, LDL, EMEA Masters) é bem mais forte que a Qualificatória Aberta. Em troca, quem chega pronto cresce menos depois (já foi lapidado no sistema de trainees).
+
+  | Região | OVR aos 16 | Subida natural |
+  |---|---|---|
+  | Coreia | +17 | 60% |
+  | China | +16 | 60% |
+  | Europa | +9 | 80% |
+  | América do Norte | +3 | 100% |
+  | Pacífico | +2 | 100% |
+  | Brasil e LATAM | 0 (a referência) | 100% |
+
+  O coreano vira titular aos 17,3 em média, e o topo dele chega aos 90+ da LCK (o Worlds sai em ~6% das carreiras coreanas).
 - **Viradas (playtest, out/2026):**
-  - **Eventos com ganhos maiores, perdas iguais:** +2 virou +4, +3 virou +5 (solo queue: +4), +5 virou +7, +1 virou +2. As perdas continuam como eram.
-  - **Os ganhos sobem o teto (out/2026):** todo ganho de OVR por evento aumenta o potencial na mesma medida. O teto ao nascer ficou mais baixo (faixas 57–67, 68–74, 75–80 e 81–84) e as apostas que o jogador aceita decidem até onde ele vai. Perdas não baixam o teto.
-  - **Evento secreto "Convite secreto":** uma lenda aposentada oferece um treino fechado, em um card dourado. Aparece em ~5% das carreiras, 3× mais quando a carreira trava (fora da titularidade, ou 20+ anos longe do tier 1), até os 27 anos. Aceitar: 55% dá +6 OVR, 30% dá +9 OVR ("virada lendária") e 15% dá −2 OVR. É o maior salto do jogo: o jogador mediano pode virar craque.
-  - **Código secreto:** 5 toques no selo de OVR em até 2,5 segundos dão +5 OVR e +5 de teto, uma vez por carreira. É trapaça assumida: a carreira fica marcada no resumo e não conta para as conquistas.
+  - **Ups dos eventos:** +2, +3, +4 e +6 (o estimulante). As perdas continuam como eram. Sem teto: cada up soma direto no OVR.
+  - **Evento secreto "Convite secreto":** uma lenda aposentada oferece um treino fechado, em um card dourado. Aparece em ~5% das carreiras, 3× mais quando a carreira trava (fora da titularidade, ou 20+ anos longe do tier 1), até os 27 anos. Aceitar: 55% dá +5 OVR, 30% dá +8 OVR ("virada lendária") e 15% dá −2 OVR. É o maior salto do jogo: o jogador mediano pode virar craque.
+  - **Código secreto:** 5 toques no selo de OVR em até 2,5 segundos dão +5 OVR, uma vez por carreira. É trapaça assumida: a carreira fica marcada no resumo e não conta para as conquistas.
 - **Aposentadoria:** botão separado, discreto, disponível desde o começo, sem idade fixa. É possível pausar (streamer, agente livre) e voltar.
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
 - **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.
