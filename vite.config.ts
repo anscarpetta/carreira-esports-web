@@ -8,6 +8,6 @@ export default defineConfig({
   base: '/carreira-esports-web/',
   plugins: [react(), tailwindcss()],
   test: {
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}'],
   },
 })

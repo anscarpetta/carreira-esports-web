@@ -9,8 +9,8 @@ Projeto de aprendizado de desenvolvimento pareado com IA (Claude Code).
 0. Preparação (repo, git, arquivo de decisões) ✅
 1. Conceito ✅
 2. Jogo e jogabilidade → MVP definido ✅
-3. Planejamento técnico + esqueleto publicado (em andamento)
-4. Desenvolvimento em fatias (implementa → testa → publica)
+3. Planejamento técnico + esqueleto publicado ✅
+4. Desenvolvimento em fatias (implementa → testa → publica) — em andamento, ver [docs/progresso.md](docs/progresso.md)
 5. Playtest final
 6. Lançamento
 
@@ -30,6 +30,8 @@ npm run dev        # servidor de desenvolvimento
 npm test           # testes do motor
 npm run lint       # verificação de código
 npm run build      # build de produção em dist/
+npm run simulate   # simulação em massa de carreiras (calibração)
+npm run logos      # baixa os logos dos times que ainda faltam
 ```
 
 Organização do código e decisões técnicas: [docs/tecnico.md](docs/tecnico.md).

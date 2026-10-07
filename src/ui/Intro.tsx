@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { DEFAULT_MODE, SIMULATION_MODES, type SimulationMode } from '../engine/modes.ts'
+import { SIMULATION_MODES, type SimulationMode } from '../engine/modes.ts'
 
 const MODE_TEXT: Record<SimulationMode, { title: string; description: string }> = {
   intense: { title: 'Intensa', description: '1 decisão por split, imersão total.' },
@@ -7,9 +6,17 @@ const MODE_TEXT: Record<SimulationMode, { title: string; description: string }> 
   express: { title: 'Expressa', description: '1 decisão a cada 2 anos, para jogar mais rápido.' },
 }
 
-export function Intro() {
-  const [mode, setMode] = useState<SimulationMode>(DEFAULT_MODE)
-
+export function Intro({
+  mode,
+  onModeChange,
+  onStart,
+  onResume,
+}: {
+  mode: SimulationMode
+  onModeChange: (mode: SimulationMode) => void
+  onStart: () => void
+  onResume: (() => void) | null
+}) {
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-12 sm:py-20">
       <header className="flex flex-col gap-3 text-center">
@@ -34,7 +41,7 @@ export function Intro() {
                 name="mode"
                 value={option}
                 checked={mode === option}
-                onChange={() => setMode(option)}
+                onChange={() => onModeChange(option)}
                 className="sr-only"
               />
               <span className="block font-bold">{MODE_TEXT[option].title}</span>
@@ -44,15 +51,19 @@ export function Intro() {
         </div>
       </fieldset>
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-3">
         <button
           type="button"
-          disabled
-          className="w-full rounded-xl bg-gold px-6 py-3 font-black text-night disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          onClick={onStart}
+          className="w-full rounded-xl bg-gold px-6 py-3 font-black text-night focus-visible:outline-2 focus-visible:outline-gold-soft sm:w-auto"
         >
           Começar carreira
         </button>
-        <p className="text-xs text-muted">Em construção: a carreira chega na próxima fatia.</p>
+        {onResume && (
+          <button type="button" onClick={onResume} className="text-sm font-bold text-gold-soft underline">
+            Continuar a carreira salva
+          </button>
+        )}
       </div>
     </section>
   )
