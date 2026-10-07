@@ -48,6 +48,8 @@ Para cada sistema: **decidido** (o que já foi fechado com o Angelo), **proposta
 
 **Proposta (mecanismos):** potencial oculto (o teto), perfil de desenvolvimento oculto (precoce, normal ou tardio), sorte na evolução de cada split e o contexto do time (quem fica no banco ou no academy evolui menos).
 
+> **Atualização (out/2026):** o potencial oculto e os perfis foram removidos. O caminho é o próprio OVR: subida natural com sorte até os 22, estável até os 26, queda a partir dos 27, e os ups dos eventos sem teto. Ver [conceito](conceito.md).
+
 ---
 
 ## 3. Aposentadoria, pausa e retorno

@@ -53,7 +53,6 @@ import type {
   EventChoiceOption,
   EventTeamOption,
   LeagueData,
-  Player,
   RetirementReason,
   Role,
   SplitRecord,
@@ -71,7 +70,7 @@ export interface NewCareerInput {
   readonly nationality: string
 }
 
-export const SAVE_VERSION = 4
+export const SAVE_VERSION = 5
 
 // Ninguém estreia no tier 1 antes dos 18 anos.
 export const MIN_TIER1_AGE = 18
@@ -116,13 +115,6 @@ function rngOf(state: CareerState): Rng {
 
 function clampOvr(ovr: number): number {
   return Math.max(40, Math.min(99, ovr))
-}
-
-// Ganho de OVR por evento: o talento tem margem, mas não infinita (até 2 acima do potencial).
-function eventOvr(player: Player, delta: number): number {
-  if (delta <= 0) return clampOvr(player.ovr + delta)
-  const ceiling = Math.max(player.ovr, player.potential + 2)
-  return clampOvr(Math.min(player.ovr + delta, ceiling))
 }
 
 export function ageOf(state: CareerState): number {
@@ -280,18 +272,13 @@ function finish(state: CareerState, reason: RetirementReason): CareerState {
 }
 
 // Botão "Encerrar carreira": disponível a qualquer momento.
-// Código secreto (easter egg na tela): uma vez por carreira, sobe OVR e teto.
+// Código secreto (easter egg na tela): uma vez por carreira, +5 de OVR.
 // Funciona como trapaça assumida: a carreira fica marcada e não conta para as conquistas.
 export const SECRET_BOOST = 5
 
 export function secretBoost(state: CareerState): CareerState {
   if (state.phase !== 'career' || state.secretBoost) return state
-  const potential = Math.min(99, state.player.potential + SECRET_BOOST)
-  return {
-    ...state,
-    secretBoost: true,
-    player: { ...state.player, potential, ovr: clampOvr(Math.min(potential, state.player.ovr + SECRET_BOOST)) },
-  }
+  return { ...state, secretBoost: true, player: { ...state.player, ovr: clampOvr(state.player.ovr + SECRET_BOOST) } }
 }
 
 export function retire(state: CareerState): CareerState {
@@ -392,13 +379,7 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
   s = {
     ...s,
     firstTeamId: s.firstTeamId ?? s.teamId,
-    // Todo ganho de OVR por evento sobe o teto junto (playtest, out/2026): as apostas que você
-    // aceita decidem até onde pode ir. O teto sobe antes, para o ganho caber inteiro.
-    player: (() => {
-      const lift = Math.max(effects.potential ?? 0, Math.max(0, effects.ovr))
-      const raised = { ...s.player, potential: Math.min(99, s.player.potential + lift) }
-      return { ...raised, ovr: eventOvr(raised, effects.ovr) }
-    })(),
+    player: { ...s.player, ovr: clampOvr(s.player.ovr + effects.ovr) },
     suspensionSplits: s.suspensionSplits + effects.suspensionSplits,
     pauseSplits: s.pauseSplits + effects.pauseSplits,
     // Sem efeito novo, mantém o que já estava valendo (ex.: evento logo antes da janela).
@@ -643,8 +624,8 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   }
 
   const ovrBefore = player.ovr
-  // Evolução do split (minutos, idade, distância do potencial e chance de explosão).
-  const growth = rollSplitDevelopment(rng, player, age, plays ? (squad as SquadRole) : 'out')
+  // Evolução do split (idade, minutos, região e chance de explosão).
+  const growth = rollSplitDevelopment(rng, player, age, plays ? (squad as SquadRole) : 'out', regionOf(catalog, player.nationality))
   rng = growth.rng
   let delta = growth.value.delta
   // Streamer perde ritmo: não evolui e cai um pouco a cada split.

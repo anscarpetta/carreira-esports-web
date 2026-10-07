@@ -140,7 +140,7 @@ export function CareerScreen({
   function secret() {
     if (reveal || career.phase !== 'career' || career.secretBoost) return
     onCareerChange(secretBoost(career))
-    setToasts([{ id: 'secret-boost', icon: '✨', text: `Boost secreto: +${SECRET_BOOST} OVR e um teto mais alto` }])
+    setToasts([{ id: 'secret-boost', icon: '✨', text: `Boost secreto: +${SECRET_BOOST} OVR` }])
     celebrate('international', '#a855f7')
   }
 

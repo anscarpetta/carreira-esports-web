@@ -20,7 +20,6 @@ export const NO_EFFECTS: Effects = {
   pauseSplits: 0,
   pause: null,
   internationalBonus: 0,
-  potential: 0,
 }
 
 export interface EventContext {
@@ -108,7 +107,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'go',
         label: 'Ir para a Coreia',
         outcomes: [
-          { probability: 0.65, text: '+5 OVR', effects: { ovr: 5 } },
+          { probability: 0.65, text: '+4 OVR', effects: { ovr: 4 } },
           { probability: 0.35, text: '−2 OVR (choque cultural e cansaço)', effects: { ovr: -2 } },
         ],
       },
@@ -128,7 +127,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'grind',
         label: 'Virar as noites',
         outcomes: [
-          { probability: 0.8, text: '+4 OVR', effects: { ovr: 4 } },
+          { probability: 0.8, text: '+3 OVR', effects: { ovr: 3 } },
           { probability: 0.2, text: 'Tendinite: −2 OVR', effects: { ovr: -2 } },
         ],
       },
@@ -147,7 +146,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'change',
         label: 'Mudar a mecânica',
         outcomes: [
-          { probability: 0.5, text: '+4 OVR', effects: { ovr: 4 } },
+          { probability: 0.5, text: '+3 OVR', effects: { ovr: 3 } },
           { probability: 0.5, text: '−2 OVR', effects: { ovr: -2 } },
         ],
       },
@@ -167,7 +166,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'switch',
         label: 'Trocar o setup',
         outcomes: [
-          { probability: 0.7, text: '+4 OVR', effects: { ovr: 4 } },
+          { probability: 0.7, text: '+3 OVR', effects: { ovr: 3 } },
           { probability: 0.3, text: '−2 OVR', effects: { ovr: -2 } },
         ],
       },
@@ -185,7 +184,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'take',
         label: 'Tomar',
         outcomes: [
-          { probability: 0.75, text: '+7 OVR', effects: { ovr: 7 } },
+          { probability: 0.75, text: '+6 OVR', effects: { ovr: 6 } },
           { probability: 0.25, text: 'Pego no antidoping: suspensão de 2 splits', effects: { suspensionSplits: 2 } },
         ],
       },
@@ -204,7 +203,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'adapt',
         label: 'Ampliar o pool',
         outcomes: [
-          { probability: 0.5, text: '+4 OVR', effects: { ovr: 4 } },
+          { probability: 0.5, text: '+3 OVR', effects: { ovr: 3 } },
           { probability: 0.5, text: '−2 OVR', effects: { ovr: -2 } },
         ],
       },
@@ -421,7 +420,7 @@ export const EVENTS: readonly EventDef[] = [
         key: 'accept',
         label: 'Aceitar',
         outcomes: [
-          { probability: 0.5, text: '+4 OVR (ninguém descobre)', effects: { ovr: 4 } },
+          { probability: 0.5, text: '+3 OVR (ninguém descobre)', effects: { ovr: 3 } },
           { probability: 0.5, text: 'Banimento de 6 splits', effects: { suspensionSplits: 6 } },
         ],
       },
@@ -531,7 +530,7 @@ export const TRAINING_EVENTS: readonly EventDef[] = [
         key: 'study',
         label: 'Estudar tudo',
         outcomes: [
-          { probability: 0.75, text: '+4 OVR', effects: { ovr: 4 } },
+          { probability: 0.75, text: '+3 OVR', effects: { ovr: 3 } },
           { probability: 0.25, text: 'Não absorveu nada: sem mudanças', effects: {} },
         ],
       },
@@ -549,7 +548,7 @@ export const TRAINING_EVENTS: readonly EventDef[] = [
         key: 'accept',
         label: 'Aceitar a mentoria',
         outcomes: [
-          { probability: 0.7, text: '+5 OVR', effects: { ovr: 5 } },
+          { probability: 0.7, text: '+4 OVR', effects: { ovr: 4 } },
           { probability: 0.3, text: '+2 OVR', effects: { ovr: 2 } },
         ],
       },
@@ -568,7 +567,7 @@ export const TRAINING_EVENTS: readonly EventDef[] = [
         key: 'all_in',
         label: 'Jogar todas as scrims',
         outcomes: [
-          { probability: 0.6, text: '+5 OVR', effects: { ovr: 5 } },
+          { probability: 0.6, text: '+4 OVR', effects: { ovr: 4 } },
           { probability: 0.4, text: 'Moral abalada: −1 OVR', effects: { ovr: -1 } },
         ],
       },
@@ -629,7 +628,7 @@ export const SLICE_3_EVENTS: readonly EventDef[] = [
         label: 'Aceitar a proposta',
         join: 'money',
         outcomes: [
-          { probability: 0.5, text: '+4 OVR (motivado pelo novo desafio)', effects: { ovr: 4 } },
+          { probability: 0.5, text: '+3 OVR (motivado pelo novo desafio)', effects: { ovr: 3 } },
           { probability: 0.5, text: '−2 OVR (se acomodou)', effects: { ovr: -2 } },
         ],
       },
@@ -674,7 +673,7 @@ export const SLICE_4_EVENTS: readonly EventDef[] = [
 ]
 
 // Evento secreto (playtest, out/2026): a virada. Raro, e mais comum quando a carreira vai mal.
-// É o único evento que sobe o teto oculto (potencial): o jogador mediano pode virar craque.
+// É o maior salto do jogo: o jogador mediano pode virar craque.
 export const SECRET_EVENT_KEY = 'legend_invite'
 
 // Carreira travada: fora da titularidade, ou já com 20+ anos longe do tier 1.
@@ -695,8 +694,8 @@ const SECRET_EVENTS: readonly EventDef[] = [
         key: 'accept',
         label: 'Aceitar o convite',
         outcomes: [
-          { probability: 0.55, text: '+6 OVR e você passa a poder ir mais longe', effects: { ovr: 6, potential: 6 } },
-          { probability: 0.3, text: 'Virada lendária: +9 OVR e um novo teto', effects: { ovr: 9, potential: 9 } },
+          { probability: 0.55, text: '+5 OVR', effects: { ovr: 5 } },
+          { probability: 0.3, text: 'Virada lendária: +8 OVR', effects: { ovr: 8 } },
           { probability: 0.15, text: 'O método não funcionou: −2 OVR', effects: { ovr: -2 } },
         ],
       },

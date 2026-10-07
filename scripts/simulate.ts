@@ -6,7 +6,6 @@
 import { CATALOG } from '../src/data/catalog.ts'
 import { createCareer, decide, regionOf, retire } from '../src/engine/career.ts'
 import type { SimulationMode } from '../src/engine/modes.ts'
-import { regionalPotential } from '../src/engine/player.ts'
 import { createRng, int, pick, type Rng } from '../src/engine/rng.ts'
 import { summarize } from '../src/engine/summary.ts'
 import type { CareerState, DecisionOption, Role, SquadRole } from '../src/engine/types.ts'
@@ -54,6 +53,9 @@ function choose(state: CareerState, rng: Rng): { rng: Rng; optionId: string } {
   return { rng, optionId: (retire ?? wait ?? options[0]).id }
 }
 
+// Quanto o tier 1 de cada região está acima do CBLOL, para a régua de craque e lenda.
+const REGION_SCALE: Readonly<Record<string, number>> = { KR: 10, CN: 10, EU: 5, NA: 4, PAC: 3 }
+
 export type Outcome = 'never' | 'solid' | 'star' | 'legend'
 
 // "Firmou no tier 1" = pelo menos 6 splits como titular no tier 1. Títulos de tier 2/3 não contam.
@@ -62,10 +64,10 @@ export function classify(state: CareerState): Outcome {
   const isTier1 = (leagueId: string | null) => leagueId !== null && CATALOG.leagues[leagueId]?.tier === 1
   const titles = s.titles.filter((t) => isTier1(t.leagueId)).length
   const tier1Starter = state.history.filter((r) => r.squadRole === 'starter' && isTier1(r.leagueId)).length
-  // Os limites de OVR acompanham a profundidade de talentos da região de origem.
-  const region = regionOf(CATALOG, state.player.nationality)
-  if (s.peakOvr >= regionalPotential(region, 86) || titles >= 8) return 'legend'
-  if ((s.peakOvr >= regionalPotential(region, 81) && tier1Starter >= 6) || titles >= 4) return 'star'
+  // A régua de OVR acompanha o nível do tier 1 da região de origem (a LCK é bem mais forte que o CBLOL).
+  const scale = REGION_SCALE[regionOf(CATALOG, state.player.nationality)] ?? 0
+  if (s.peakOvr >= 86 + scale || titles >= 8) return 'legend'
+  if ((s.peakOvr >= 81 + scale && tier1Starter >= 6) || titles >= 4) return 'star'
   if (tier1Starter >= 6) return 'solid'
   return 'never'
 }
