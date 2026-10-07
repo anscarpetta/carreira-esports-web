@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="100" height="140">
+  <!-- Summoner's Cup (Worlds): taça prateada com coroa de pontas, relevos e a joia azul na haste -->
+  <defs>
+    <linearGradient id="s" x1="0" x2="1">
+      <stop offset="0" stop-color="#5f6789"/>
+      <stop offset=".32" stop-color="#eef1f8"/>
+      <stop offset=".55" stop-color="#c3cae0"/>
+      <stop offset="1" stop-color="#555c7d"/>
+    </linearGradient>
+    <linearGradient id="s2" x1="0" x2="1">
+      <stop offset="0" stop-color="#4b5272"/>
+      <stop offset=".4" stop-color="#d6dbea"/>
+      <stop offset="1" stop-color="#454b68"/>
+    </linearGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8f8cff"/>
+      <stop offset=".55" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#2a1f9e"/>
+    </linearGradient>
+    <radialGradient id="o" cx=".35" cy=".35" r=".7">
+      <stop offset="0" stop-color="#c7d2fe"/>
+      <stop offset="1" stop-color="#3b3fd8"/>
+    </radialGradient>
+  </defs>
+  <!-- taça com a coroa de pontas -->
+  <path d="M18 22 L15 5 L27 15 L35 11 L42 16 L50 13 L58 16 L65 11 L73 15 L85 5 L82 22 C88 40 72 58 55 64 L45 64 C28 58 12 40 18 22 Z" fill="url(#s)"/>
+  <!-- relevos (as três pétalas) -->
+  <path d="M50 21 C58 29 58 45 50 56 C42 45 42 29 50 21 Z" fill="#e9edf7" opacity=".85"/>
+  <path d="M50 26 C54 32 54 42 50 49 C46 42 46 32 50 26 Z" fill="#8e96b8"/>
+  <path d="M24 22 C30 30 36 42 45 56 C34 50 26 38 24 22 Z" fill="#7f88ab" opacity=".9"/>
+  <path d="M76 22 C70 30 64 42 55 56 C66 50 74 38 76 22 Z" fill="#7f88ab" opacity=".9"/>
+  <path d="M31 21 C35 28 39 36 44 44" stroke="#f4f6fb" stroke-width="1.6" fill="none" opacity=".7" stroke-linecap="round"/>
+  <circle cx="34" cy="31" r="2.2" fill="url(#o)"/>
+  <circle cx="66" cy="31" r="2.2" fill="url(#o)"/>
+  <circle cx="50" cy="38" r="2.6" fill="url(#o)"/>
+  <!-- ornamento central: lua com a esfera azul -->
+  <path d="M43 11 C44 3 56 3 57 11 C55 6 45 6 43 11 Z" fill="url(#s2)"/>
+  <circle cx="50" cy="8.5" r="3.4" fill="url(#o)"/>
+  <!-- haste -->
+  <path d="M45 63 L55 63 L54 75 L46 75 Z" fill="url(#s2)"/>
+  <ellipse cx="50" cy="75.5" rx="8" ry="2" fill="url(#s)"/>
+  <!-- joia -->
+  <path d="M33 83 L40 77 L60 77 L67 83 L60 89 L40 89 Z" fill="url(#g)"/>
+  <path d="M40 77 L45 83 L40 89 M60 77 L55 83 L60 89 M45 83 L55 83" stroke="#c7d2fe" stroke-width=".8" fill="none" opacity=".7"/>
+  <path d="M42 79 L50 79 L47 82 L41 82 Z" fill="#e0e7ff" opacity=".7"/>
+  <!-- colar e base em sino -->
+  <rect x="39" y="89" width="22" height="5" rx="1" fill="url(#s2)"/>
+  <circle cx="44" cy="91.5" r="1.2" fill="url(#o)"/>
+  <circle cx="50" cy="91.5" r="1.2" fill="url(#o)"/>
+  <circle cx="56" cy="91.5" r="1.2" fill="url(#o)"/>
+  <path d="M38 94 L62 94 C64 107 70 120 79 128 L21 128 C30 120 36 107 38 94 Z" fill="url(#s)"/>
+  <path d="M44 98 C43 110 38 120 32 126" stroke="#f4f6fb" stroke-width="1.8" fill="none" opacity=".55" stroke-linecap="round"/>
+  <path d="M30 112 Q50 116 70 112" stroke="#6b7393" stroke-width="1.4" fill="none" opacity=".6"/>
+  <rect x="17" y="128" width="66" height="6" rx="2" fill="url(#s2)"/>
+</svg>

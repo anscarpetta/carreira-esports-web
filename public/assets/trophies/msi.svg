@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="100" height="140">
+  <!-- MSI: esfera dourada sustentada por uma torre em espiral, com relevo e base escalonada -->
+  <defs>
+    <linearGradient id="b" x1="0" x2="1">
+      <stop offset="0" stop-color="#6e4a17"/>
+      <stop offset=".38" stop-color="#f6dc95"/>
+      <stop offset=".62" stop-color="#c99a42"/>
+      <stop offset="1" stop-color="#5c3d12"/>
+    </linearGradient>
+    <linearGradient id="b2" x1="0" x2="1">
+      <stop offset="0" stop-color="#4f3510"/>
+      <stop offset=".45" stop-color="#d9b062"/>
+      <stop offset="1" stop-color="#4a310e"/>
+    </linearGradient>
+    <radialGradient id="sp" cx=".38" cy=".32" r=".75">
+      <stop offset="0" stop-color="#fff1c2"/>
+      <stop offset=".5" stop-color="#d6a94e"/>
+      <stop offset="1" stop-color="#6b4815"/>
+    </radialGradient>
+  </defs>
+  <!-- esfera -->
+  <circle cx="50" cy="17" r="13" fill="url(#sp)"/>
+  <path d="M37.5 15 Q50 21 62.5 15" stroke="#5c3d12" stroke-width="1.6" fill="none"/>
+  <path d="M38.5 21 Q50 26 61.5 21" stroke="#5c3d12" stroke-width="1.2" fill="none" opacity=".8"/>
+  <path d="M44 6 Q41 17 45 29 M56 6 Q59 17 55 29" stroke="#7a5418" stroke-width="1.2" fill="none" opacity=".8"/>
+  <ellipse cx="45" cy="11" rx="4" ry="2.4" fill="#fff6d8" opacity=".6"/>
+  <!-- garras que seguram a esfera -->
+  <path d="M38 24 C36 34 42 40 50 46 C46 38 44 32 45 28 Z" fill="url(#b2)"/>
+  <path d="M62 24 C64 34 58 40 50 46 C54 38 56 32 55 28 Z" fill="url(#b2)"/>
+  <!-- torre em espiral -->
+  <path d="M50 40 C55 52 61 66 64 84 L36 84 C39 66 45 52 50 40 Z" fill="url(#b)"/>
+  <path d="M47 50 C54 58 58 68 61 80 L56 82 C53 70 50 60 45 54 Z" fill="#fff1c2" opacity=".35"/>
+  <path d="M52 48 C46 60 42 70 40 82" stroke="#6e4a17" stroke-width="1.3" fill="none" opacity=".7"/>
+  <!-- colar e faixa com relevo -->
+  <rect x="33" y="84" width="34" height="4" rx="1" fill="url(#b2)"/>
+  <path d="M47 85 L50 87.5 L53 85" stroke="#3d290b" stroke-width="1" fill="none"/>
+  <rect x="35" y="88" width="30" height="16" fill="url(#b)"/>
+  <path d="M38 98 C42 92 46 101 50 95 C54 90 58 100 62 94" stroke="#6e4a17" stroke-width="1.6" fill="none" opacity=".8"/>
+  <path d="M40 102 C44 99 48 103 52 100" stroke="#fff1c2" stroke-width="1" fill="none" opacity=".5"/>
+  <!-- base escalonada -->
+  <path d="M33 104 L67 104 L69 112 L31 112 Z" fill="url(#b2)"/>
+  <path d="M29 112 L71 112 L74 122 L26 122 Z" fill="url(#b)"/>
+  <path d="M34 116 L38 120 L42 116 L46 120 L50 116 L54 120 L58 116 L62 120 L66 116" stroke="#6e4a17" stroke-width="1" fill="none" opacity=".75"/>
+  <path d="M24 122 L76 122 L79 132 L21 132 Z" fill="url(#b2)"/>
+  <path d="M30 125 L36 129 L42 125 L48 129 L54 125 L60 129 L66 125 L70 128" stroke="#e8c070" stroke-width="1" fill="none" opacity=".55"/>
+</svg>

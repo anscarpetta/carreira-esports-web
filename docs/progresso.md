@@ -448,3 +448,12 @@ Tudo respeita "reduzir movimento" do sistema: sem animação, sem confete e sem 
   | Brasil | 34% | 0% | 28 / 44 / 22 / 6 (inalterado) |
 
 - **Para revisar no playtest:** lendas coreanas e chinesas ainda são raras (~1%), e chineses ficam muito presos na LDL (45% nunca se firmam).
+
+## Troféus (out/2026)
+
+- 10 taças desenhadas em SVG (`public/assets/trophies`) a partir de fotos das taças reais: Worlds, MSI, First Stand, CBLOL, LCK, LPL, LEC, LCS, LCP e Circuito Desafiante. As outras ligas usam a taça genérica na cor da liga.
+- Onde aparecem:
+  - Vitrine do cartão do jogador, com a quantidade de cada taça.
+  - Vitrine do resumo, agrupada por competição ("7× LCP" em vez de "4× LCP Split 2" e "2× LCP Split 3").
+  - Tag "Campeão" na trajetória e aviso de título.
+  - Card de compartilhar.

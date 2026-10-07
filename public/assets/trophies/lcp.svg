@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="100" height="140">
+  <!-- LCP: torre escura em ampulheta com coroa de pontas, veios de lava laranja e garras na base -->
+  <defs>
+    <linearGradient id="d" x1="0" x2="1">
+      <stop offset="0" stop-color="#3a2a24"/>
+      <stop offset=".25" stop-color="#c47a4c"/>
+      <stop offset=".45" stop-color="#2b2d33"/>
+      <stop offset=".6" stop-color="#5d6470"/>
+      <stop offset=".8" stop-color="#2a2c31"/>
+      <stop offset="1" stop-color="#a35e38"/>
+    </linearGradient>
+    <linearGradient id="sv" x1="0" x2="1">
+      <stop offset="0" stop-color="#5a606b"/>
+      <stop offset=".45" stop-color="#e8ebf0"/>
+      <stop offset="1" stop-color="#6b717c"/>
+    </linearGradient>
+    <linearGradient id="cu" x1="0" x2="1">
+      <stop offset="0" stop-color="#7a3d1e"/>
+      <stop offset=".5" stop-color="#e59a62"/>
+      <stop offset="1" stop-color="#6b3418"/>
+    </linearGradient>
+  </defs>
+  <!-- corpo em ampulheta -->
+  <path d="M28 30 L72 30 C66 50 58 64 58 82 C58 98 64 108 70 116 L30 116 C36 108 42 98 42 82 C42 64 34 50 28 30 Z" fill="url(#d)"/>
+  <!-- coroa: a ponta central é a mais alta -->
+  <path d="M50 2 L58 20 L56 34 L44 34 L42 20 Z" fill="url(#sv)"/>
+  <path d="M36 10 L44 26 L42 36 L32 32 Z" fill="url(#sv)"/>
+  <path d="M64 10 L56 26 L58 36 L68 32 Z" fill="url(#sv)"/>
+  <path d="M24 18 L34 30 L30 38 L24 32 Z" fill="url(#cu)"/>
+  <path d="M76 18 L66 30 L70 38 L76 32 Z" fill="url(#cu)"/>
+  <path d="M46 10 L50 4 L52 22" stroke="#ffffff" stroke-width="1" fill="none" opacity=".6"/>
+  <!-- veios de lava -->
+  <path d="M52 30 L48 46 L54 58 L49 72 L53 86 L48 100 L52 114" stroke="#ff9a3c" stroke-width="2.2" fill="none" stroke-linejoin="round"/>
+  <path d="M52 30 L48 46 L54 58 L49 72 L53 86 L48 100 L52 114" stroke="#ffe0a8" stroke-width=".8" fill="none" stroke-linejoin="round"/>
+  <path d="M40 40 L44 54 L41 64" stroke="#ff8a2a" stroke-width="1.4" fill="none" opacity=".8"/>
+  <!-- base com garras -->
+  <path d="M26 116 L74 116 L76 128 L24 128 Z" fill="url(#sv)"/>
+  <path d="M24 116 C18 112 18 104 24 102 C22 108 26 112 30 114 Z" fill="url(#cu)"/>
+  <path d="M76 116 C82 112 82 104 76 102 C78 108 74 112 70 114 Z" fill="url(#cu)"/>
+  <path d="M38 120 C36 114 40 110 44 112 C41 113 40 116 42 120 Z M62 120 C64 114 60 110 56 112 C59 113 60 116 58 120 Z" fill="url(#cu)"/>
+  <rect x="22" y="128" width="56" height="5" rx="2" fill="#2b2d33"/>
+</svg>

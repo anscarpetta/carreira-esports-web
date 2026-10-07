@@ -7,6 +7,8 @@ import { kdaText, SQUAD_LABEL } from '../format.ts'
 import { OvrBadge } from '../OvrBadge.tsx'
 import { tint } from '../ovr.ts'
 import { TeamBadge } from '../TeamBadge.tsx'
+import { Trophy } from '../Trophy.tsx'
+import { trophyKey } from '../trophies.ts'
 
 // Idades mostradas na tabela, como no Copero (as futuras ficam apagadas).
 const FIRST_AGE = 16
@@ -33,10 +35,16 @@ function SplitLine({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
   const intl = record.international
   const champion = record.titles.length > 0 || (intl?.titles.length ?? 0) > 0
   const s = record.stats
-  const tags: { text: string; tone: string }[] = []
-  if (record.titles.length > 0) tags.push({ text: '🏆 Campeão', tone: 'text-gold-soft' })
+  const tags: { text: string; tone: string; trophy?: string }[] = []
+  if (record.titles.length > 0) tags.push({ text: 'Campeão', tone: 'text-gold-soft', trophy: trophyKey(record.titles[0]) })
   if (record.awards.length > 0) tags.push({ text: `⭐ ${record.awards.map((a) => a.name.split(' ')[0]).join(' · ')}`, tone: 'text-gold-soft' })
-  if (intl) tags.push({ text: `🌍 ${intl.name}: ${intl.stage}${intl.titles.length > 0 ? ' 🏆' : ''}`, tone: 'text-sky-300' })
+  if (intl) {
+    tags.push(
+      intl.titles.length > 0
+        ? { text: `Campeão do ${intl.name}`, tone: 'text-gold-soft', trophy: intl.id }
+        : { text: `🌍 ${intl.name}: ${intl.stage}`, tone: 'text-sky-300' },
+    )
+  }
   if (record.breakout) tags.push({ text: '🚀 Explosão', tone: 'text-fuchsia-300' })
   if (record.leagueChange) {
     tags.push({ text: moveText(record.leagueChange), tone: record.leagueChange.kind === 'promoted' ? 'text-emerald-300' : 'text-rose-300' })
@@ -63,7 +71,8 @@ function SplitLine({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
           {tags.length > 0 && (
             <p className="flex flex-wrap gap-x-1.5 text-[0.65rem] leading-snug">
               {tags.map((tag) => (
-                <span key={tag.text} className={`font-bold ${tag.tone}`}>
+                <span key={tag.text} className={`inline-flex items-center gap-0.5 font-bold ${tag.tone}`}>
+                  {tag.trophy && <Trophy trophy={tag.trophy} size="xs" />}
                   {tag.text}
                 </span>
               ))}

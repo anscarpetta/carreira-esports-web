@@ -9,6 +9,8 @@ import { OvrBadge } from './OvrBadge.tsx'
 import { SharePanel } from './SharePanel.tsx'
 import { Sparkles } from './Sparkles.tsx'
 import { TeamBadge } from './TeamBadge.tsx'
+import { Trophy } from './Trophy.tsx'
+import { groupTrophies } from './trophies.ts'
 
 function groupCount(names: readonly string[]): { name: string; count: number }[] {
   const counts = new Map<string, number>()
@@ -28,8 +30,7 @@ export function Summary({
   const s = summarize(career)
   const { player } = career
   // Internacionais primeiro, do maior para o menor.
-  const order: Record<string, number> = { worlds: 0, msi: 1, first_stand: 2, league: 3 }
-  const titles = groupCount([...s.titles].sort((a, b) => order[a.kind] - order[b.kind]).map((t) => t.name))
+  const titles = groupTrophies(s.titles)
   // Prêmios agrupados por tipo e liga ("Seleção do CBLOL"), sem separar por split.
   const awardLabel = (a: (typeof s.awards)[number]) => {
     const league = CATALOG.leagues[a.leagueId]
@@ -90,18 +91,28 @@ export function Summary({
         {titles.length === 0 && awards.length === 0 ? (
           <p className="mt-2 text-muted">Vitrine vazia.</p>
         ) : (
-          <ul className="mt-2 flex flex-wrap gap-2">
-            {titles.map((t) => (
-              <li key={t.name} className="rounded-full border border-gold/70 bg-gold/10 px-3 py-1 text-sm font-bold text-gold-soft">
-                🏆 {t.count}× {t.name}
-              </li>
-            ))}
-            {awards.map((a) => (
-              <li key={a.name} className="rounded-full border border-line bg-night/60 px-3 py-1 text-sm font-bold">
-                ⭐ {a.count}× {a.name}
-              </li>
-            ))}
-          </ul>
+          <>
+            {titles.length > 0 && (
+              <ul className="mt-3 flex flex-wrap items-end justify-center gap-x-5 gap-y-4">
+                {titles.map((t) => (
+                  <li key={t.key} className="flex w-20 flex-col items-center gap-1 text-center">
+                    <Trophy trophy={t.key} size="lg" />
+                    <span className="text-xs leading-tight font-bold text-gold-soft">
+                      {t.count > 1 && `${t.count}× `}
+                      {t.name}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {awards.map((a) => (
+                <li key={a.name} className="rounded-full border border-line bg-night/60 px-3 py-1 text-sm font-bold">
+                  ⭐ {a.count}× {a.name}
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </section>
 

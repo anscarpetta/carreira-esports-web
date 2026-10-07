@@ -4,6 +4,7 @@ import { ageOf, decide, retire } from '../../engine/career.ts'
 import { of } from '../../engine/grammar.ts'
 import type { CareerState } from '../../engine/types.ts'
 import { celebrate, partyFor } from '../celebrate.ts'
+import { trophyKey } from '../trophies.ts'
 import { DecisionPanel, type PanelStage } from './DecisionPanel.tsx'
 import { PlayerCard } from './PlayerCard.tsx'
 import { Toasts, type Toast } from './Toasts.tsx'
@@ -56,6 +57,7 @@ function celebrations(prev: CareerState, next: CareerState): Toast[] {
       toasts.push({
         id: `t-${title.year}-${title.splitIndex}`,
         icon: '🏆',
+        trophy: trophyKey(title),
         text: `Campeão ${of(CATALOG.leagues[title.leagueId])} ${title.name} ${title.year}!`,
       })
     }
@@ -63,7 +65,7 @@ function celebrations(prev: CareerState, next: CareerState): Toast[] {
       toasts.push({ id: `a-${award.kind}-${award.year}-${award.splitIndex}`, icon: '⭐', text: `${award.name} ${award.year}` })
     }
     for (const title of record.international?.titles ?? []) {
-      toasts.push({ id: `i-${title.kind}-${title.year}`, icon: '🌍', text: `Campeão do ${title.name} ${title.year}!` })
+      toasts.push({ id: `i-${title.kind}-${title.year}`, icon: '🌍', trophy: trophyKey(title), text: `Campeão do ${title.name} ${title.year}!` })
     }
     for (const award of record.international?.awards ?? []) {
       toasts.push({ id: `ia-${award.kind}-${award.year}-${award.splitIndex}`, icon: '⭐', text: `${award.name} ${award.year}` })
