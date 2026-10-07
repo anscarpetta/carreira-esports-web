@@ -33,6 +33,95 @@ body {
   }
 }
 
+/* Borda com um brilho que gira (Shine Border, do Magic UI). Cor em --shine-color. */
+@property --shine-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.shine-border {
+  position: relative;
+}
+
+.shine-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--shine-angle),
+    transparent 0 62%,
+    var(--shine-color, #e6c979) 80%,
+    #fff 84%,
+    var(--shine-color, #e6c979) 88%,
+    transparent 100%
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  animation: shine-spin 3.2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes shine-spin {
+  to {
+    --shine-angle: 360deg;
+  }
+}
+
+/* Holofote que segue o mouse nos cards (Magic Card, do Magic UI).
+   Posição em --spot-x/--spot-y e cor em --spot-color. */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+
+.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    180px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    var(--spot-color, rgb(255 255 255 / 0.12)),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+
+.spotlight:hover:not(:disabled)::after {
+  opacity: 1;
+}
+
+/* Estrelinha que nasce, gira e some (componente Sparkles). */
+.sparkle {
+  opacity: 0;
+  animation: sparkle 1.4s ease-in-out infinite both;
+}
+
+@keyframes sparkle {
+  0% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+  50% {
+    opacity: 1;
+    scale: 1;
+    rotate: 90deg;
+  }
+  100% {
+    opacity: 0;
+    scale: 0;
+    rotate: 180deg;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

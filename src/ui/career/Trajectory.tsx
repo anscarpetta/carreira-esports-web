@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
 import { art } from '../../engine/grammar.ts'
@@ -40,9 +41,14 @@ function SplitLine({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
   if (record.leagueChange) {
     tags.push({ text: moveText(record.leagueChange), tone: record.leagueChange.kind === 'promoted' ? 'text-emerald-300' : 'text-rose-300' })
   }
+  const reduced = useReducedMotion() ?? false
   return (
-    <li
-      className={`${COLUMNS} rounded-lg px-2 py-1.5 ${champion ? 'ring-1 ring-gold/60' : ''} ${fresh ? 'animate-[rise_0.4s_ease-out]' : ''}`}
+    <motion.li
+      // Linha nova entra deslizando com mola (Animated List, do Magic UI).
+      initial={fresh && !reduced ? { opacity: 0, x: -24, scale: 0.96 } : false}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+      className={`${COLUMNS} rounded-lg px-2 py-1.5 ${champion ? 'shine-border ring-1 ring-gold/30' : ''}`}
       style={{ background: `linear-gradient(90deg, ${tint(team?.color ?? '#3f3f46', champion ? 0.32 : 0.2)}, transparent 85%)` }}
       title={[record.splitName, ...record.awards.map((a) => a.name)].join(' · ')}
     >
@@ -73,7 +79,7 @@ function SplitLine({ record, fresh }: { record: SplitRecord; fresh: boolean }) {
       <span className="text-right text-xs font-bold tabular-nums">
         {s.games > 0 ? kdaText(s.kills, s.deaths, s.assists) : '–'}
       </span>
-    </li>
+    </motion.li>
   )
 }
 
