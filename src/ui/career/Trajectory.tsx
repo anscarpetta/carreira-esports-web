@@ -27,6 +27,21 @@ function OvrDiff({ before, after }: { before: number; after: number }) {
   return <span className={`text-[0.65rem] font-black ${diff > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{diff > 0 ? `+${diff}` : diff}</span>
 }
 
+const NO_TEAM = '#27272f'
+
+// Faixa da idade dividida entre os splits do ano, cada um na cor do time.
+// Na troca de time, as cores se misturam num degradê curto.
+function ageGradient(colors: readonly string[]): string {
+  if (colors.length === 0) return NO_TEAM
+  const blend = 7
+  const stops = colors.flatMap((color, i) => {
+    const start = i === 0 ? 0 : (i / colors.length) * 100 + blend
+    const end = i === colors.length - 1 ? 100 : ((i + 1) / colors.length) * 100 - blend
+    return [`${color} ${start.toFixed(1)}%`, `${color} ${end.toFixed(1)}%`]
+  })
+  return `linear-gradient(180deg, ${stops.join(', ')})`
+}
+
 const COLUMNS =
   'grid grid-cols-[minmax(0,1fr)_3.5rem_1.75rem_2.25rem] items-center gap-1.5 sm:grid-cols-[minmax(0,1fr)_4.5rem_2.25rem_2.5rem] sm:gap-2'
 
@@ -124,7 +139,10 @@ export function Trajectory({
         {ages.map((age) => {
           const rows = byAge.get(age) ?? []
           const isPending = pending?.age === age
-          const color = rows[0]?.record.teamId ? CATALOG.teams[rows[0].record.teamId]?.color : null
+          const colors = [
+            ...rows.map(({ record }) => (record.teamId ? CATALOG.teams[record.teamId]?.color : null) ?? NO_TEAM),
+            ...(isPending ? [NO_TEAM] : []),
+          ]
           if (rows.length === 0 && !isPending) {
             return (
               <li key={age} className="flex items-center gap-2 opacity-30">
@@ -136,7 +154,7 @@ export function Trajectory({
             <li key={age} className="flex gap-2">
               <span
                 className="grid w-9 shrink-0 place-items-center rounded-md text-sm font-black text-white"
-                style={{ background: color ?? '#27272f' }}
+                style={{ background: ageGradient(colors) }}
               >
                 {age}
               </span>

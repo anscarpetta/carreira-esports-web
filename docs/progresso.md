@@ -471,3 +471,4 @@ Tudo respeita "reduzir movimento" do sistema: sem animação, sem confete e sem 
   | China | 70% | 8,8% | 5,3% | 35 / 40 / 22 / 3 |
 
 - **Para revisar no playtest:** lendas brasileiras subiram de 6% para 7,5% com os ganhos maiores.
+- **Ajustes visuais (playtest):** o cartão do jogador não inclina mais em 3D (só o card de compartilhar). A faixa da idade na trajetória agora é dividida entre os splits do ano, cada um na cor do time, com um degradê curto na troca de time.
