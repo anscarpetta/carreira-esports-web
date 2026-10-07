@@ -7,11 +7,11 @@ Projeto de aprendizado de desenvolvimento pareado com IA (Claude Code).
 ## Roteiro
 
 0. Preparação (repo, git, arquivo de decisões) ✅
-1. Conceito
-2. Jogo e jogabilidade → MVP definido
+1. Conceito ✅
+2. Jogo e jogabilidade → MVP definido (em andamento)
 3. Planejamento técnico + esqueleto publicado
 4. Desenvolvimento em fatias (implementa → testa → publica)
 5. Playtest final
 6. Lançamento
 
-Decisões ficam em [docs/conceito.md](docs/conceito.md).
+Decisões ficam em [docs/conceito.md](docs/conceito.md). Elas podem ser refinadas ao longo do processo.
