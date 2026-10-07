@@ -55,3 +55,45 @@ Meta combinada: 30 / 40 / 25 / 5. A aposentadoria média aos ~27 anos bate com a
 - **Idade máxima de 35 anos**, como trava de segurança. Na prática, o declínio encerra a carreira antes.
 - **Bandeiras em SVG** desenhadas no código, porque o Windows não mostra bandeiras em emoji.
 - Um **parâmetro de demonstração** (`?demo=semente&steps=N`) que só existe no servidor de desenvolvimento, para conferir telas no meio da carreira.
+
+## Fatia 2: tiers 2 e 3 do Brasil, acesso, academies e pausa ✅
+
+### O que mudou no jogo
+- **Pirâmide brasileira com 3 tiers:**
+
+  | Tier | Liga | Times |
+  |---|---|---|
+  | 1 | CBLOL | 7 parceiros + 1 vaga de convidado (a LOS em 2026) |
+  | 2 | Circuito Desafiante | 10 times de 2026: Estral, KaBuM! Ilha das Lendas, INTZ, 7REX, Ei Nerd, RMD, Team Solid e os academies de Keyd, RED e paiN |
+  | 3 | Qualificatória Aberta | Barulhinhos, Marere Invokers, KUMA e RAMPAGE (das qualificatórias de 2026), mais organizações tentando voltar (Flamengo, Liberty, Rensga, Vorax) |
+
+- **Acesso e rebaixamento** em toda pré-temporada:
+  - O **convidado do CBLOL** enfrenta o melhor do Desafiante numa MD5 (regra real de 2026).
+  - Os **2 piores do Desafiante** trocam de lugar com os **2 melhores da Qualificatória**.
+  - **Academies** não sobem para o CBLOL nem caem para o tier 3.
+  - **Vagas abertas** (organização que sai) são preenchidas em cascata: sobe o melhor de baixo, e o tier 3 recebe organizações de fora da pirâmide.
+- **Primeira proposta** aos 16 anos, misturando academies, Desafiante e Qualificatória.
+- **Regra dos 18 anos:** nenhuma proposta, subida ou evento leva ao tier 1 antes dos 18.
+- **Subir dentro da organização:** no academy, se o OVR justificar, aparece "Subir para a {time principal}" (sempre na pré-temporada; 50% nas outras janelas).
+- **Pausa e retorno:**
+  - "Ficar sem time e esperar propostas" (agente livre), sempre que faltam propostas.
+  - Evento **"Proposta para virar streamer"**: você sai do competitivo, perde ritmo (−1 OVR por split) e recebe menos propostas para voltar.
+- **Evento "De volta ao academy"** para quem está sem jogar no tier 1.
+- **Mercado esfria com a idade:** a partir dos 26, as propostas rareiam, e o tier 3 quer jovens. A partir dos 27, cresce a chance de o time não renovar.
+- **Notícias da pré-temporada** acima da decisão (quem subiu, quem caiu, projetos ambiciosos, organizações que saíram).
+- **Português correto** para ligas femininas ("da Qualificatória Aberta").
+
+### Calibração (modo normal, 4.000 carreiras)
+- 31% não se firmam no tier 1 · 42% sólidos · 22% craques · 5% lendas.
+- Aposentadoria média aos ~29 anos (dentro da faixa de 28–29 que você citou).
+- ~19% das carreiras nunca passam do tier 2, e ~8% passam por uma pausa (no modo Intensa, ~20%).
+
+### Testes: 58
+- Novos testes cobrem o tamanho das ligas após acesso e rebaixamento, os academies, a vaga de convidado, a regra dos 18 anos e a pausa com retorno.
+
+### Decisões que tomei sozinho (para revisar)
+- O Desafiante tem 2 splits na vida real; aqui virou **3 "Etapas"** (a Riot chama as fases de "etapa"), para encaixar no calendário de 3 splits.
+- **Força dos times de tier 2 e 3 estimada** pela campanha de 2026 (esses times não aparecem no ranking da Riot).
+- **Flamengo, Liberty, Rensga e Vorax** aparecem no tier 3 como organizações tentando voltar; Netshoes Miners e Isurus ficam de fora, como reservas.
+- Sem logo na Leaguepedia: Team Solid, KUMA e RAMPAGE (aparece a sigla na cor do time).
+- Saves da fatia 1 não são compatíveis com o motor novo: o jogo começa uma carreira nova.

@@ -10,9 +10,9 @@ export const MAX_AGE = 35
 // Distribuição do potencial (teto oculto). Calibrada pela simulação em massa
 // (scripts/simulate.ts) para chegar perto de 30% / 40% / 25% / 5%.
 const POTENTIAL_BANDS: readonly { item: readonly [number, number]; weight: number }[] = [
-  { item: [62, 71], weight: 18 },
-  { item: [72, 78], weight: 36 },
-  { item: [79, 84], weight: 39 },
+  { item: [62, 71], weight: 15 },
+  { item: [72, 78], weight: 38 },
+  { item: [79, 84], weight: 40 },
   { item: [85, 91], weight: 7 },
 ]
 

@@ -12,8 +12,8 @@ import type { CareerState, DecisionOption, Role, SquadRole } from '../src/engine
 
 const ROLE_SCORE: Record<SquadRole, number> = { bench: 0, reserve: 1, starter: 2 }
 
-// Política automática: prefere ser titular; entre papéis iguais, o time mais forte.
-// Em eventos, escolhe ao acaso.
+// Política automática: prefere ser titular; depois o tier mais alto; depois o time mais forte.
+// Em eventos, escolhe ao acaso. Sem propostas, espera um pouco e depois se aposenta.
 function choose(state: CareerState, rng: Rng): { rng: Rng; optionId: string } {
   const decision = state.decision!
   const options = decision.options
@@ -21,25 +21,37 @@ function choose(state: CareerState, rng: Rng): { rng: Rng; optionId: string } {
     const roll = pick(rng, options)
     return { rng: roll.rng, optionId: roll.value.id }
   }
+  const tierOf = (teamId: string) => CATALOG.leagues[state.teams[teamId].leagueId ?? '']?.tier ?? 3
   const scored = options
     .filter((o): o is Extract<DecisionOption, { teamId: string }> => 'teamId' in o)
     .map((o) => ({
       o,
-      score: ROLE_SCORE[o.expectedRole] * 100 + state.teams[o.teamId].rating + (o.type === 'stay' ? 0.5 : 0),
+      score:
+        ROLE_SCORE[o.expectedRole] * 100 +
+        (4 - tierOf(o.teamId)) * 15 +
+        state.teams[o.teamId].rating +
+        (o.type === 'stay' ? 0.5 : 0),
     }))
     .sort((a, b) => b.score - a.score)
-  if (scored.length === 0) return { rng, optionId: options[0].id }
-  return { rng, optionId: scored[0].o.id }
+  if (scored.length > 0) return { rng, optionId: scored[0].o.id }
+  const wait = options.find((o) => o.type === 'wait')
+  const age = state.next.year - state.player.birthYear
+  if (wait && (state.paused?.splits ?? 0) < 3 && age < 27) return { rng, optionId: wait.id }
+  const retire = options.find((o) => o.type === 'retire')
+  return { rng, optionId: (retire ?? wait ?? options[0]).id }
 }
 
 export type Outcome = 'never' | 'solid' | 'star' | 'legend'
 
+// "Firmou no tier 1" = pelo menos 6 splits como titular no tier 1. Títulos de tier 2/3 não contam.
 export function classify(state: CareerState): Outcome {
   const s = summarize(state)
-  const titles = s.titles.length
+  const isTier1 = (leagueId: string | null) => leagueId !== null && CATALOG.leagues[leagueId]?.tier === 1
+  const titles = s.titles.filter((t) => isTier1(t.leagueId)).length
+  const tier1Starter = state.history.filter((r) => r.squadRole === 'starter' && isTier1(r.leagueId)).length
   if (s.peakOvr >= 86 || titles >= 8) return 'legend'
-  if (s.peakOvr >= 81 || titles >= 4) return 'star'
-  if (s.starterSplits >= 6) return 'solid'
+  if ((s.peakOvr >= 81 && tier1Starter >= 6) || titles >= 4) return 'star'
+  if (tier1Starter >= 6) return 'solid'
   return 'never'
 }
 
@@ -71,6 +83,8 @@ function main(): void {
   const peaks: number[] = []
   const reasons: Record<string, number> = {}
   const championTeams: Record<string, number> = {}
+  const tiersPlayed: Record<string, number> = {}
+  let streamers = 0
 
   for (let i = 0; i < count; i += 1) {
     const state = runCareer(`sim-${i}`, mode)
@@ -84,6 +98,9 @@ function main(): void {
     const reason = state.retirement?.reason ?? 'none'
     reasons[reason] = (reasons[reason] ?? 0) + 1
     for (const title of s.titles) championTeams[title.teamId] = (championTeams[title.teamId] ?? 0) + 1
+    const best = Math.min(...state.history.map((r) => (r.leagueId ? CATALOG.leagues[r.leagueId].tier : 9)))
+    tiersPlayed[`tier ${best}`] = (tiersPlayed[`tier ${best}`] ?? 0) + 1
+    if (state.history.some((r) => r.squadRole === 'paused' && !r.teamId)) streamers += 1
   }
 
   const pct = (n: number) => `${((100 * n) / count).toFixed(1)}%`
@@ -95,6 +112,8 @@ function main(): void {
   console.log(`Títulos por carreira: ${(totalTitles / count).toFixed(2)}`)
   console.log(`OVR máximo: p10 ${peaks[Math.floor(count * 0.1)]} · mediana ${peaks[Math.floor(count / 2)]} · p90 ${peaks[Math.floor(count * 0.9)]} · máx ${peaks.at(-1)}`)
   console.log(`Motivo do fim: ${Object.entries(reasons).map(([k, v]) => `${k} ${pct(v)}`).join(' · ')}`)
+  console.log(`Tier mais alto alcançado: ${Object.entries(tiersPlayed).sort().map(([k, v]) => `${k} ${pct(v)}`).join(' · ')}`)
+  console.log(`Carreiras com pausa (agente livre ou streamer): ${pct(streamers)}`)
   console.log(`Títulos por time: ${Object.entries(championTeams).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(' · ')}`)
 }
 

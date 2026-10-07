@@ -72,6 +72,28 @@ describe('times', () => {
     expect(['up', 'rising']).toContain(trendOf(formOf('furia')))
   })
 
+  it('acesso e rebaixamento mantêm o tamanho de cada liga', () => {
+    let rng = createRng('acesso')
+    let teams = initialTeams(CATALOG)
+    let promoted = 0
+    for (let year = 2027; year < 2077; year += 1) {
+      const result = offseasonUpdate(rng, teams, CATALOG, { year, playerTeamId: null, playerSurplus: 0 })
+      rng = result.rng
+      teams = result.teams
+      promoted += result.changes.filter((c) => c.kind === 'promoted').length
+      for (const league of Object.values(CATALOG.leagues)) {
+        expect(leagueTeams(teams, league.id), `${league.id} em ${year}`).toHaveLength(league.teamIds.length)
+      }
+      // Academies nunca sobem para o CBLOL nem caem para o tier 3.
+      for (const team of Object.values(teams)) {
+        if (CATALOG.teams[team.id].parentId) expect(team.leagueId).toBe('circuito-desafiante')
+      }
+      // O CBLOL tem sempre exatamente uma vaga de convidado.
+      expect(leagueTeams(teams, 'cblol').filter((t) => t.guest)).toHaveLength(1)
+    }
+    expect(promoted).toBeGreaterThan(20)
+  })
+
   it('a pré-temporada mantém 8 times na liga e forças dentro da faixa', () => {
     let rng = createRng('offseason')
     let teams = initialTeams(CATALOG)
@@ -160,7 +182,7 @@ describe('estatísticas e prêmios', () => {
 
 describe('ofertas e eventos', () => {
   it('ofertas não repetem time nem incluem o time atual', () => {
-    const teams = leagueTeams(initialTeams(CATALOG), 'cblol')
+    const teams = leagueTeams(initialTeams(CATALOG), 'cblol').map((team) => ({ team, tier: 1 }))
     let rng = createRng('ofertas')
     for (let i = 0; i < 100; i += 1) {
       const roll = generateOffers(rng, teams, 78, 22, ['loud'], 2, 1)
@@ -172,7 +194,7 @@ describe('ofertas e eventos', () => {
   })
 
   it('jogador de banco com mais de 22 anos não recebe ofertas', () => {
-    const teams = leagueTeams(initialTeams(CATALOG), 'cblol')
+    const teams = leagueTeams(initialTeams(CATALOG), 'cblol').map((team) => ({ team, tier: 1 }))
     const roll = generateOffers(createRng('banco'), teams, 60, 24, [], 2, 1)
     expect(roll.value).toHaveLength(0)
   })

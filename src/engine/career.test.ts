@@ -25,15 +25,20 @@ describe('criação da carreira', () => {
     expect(createCareer(INPUT, CATALOG)).toEqual(createCareer(INPUT, CATALOG))
   })
 
-  it('começa aos 16 anos, sem time, com 3 propostas diferentes do CBLOL', () => {
-    const state = createCareer(INPUT, CATALOG)
-    expect(state.next.year - state.player.birthYear).toBe(16)
-    expect(state.teamId).toBeNull()
-    const decision = state.decision!
-    expect(decision.kind).toBe('initial_offer')
-    const teams = decision.options.map(teamOf)
-    expect(new Set(teams).size).toBe(3)
-    for (const teamId of teams) expect(CATALOG.leagues.cblol.teamIds).toContain(teamId)
+  it('começa aos 16 anos, sem time, com 3 propostas fora do tier 1', () => {
+    for (let i = 0; i < 30; i += 1) {
+      const state = createCareer({ ...INPUT, seed: `inicio-${i}` }, CATALOG)
+      expect(state.next.year - state.player.birthYear).toBe(16)
+      expect(state.teamId).toBeNull()
+      const decision = state.decision!
+      expect(decision.kind).toBe('initial_offer')
+      const teams = decision.options.map(teamOf)
+      expect(new Set(teams).size).toBe(3)
+      for (const teamId of teams) {
+        const league = CATALOG.leagues[state.teams[teamId!].leagueId!]
+        expect(league.tier).toBeGreaterThan(1)
+      }
+    }
   })
 
   it('o OVR inicial fica abaixo do nível do CBLOL e o potencial é um teto plausível', () => {
@@ -131,10 +136,20 @@ describe('carreira completa', () => {
     }
   })
 
-  it('o CBLOL sempre tem 8 times, mesmo quando uma organização sai', () => {
+  it('as ligas mantêm o tamanho, mesmo quando uma organização sai', () => {
     for (const career of careers) {
-      const inLeague = Object.values(career.teams).filter((t) => t.leagueId === 'cblol')
-      expect(inLeague).toHaveLength(8)
+      for (const league of Object.values(CATALOG.leagues)) {
+        const inLeague = Object.values(career.teams).filter((t) => t.leagueId === league.id)
+        expect(inLeague).toHaveLength(league.teamIds.length)
+      }
+    }
+  })
+
+  it('ninguém joga o tier 1 antes dos 18 anos', () => {
+    for (const career of careers) {
+      for (const record of career.history) {
+        if (record.leagueId && CATALOG.leagues[record.leagueId].tier === 1) expect(record.age).toBeGreaterThanOrEqual(18)
+      }
     }
   })
 
@@ -159,5 +174,27 @@ describe('carreira completa', () => {
       }
     }
     expect(events).toBeGreaterThan(20)
+  })
+
+  it('quem espera sem time não joga e pode voltar quando chega uma proposta', () => {
+    let waited = 0
+    let returned = 0
+    for (let i = 0; i < 40; i += 1) {
+      // Prefere esperar sempre que dá; senão, a primeira opção.
+      const career = playToEnd(createCareer({ ...INPUT, seed: `pausa-${i}`, mode: 'intense' }, CATALOG), (s) => {
+        const options = s.decision!.options
+        const wait = options.find((o) => o.type === 'wait')
+        const join = options.find((o) => o.type === 'join')
+        if (s.paused && join && s.paused.splits >= 2) return join.id
+        return (wait ?? options[0]).id
+      })
+      const paused = career.history.filter((r) => r.squadRole === 'paused' && r.teamId === null)
+      for (const record of paused) expect(record.stats.games).toBe(0)
+      if (paused.length > 0) waited += 1
+      const idx = career.history.findIndex((r) => r.teamId === null && r.squadRole === 'paused')
+      if (idx >= 0 && career.history.slice(idx).some((r) => r.teamId !== null)) returned += 1
+    }
+    expect(waited).toBeGreaterThan(5)
+    expect(returned).toBeGreaterThan(0)
   })
 })

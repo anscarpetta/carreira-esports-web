@@ -2,10 +2,21 @@
 // e monta a próxima decisão. Função pura: estado + decisão → novo estado.
 
 import { computeAwards } from './awards.ts'
-import { EVENTS_BY_KEY, INJURIES, NO_EFFECTS, pendingSlot, pickEvent, planEvents, withEffects, type EventContext, type EventDef } from './events.ts'
+import { art, in_, of } from './grammar.ts'
+import {
+  EVENTS_BY_KEY,
+  INJURIES,
+  NO_EFFECTS,
+  pendingSlot,
+  pickEvent,
+  planEvents,
+  withEffects,
+  type EventContext,
+  type EventDef,
+} from './events.ts'
 import { simulateSplit, type PlayerTeamInput } from './league.ts'
 import { SPLITS_PER_DECISION, type SimulationMode } from './modes.ts'
-import { generateOffers, WINDOW_OFFERS, type OfferCandidate } from './offers.ts'
+import { generateOffers, WINDOW_OFFERS, type OfferCandidate, type OfferTeam } from './offers.ts'
 import {
   applyDevelopment,
   createPlayer,
@@ -19,7 +30,15 @@ import {
 import { chance, createRng, pick, pickWeighted, type Rng } from './rng.ts'
 import { EMPTY_STATS, generateStats } from './stats.ts'
 import { teamRatingWithPlayer } from './strength.ts'
-import { initialTeams, leagueTeams, midseasonDrift, offseasonUpdate, teamForm, trendOf } from './teams.ts'
+import {
+  initialTeams,
+  leagueTeams,
+  midseasonDrift,
+  offseasonUpdate,
+  teamForm,
+  trendOf,
+  type LeagueChange,
+} from './teams.ts'
 import type {
   ActiveEffects,
   Award,
@@ -48,6 +67,11 @@ export interface NewCareerInput {
   readonly nationality: string
 }
 
+export const SAVE_VERSION = 2
+
+// Ninguém estreia no tier 1 antes dos 18 anos.
+export const MIN_TIER1_AGE = 18
+
 const NO_ACTIVE_EFFECTS: ActiveEffects = {
   tempOvr: 0,
   forcedRole: null,
@@ -73,12 +97,29 @@ export function ageOf(state: CareerState): number {
   return state.next.year - state.player.birthYear
 }
 
-// Liga de origem do jogador. Na fatia 1 só existe o CBLOL.
+// Região em que o jogador começa a carreira.
+export function regionOf(nationality: string): string {
+  return nationality === 'AR' ? 'BR' : nationality
+}
+
+export function regionLeagues(catalog: Catalog, region: string): LeagueData[] {
+  return Object.values(catalog.leagues)
+    .filter((league) => league.region === region)
+    .sort((a, b) => a.tier - b.tier || a.id.localeCompare(b.id))
+}
+
 export function homeLeague(catalog: Catalog, nationality: string): LeagueData {
-  const region = nationality === 'AR' ? 'BR' : nationality
-  const leagues = Object.values(catalog.leagues).filter((league) => league.region === region)
-  const league = leagues.sort((a, b) => a.tier - b.tier)[0] ?? Object.values(catalog.leagues)[0]
-  return league
+  return regionLeagues(catalog, regionOf(nationality))[0] ?? Object.values(catalog.leagues)[0]
+}
+
+// Times que podem fazer proposta: os da região do jogador, respeitando a idade mínima do tier 1.
+function offerPool(state: CareerState, catalog: Catalog, age: number): OfferTeam[] {
+  const pool: OfferTeam[] = []
+  for (const league of regionLeagues(catalog, regionOf(state.player.nationality))) {
+    if (league.tier === 1 && age < MIN_TIER1_AGE) continue
+    for (const team of leagueTeams(state.teams, league.id)) pool.push({ team, tier: league.tier })
+  }
+  return pool
 }
 
 function teamOption(type: 'join' | 'stay', teamId: string, expectedRole: SquadRole): DecisionOption {
@@ -103,7 +144,7 @@ export function createCareer(input: NewCareerInput, catalog: Catalog): CareerSta
   const plan = planEvents(rng, input.mode)
   rng = plan.rng
   const base: CareerState = {
-    version: 1,
+    version: SAVE_VERSION,
     seed: input.seed,
     rngState: rng.state,
     mode: input.mode,
@@ -124,16 +165,23 @@ export function createCareer(input: NewCareerInput, catalog: Catalog): CareerSta
     development: null,
     retirement: null,
     lastResult: null,
+    paused: null,
+    seasonPlacements: {},
+    news: [],
   }
-  const league = homeLeague(catalog, input.nationality)
-  const members = leagueTeams(base.teams, league.id).sort((a, b) => a.id.localeCompare(b.id))
-  const options: DecisionOption[] = []
-  let remaining = members
-  for (let i = 0; i < 3 && remaining.length > 0; i += 1) {
-    const choice = pick(rng, remaining)
-    rng = choice.rng
-    remaining = remaining.filter((team) => team.id !== choice.value.id)
-    options.push(teamOption('join', choice.value.id, squadRoleFor(base.player.ovr, choice.value.rating)))
+
+  // Primeira proposta: academies, Desafiante ou qualificatória (o tier 1 só a partir dos 18).
+  const age = ageOf(base)
+  const pool = offerPool(base, catalog, age)
+  const offers = generateOffers(rng, pool, base.player.ovr, age, [], 3, 1)
+  rng = offers.rng
+  const chosen = [...offers.value]
+  while (chosen.length < 3) {
+    const remaining = pool.filter((c) => !chosen.some((o) => o.teamId === c.team.id))
+    if (remaining.length === 0) break
+    const extra = pick(rng, remaining.sort((a, b) => a.team.id.localeCompare(b.team.id)))
+    rng = extra.rng
+    chosen.push({ teamId: extra.value.team.id, expectedRole: squadRoleFor(base.player.ovr, extra.value.team.rating) })
   }
   const decision: Decision = {
     id: '0-initial_offer',
@@ -141,8 +189,8 @@ export function createCareer(input: NewCareerInput, catalog: Catalog): CareerSta
     window: null,
     eventKey: null,
     title: 'Primeira proposta',
-    description: `Três times do ${league.name} querem te dar a primeira chance. Escolha onde sua carreira começa.`,
-    options,
+    description: 'Três times querem te dar a primeira chance. Escolha onde sua carreira começa.',
+    options: chosen.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)),
   }
   return { ...base, rngState: rng.state, decision }
 }
@@ -162,6 +210,11 @@ export function retire(state: CareerState): CareerState {
 
 // ---------- Decisões ----------
 
+function joinTeam(state: CareerState, teamId: string): CareerState {
+  const changedTeam = teamId !== state.teamId
+  return { ...state, teamId, paused: null, benchStreak: changedTeam ? 0 : state.benchStreak }
+}
+
 export function decide(state: CareerState, optionId: string, catalog: Catalog): CareerState {
   if (state.phase !== 'career' || !state.decision) throw new Error('No decision to make.')
   const decision = state.decision
@@ -169,21 +222,19 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
   if (!option) throw new Error(`Unknown option: ${optionId}`)
 
   if (option.type === 'retire') {
-    return finish({ ...state, step: state.step + 1, lastResult: null }, decision.kind === 'no_offers' ? 'no_offers' : 'voluntary')
+    const reason = decision.kind === 'no_offers' ? 'no_offers' : 'voluntary'
+    return finish({ ...state, step: state.step + 1, lastResult: null }, reason)
   }
 
   let rng = rngOf(state)
-  let s: CareerState = { ...state, step: state.step + 1, decision: null, lastResult: null }
+  let s: CareerState = { ...state, step: state.step + 1, decision: null, lastResult: null, news: [] }
   let effects: Effects = NO_EFFECTS
 
   if (option.type === 'event_choice' || option.type === 'event_join') {
     const roll = pickWeighted(rng, option.outcomes.map((outcome) => ({ item: outcome, weight: outcome.probability })))
     rng = roll.rng
     effects = withEffects(roll.value.effects)
-    if (option.type === 'event_join') {
-      const changedTeam = option.teamId !== s.teamId
-      s = { ...s, teamId: option.teamId, benchStreak: changedTeam ? 0 : s.benchStreak }
-    }
+    if (option.type === 'event_join') s = joinTeam(s, option.teamId)
     const eventKey = decision.eventKey ?? ''
     const plan = s.eventPlan
     s = {
@@ -202,9 +253,14 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
         lastEventAge: ageOf(s),
       },
     }
+  } else if (option.type === 'wait') {
+    s = { ...s, teamId: null, paused: s.paused ?? { reason: 'free_agent', splits: 0 } }
   } else {
-    const changedTeam = option.teamId !== s.teamId
-    s = { ...s, teamId: option.teamId, benchStreak: changedTeam ? 0 : s.benchStreak }
+    s = joinTeam(s, option.teamId)
+  }
+
+  if (effects.pause === 'streamer') {
+    s = { ...s, teamId: null, paused: { reason: 'streamer', splits: 0 } }
   }
 
   const period = SPLITS_PER_DECISION[s.mode]
@@ -247,6 +303,30 @@ export function decide(state: CareerState, optionId: string, catalog: Catalog): 
   return { ...s, rngState: rng.state }
 }
 
+// ---------- Notícias da pré-temporada ----------
+
+function newsFor(changes: readonly LeagueChange[], catalog: Catalog, playerTeamId: string | null): string[] {
+  const name = (id: string) => catalog.teams[id]?.name ?? id
+  const data = (id: string | null) => (id ? catalog.leagues[id] : null)
+  const league = (id: string | null) => data(id)?.name ?? ''
+  const lines = changes.map((change) => {
+    const yours = change.teamId === playerTeamId ? ' (o seu time)' : ''
+    switch (change.kind) {
+      case 'promoted':
+        return { mine: !!yours, text: `${name(change.teamId)}${yours} subiu para ${art(data(change.to))} ${league(change.to)}.` }
+      case 'relegated':
+        return { mine: !!yours, text: `${name(change.teamId)}${yours} caiu para ${art(data(change.to))} ${league(change.to)}.` }
+      case 'left':
+        return { mine: !!yours, text: `${name(change.teamId)}${yours} saiu ${of(data(change.from))} ${league(change.from)}.` }
+      case 'joined':
+        return { mine: !!yours, text: `${name(change.teamId)} entrou ${in_(data(change.to))} ${league(change.to)}.` }
+      default:
+        return { mine: !!yours, text: `${name(change.teamId)}${yours} anunciou um projeto ambicioso.` }
+    }
+  })
+  return [...lines.filter((l) => l.mine), ...lines.filter((l) => !l.mine)].map((l) => l.text)
+}
+
 // ---------- Simulação de um split ----------
 
 function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: CareerState; rng: Rng } {
@@ -269,7 +349,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
 
   let squad: SplitRecord['squadRole']
   if (state.suspensionSplits > 0) squad = 'suspended'
-  else if (state.pauseSplits > 0 || !team || !league) squad = 'paused'
+  else if (state.paused || state.pauseSplits > 0 || !team || !league) squad = 'paused'
   else squad = effects.forcedRole ?? shiftRole(squadRoleFor(ovrNow, team.rating), effects.roleShift)
   const plays = squad === 'starter' || squad === 'reserve' || squad === 'bench'
 
@@ -278,7 +358,7 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   let awards: Award[] = []
   let placement: number | null = null
 
-  if (team && league) {
+  if (team && league && !state.paused) {
     const members = leagueTeams(state.teams, league.id).sort((a, b) => a.id.localeCompare(b.id))
     const bonus = effects.teamBonus
     const splitTeams = members.map((t) => ({ id: t.id, rating: t.id === team.id ? t.rating + bonus : t.rating }))
@@ -320,10 +400,20 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
       rng = computed.rng
       awards = computed.value
     }
+
+    // Guarda as colocações do ano para acesso e rebaixamento.
+    const yearPlacements: Record<string, readonly number[]> = index === 0 ? {} : { ...state.seasonPlacements }
+    for (const [teamId, place] of Object.entries(result.placements)) {
+      yearPlacements[teamId] = [...(yearPlacements[teamId] ?? []), place]
+    }
+    state = { ...state, seasonPlacements: yearPlacements }
   }
 
   const ovrBefore = player.ovr
-  player = applyDevelopment(player, development.remaining[index], age, plays ? (squad as SquadRole) : 'out')
+  let delta = development.remaining[index]
+  // Streamer perde ritmo: não evolui e cai um pouco a cada split.
+  if (state.paused?.reason === 'streamer') delta = Math.min(0, delta) - 1
+  player = applyDevelopment(player, delta, age, plays ? (squad as SquadRole) : 'out')
   const value = marketValueWithNoise(rng, player.ovr, age)
   rng = value.rng
   player = { ...player, marketValue: value.value }
@@ -331,9 +421,9 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
   const record: SplitRecord = {
     year,
     splitIndex: index,
-    splitName: league ? league.splitNames[index] : `Split ${index + 1}`,
-    leagueId: league?.id ?? null,
-    teamId: team?.id ?? null,
+    splitName: league && !state.paused ? league.splitNames[index] : `Split ${index + 1}`,
+    leagueId: state.paused ? null : (league?.id ?? null),
+    teamId: state.paused ? null : (team?.id ?? null),
     age,
     ovr: ovrBefore,
     ovrAfter: player.ovr,
@@ -350,11 +440,18 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
     effects.splitsLeft > 1 ? { ...effects, splitsLeft: effects.splitsLeft - 1, titleOverride: null } : NO_ACTIVE_EFFECTS
 
   let teams = state.teams
+  let news = state.news
   if (index === 2) {
     const surplus = squad === 'starter' && team ? player.ovr - team.rating : 0
-    const update = offseasonUpdate(rng, teams, catalog, { year: year + 1, playerTeamId: team?.id ?? null, playerSurplus: surplus })
+    const update = offseasonUpdate(rng, teams, catalog, {
+      year: year + 1,
+      playerTeamId: team?.id ?? null,
+      playerSurplus: surplus,
+      placements: state.seasonPlacements,
+    })
     rng = update.rng
     teams = update.teams
+    news = newsFor(update.changes, catalog, state.paused ? null : state.teamId)
   } else {
     const drift = midseasonDrift(rng, teams, catalog)
     rng = drift.rng
@@ -367,10 +464,12 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
       ...state,
       player,
       teams,
+      news,
       development,
       history: [...state.history, record],
       benchStreak,
       effects: nextEffects,
+      paused: state.paused ? { ...state.paused, splits: state.paused.splits + 1 } : null,
       suspensionSplits: Math.max(0, state.suspensionSplits - (squad === 'suspended' ? 1 : 0)),
       pauseSplits: Math.max(0, state.pauseSplits - (squad === 'paused' && state.pauseSplits > 0 ? 1 : 0)),
       next: index === 2 ? { year: year + 1, index: 0 } : { year, index: (index + 1) as 1 | 2 },
@@ -380,7 +479,12 @@ function playSplit(state: CareerState, rngIn: Rng, catalog: Catalog): { state: C
 
 // ---------- Próxima decisão ----------
 
-function buildContext(state: CareerState, team: TeamState, league: LeagueData): EventContext {
+function academyOf(state: CareerState, catalog: Catalog, teamId: string): string | null {
+  const academy = Object.values(catalog.teams).find((t) => t.parentId === teamId)
+  return academy && state.teams[academy.id]?.leagueId ? academy.id : null
+}
+
+function buildContext(state: CareerState, catalog: Catalog, team: TeamState, league: LeagueData): EventContext {
   const members = leagueTeams(state.teams, league.id).sort((a, b) => b.rating - a.rating)
   const stronger = members.filter((t) => t.id !== team.id && t.rating > team.rating + 1.5)
   return {
@@ -394,6 +498,15 @@ function buildContext(state: CareerState, team: TeamState, league: LeagueData): 
     nextSplitName: league.splitNames[state.next.index],
     strongerTeamId: stronger[0]?.id ?? null,
     firstTeamInLeague: state.firstTeamId !== null && state.teams[state.firstTeamId]?.leagueId === league.id,
+    academyId: academyOf(state, catalog, team.id),
+  }
+}
+
+function waitOption(state: CareerState): DecisionOption {
+  return {
+    id: 'wait',
+    type: 'wait',
+    label: state.paused?.reason === 'streamer' ? 'Seguir streamando' : 'Ficar sem time e esperar propostas',
   }
 }
 
@@ -411,31 +524,31 @@ function offersDecision(
     eventKey: null,
     title,
     description,
-    options: offers.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)),
+    options: [...offers.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)), waitOption(state)],
   }
 }
 
-function noOffersDecision(state: CareerState, league: LeagueData): Decision {
+function noOffersDecision(state: CareerState): Decision {
   return {
     id: `${state.step}-no_offers`,
     kind: 'no_offers',
     window: windowFor(state.next.index),
     eventKey: null,
     title: 'Sem propostas',
-    description: `Nenhum time do ${league.name} quer contar com você. É hora de encerrar a carreira.`,
-    options: [{ id: 'retire-no-offers', type: 'retire' }],
+    description: 'Nenhum time quer contar com você agora. Dá para esperar como agente livre ou encerrar a carreira.',
+    options: [waitOption(state), { id: 'retire-no-offers', type: 'retire' }],
   }
 }
 
 function eventDecision(
   state: CareerState,
   rngIn: Rng,
+  catalog: Catalog,
   event: EventDef,
   ctx: EventContext,
 ): { rng: Rng; decision: Decision | null } {
   let rng = rngIn
   const options: DecisionOption[] = []
-  const members = leagueTeams(state.teams, ctx.league.id)
   for (const choice of event.choices(ctx)) {
     const outcomes = choice.outcomes.map((o) => ({ probability: o.probability, text: o.text, effects: o.effects }))
     if (!choice.join) {
@@ -451,23 +564,25 @@ function eventDecision(
     }
     let targets: OfferCandidate[] = []
     if (choice.join === 'exit') {
-      const offers = generateOffers(rng, members, state.player.ovr, ctx.age, [ctx.team.id], 2, 1)
+      const offers = generateOffers(rng, offerPool(state, catalog, ctx.age), state.player.ovr, ctx.age, [ctx.team.id], 2, 1)
       rng = offers.rng
       targets = offers.value
     } else {
-      const teamId = choice.join === 'rival' ? ctx.strongerTeamId : state.firstTeamId
+      const teamId =
+        choice.join === 'rival' ? ctx.strongerTeamId : choice.join === 'academy' ? ctx.academyId : state.firstTeamId
       if (teamId && state.teams[teamId]) {
         targets = [{ teamId, expectedRole: squadRoleFor(state.player.ovr, state.teams[teamId].rating) }]
       }
     }
     for (const target of targets) {
+      const forcedStarter = choice.join === 'first_team' || choice.join === 'academy'
       const option: EventTeamOption = {
         id: `${event.key}-${choice.key}-${target.teamId}`,
         type: 'event_join',
         choiceKey: choice.key,
         label: choice.label,
         teamId: target.teamId,
-        expectedRole: choice.join === 'first_team' ? 'starter' : target.expectedRole,
+        expectedRole: forcedStarter ? 'starter' : target.expectedRole,
         outcomes: outcomes.length > 0 ? outcomes : [{ probability: 1, text: 'Você troca de time', effects: {} }],
       }
       options.push(option)
@@ -490,47 +605,71 @@ function eventDecision(
 
 function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { state: CareerState; rng: Rng } {
   let rng = rngIn
-  let state = stateIn
+  const state = stateIn
   const age = ageOf(state)
   const window = windowFor(state.next.index)
+  const pool = offerPool(state, catalog, age)
+  const { slots, chance: slotChance } = WINDOW_OFFERS[window]
+
+  // Fora do competitivo: agente livre ou streamer esperando propostas.
+  if (state.paused) {
+    const streamer = state.paused.reason === 'streamer'
+    const offers = generateOffers(rng, pool, state.player.ovr, age, [], slots, slotChance * (streamer ? 0.6 : 1))
+    rng = offers.rng
+    const decision: Decision = {
+      id: `${state.step}-paused`,
+      kind: 'paused',
+      window,
+      eventKey: null,
+      title: streamer ? 'Vida de streamer' : 'Agente livre',
+      description:
+        offers.value.length > 0
+          ? 'Chegaram propostas para você voltar ao competitivo.'
+          : 'Nenhuma proposta por enquanto. Você pode seguir esperando.',
+      options: [...offers.value.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)), waitOption(state)],
+    }
+    return { rng, state: { ...state, decision } }
+  }
+
   const team = state.teamId ? state.teams[state.teamId] : null
-  const league = team?.leagueId ? catalog.leagues[team.leagueId] : homeLeague(catalog, state.player.nationality)
-  const members = leagueTeams(state.teams, league.id)
+  if (!team) return { rng, state: { ...state, decision: noOffersDecision(state) } }
+  const name = catalog.teams[team.id]?.name ?? team.id
 
   // A organização saiu da liga: o jogador fica livre no mercado.
-  if (team && team.leagueId === null) {
-    const offers = generateOffers(rng, members, state.player.ovr, age, [team.id], 2, 0.9)
+  if (team.leagueId === null) {
+    const offers = generateOffers(rng, pool, state.player.ovr, age, [team.id], 2, 0.9)
     rng = offers.rng
-    const name = catalog.teams[team.id]?.name ?? team.id
     const decision =
       offers.value.length > 0
         ? offersDecision(
             state,
             'org_left',
-            `A ${name} saiu do ${league.name}`,
-            'A organização vendeu a vaga e encerrou o time de LoL. Você está livre no mercado.',
+            `A ${name} encerrou o time`,
+            'A organização saiu do LoL. Você está livre no mercado.',
             offers.value,
           )
-        : noOffersDecision(state, league)
+        : noOffersDecision(state)
     return { rng, state: { ...state, decision } }
   }
-
-  if (!team) {
-    return { rng, state: { ...state, decision: noOffersDecision(state, league) } }
-  }
+  const league = catalog.leagues[team.leagueId]
 
   // Fim de ciclo: depois de muito tempo fora da equipe titular, o time não renova.
   const role = squadRoleFor(state.player.ovr, team.rating)
-  const released =
+  let released =
     window === '3-1' && age >= 21 && (state.benchStreak >= 6 || (role === 'bench' && state.benchStreak >= 3))
+  // Veteranos: a cada pré-temporada cresce a chance de o time apostar em alguém mais novo.
+  if (!released && window === '3-1' && age >= 27) {
+    const renew = chance(rng, Math.min(0.9, 0.2 + 0.15 * (age - 27) + (role === 'starter' ? 0 : 0.25)))
+    rng = renew.rng
+    released = renew.value
+  }
   if (released) {
-    const offers = generateOffers(rng, members, state.player.ovr, age, [team.id], 2, 0.75)
+    const offers = generateOffers(rng, pool, state.player.ovr, age, [team.id], 2, 0.75)
     rng = offers.rng
-    const name = catalog.teams[team.id]?.name ?? team.id
     const decision =
       offers.value.length > 0
         ? offersDecision(state, 'released', 'Fim de ciclo', `A ${name} decidiu não renovar o seu contrato.`, offers.value)
-        : noOffersDecision(state, league)
+        : noOffersDecision(state)
     return { rng, state: { ...state, decision, benchStreak: 0 } }
   }
 
@@ -565,11 +704,11 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
   // Evento de carreira, se houver um agendado para esta idade.
   const slot = pendingSlot(state.eventPlan, age)
   if (slot !== null && state.eventPlan.lastEventAge !== age) {
-    const ctx = buildContext(state, team, league)
+    const ctx = buildContext(state, catalog, team, league)
     const picked = pickEvent(rng, ctx, state.eventPlan)
     rng = picked.rng
     if (picked.value) {
-      const built = eventDecision(state, rng, picked.value, ctx)
+      const built = eventDecision(state, rng, catalog, picked.value, ctx)
       rng = built.rng
       if (built.decision) {
         const plan = { ...state.eventPlan, usedSlotAges: [...state.eventPlan.usedSlotAges, slot] }
@@ -579,10 +718,24 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
   }
 
   // Janela de transferências comum.
-  const { slots, chance: slotChance } = WINDOW_OFFERS[window]
-  const offers = generateOffers(rng, members, state.player.ovr, age, [team.id], slots, slotChance)
+  const offers = generateOffers(rng, pool, state.player.ovr, age, [team.id], slots, slotChance)
   rng = offers.rng
-  const name = catalog.teams[team.id]?.shortName ?? team.id
+  const options: DecisionOption[] = offers.value.map((offer) => teamOption('join', offer.teamId, offer.expectedRole))
+
+  // Subir do academy para o time principal, se o desempenho justificar.
+  const parentId = catalog.teams[team.id]?.parentId
+  const parent = parentId ? state.teams[parentId] : null
+  const parentLeague = parent?.leagueId ? catalog.leagues[parent.leagueId] : null
+  if (parent && parentLeague && (parentLeague.tier !== 1 || age >= MIN_TIER1_AGE)) {
+    const parentRole = squadRoleFor(state.player.ovr, parent.rating)
+    if (parentRole !== 'bench' && !options.some((o) => 'teamId' in o && o.teamId === parent.id)) {
+      const called = chance(rng, window === '3-1' ? 1 : 0.5)
+      rng = called.rng
+      if (called.value) options.unshift(teamOption('join', parent.id, parentRole))
+    }
+  }
+
+  const short = catalog.teams[team.id]?.shortName ?? team.id
   const decision: Decision = {
     id: `${state.step}-transfer_window`,
     kind: 'transfer_window',
@@ -590,13 +743,10 @@ function nextDecision(stateIn: CareerState, rngIn: Rng, catalog: Catalog): { sta
     eventKey: null,
     title: window === '3-1' ? `Pré-temporada ${state.next.year}` : 'Janela de transferências',
     description:
-      offers.value.length > 0
+      options.length > 0
         ? 'Chegaram propostas. Você pode aceitar uma ou ficar no time.'
-        : `Nenhuma proposta nesta janela. Você segue na ${name}.`,
-    options: [
-      ...offers.value.map((offer) => teamOption('join', offer.teamId, offer.expectedRole)),
-      teamOption('stay', team.id, role),
-    ],
+        : `Nenhuma proposta nesta janela. Você segue na ${short}.`,
+    options: [...options, teamOption('stay', team.id, role)],
   }
   return { rng, state: { ...state, decision } }
 }

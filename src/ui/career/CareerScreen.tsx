@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CATALOG } from '../../data/catalog.ts'
 import { decide, retire } from '../../engine/career.ts'
+import { of } from '../../engine/grammar.ts'
 import type { CareerState } from '../../engine/types.ts'
 import { DecisionPanel, type PanelStage } from './DecisionPanel.tsx'
 import { PlayerCard } from './PlayerCard.tsx'
@@ -34,7 +35,11 @@ function celebrations(prev: CareerState, next: CareerState): Toast[] {
   const toasts: Toast[] = []
   for (const record of next.history.slice(prev.history.length)) {
     for (const title of record.titles) {
-      toasts.push({ id: `t-${title.year}-${title.splitIndex}`, icon: '🏆', text: `Campeão do ${title.name} ${title.year}!` })
+      toasts.push({
+        id: `t-${title.year}-${title.splitIndex}`,
+        icon: '🏆',
+        text: `Campeão ${of(CATALOG.leagues[title.leagueId])} ${title.name} ${title.year}!`,
+      })
     }
     for (const award of record.awards) {
       toasts.push({ id: `a-${award.kind}-${award.year}-${award.splitIndex}`, icon: '⭐', text: `${award.name} ${award.year}` })
