@@ -213,6 +213,7 @@ export function createCareer(input: NewCareerInput, catalog: Catalog): CareerSta
     role: input.role,
     nationality: input.nationality,
     startYear: catalog.startYear,
+    region: regionOf(catalog, input.nationality),
   })
   rng = player.rng
   const plan = planEvents(rng, input.mode)

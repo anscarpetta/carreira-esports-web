@@ -4,7 +4,7 @@ import { computeAwards } from './awards.ts'
 import { ALL_EVENTS, EVENTS, planEvents } from './events.ts'
 import { simulateSplit } from './league.ts'
 import { generateOffers } from './offers.ts'
-import { createPlayer, marketValue, rollSplitDevelopment, shiftRole, squadRoleFor } from './player.ts'
+import { createPlayer, marketValue, regionalPotential, rollSplitDevelopment, shiftRole, squadRoleFor } from './player.ts'
 import { createRng } from './rng.ts'
 import { generateStats, kda } from './stats.ts'
 import { initialTeams, leagueTeams, offseasonUpdate, structureTarget, trendOf } from './teams.ts'
@@ -352,5 +352,22 @@ describe('vaga de convidado do CBLOL (caso da 9z)', () => {
       }
     }
     expect(relegated).toBeGreaterThan(10)
+  })
+})
+
+describe('potencial regional', () => {
+  it('a base de talentos mais funda eleva o topo, não quem não vingaria', () => {
+    expect(regionalPotential('BR', 84)).toBe(84)
+    expect(regionalPotential('KR', 60)).toBe(60)
+    expect(regionalPotential('KR', 75)).toBeGreaterThan(75)
+    expect(regionalPotential('KR', 90)).toBe(99)
+    expect(regionalPotential('KR', 84)).toBeGreaterThan(regionalPotential('EU', 84))
+  })
+
+  it('o craque coreano tem teto para ser titular nos melhores times da LCK', () => {
+    const lck = Object.values(CATALOG.teams).filter((team) => team.rating >= 94)
+    expect(lck.length).toBeGreaterThan(0)
+    // Titular precisa estar no máximo 2 pontos abaixo da força do time.
+    expect(regionalPotential('KR', 90)).toBeGreaterThanOrEqual(Math.max(...lck.map((team) => team.rating)) - 2)
   })
 })

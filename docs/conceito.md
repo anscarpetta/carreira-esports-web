@@ -33,6 +33,18 @@ Documentos de apoio:
   - Jovem titular, inclusive no academy, evolui mais (+25% até os 19); quem não joga evolui menos.
   - 🚀 **Explosão:** jovem titular com espaço para crescer tem 8% de chance por split de um salto de +2 a +5.
   - O teto realista: no Brasil, 90% dos jogadores ficam até OVR 83 (os maiores chegam a 81–84).
+- **Talento por região (out/2026):** o potencial depende da região de nascimento, porque a base de talentos da Coreia e da China é mais funda. O bônus cresce com o talento: quem não vingaria continua não vingando, mas o topo coreano chega aos 90 altos, onde estão os titulares de T1, Gen.G e HLE.
+
+  | Região | Bônus máximo (potencial 90) |
+  |---|---|
+  | Coreia | +13 |
+  | China | +12 |
+  | Europa | +5 |
+  | América do Norte | +3 |
+  | Pacífico | +2 |
+  | Brasil e LATAM | 0 (a referência) |
+
+  Sem isso, ninguém alcançava um time capaz de ganhar o Worlds: em 1.600 carreiras simuladas, nenhum título.
 - **Aposentadoria:** botão separado, discreto, disponível desde o começo, sem idade fixa. É possível pausar (streamer, agente livre) e voltar.
 - **OVR regional:** os maiores jogadores do Brasil chegam a 81–84 no auge (o suficiente para uma boa vaga na LEC ou na LCS). A LCK fica nos 90 altos.
 - **Tendência dos times:** mostra o nível *no período*. Existe a categoria rara "Projeto ambicioso", que dá muito certo ou falha. O jogador não carrega o time sozinho, mas melhora o desempenho e muda a tendência.

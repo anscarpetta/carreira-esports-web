@@ -431,3 +431,20 @@ Inspirados em componentes do 21st.dev (Magic UI e Motion Primitives, licença MI
 | **Brilhos** | "Campeão mundial" no resumo e conquistas lendárias concluídas |
 
 Tudo respeita "reduzir movimento" do sistema: sem animação, sem confete e sem inclinação.
+
+## Correção: ninguém ganhava o Worlds (out/2026)
+
+- **Sintoma:** em 1.600 carreiras simuladas (KR, CN, BR e DE), 2 títulos internacionais e nenhum Worlds. Das 63 vezes em que o time do jogador foi ao Worlds, caiu na fase suíça em 56.
+- **Causa:** o torneio estava certo, mas o potencial era o mesmo para todas as nacionalidades, calibrado pelo Brasil (teto ~84–90). Os favoritos da LCK e da LPL têm força 94–98, e para ser titular é preciso estar no máximo 2 pontos abaixo da força do time. Resultado: nem um coreano chegava aos times que ganham o Worlds. O jogador só ia ao Worlds por times fracos, quase sempre como o 17º de 17 em força.
+- **Correção:** bônus de potencial pela região de nascimento, crescendo com o talento (ver [conceito](conceito.md)). A classificação do simulador (sólido, craque, lenda) passou a usar a mesma escala.
+- **Resultado** (400 carreiras por nacionalidade, modo normal):
+
+  | Nacionalidade | Foi ao Worlds | Ganhou o Worlds | Nunca / sólido / craque / lenda |
+  |---|---|---|---|
+  | Coreia | 36% | 3,5% | 34 / 47 / 18 / 1 |
+  | China | 18% | 1,8% | 45 / 38 / 16 / 1 |
+  | Alemanha | 32% | 0% | 44 / 37 / 17 / 2 |
+  | EUA | 40% | 0% | 38 / 39 / 21 / 3 |
+  | Brasil | 34% | 0% | 28 / 44 / 22 / 6 (inalterado) |
+
+- **Para revisar no playtest:** lendas coreanas e chinesas ainda são raras (~1%), e chineses ficam muito presos na LDL (45% nunca se firmam).
