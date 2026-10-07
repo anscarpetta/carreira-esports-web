@@ -344,3 +344,40 @@ Começar fora do Brasil é **mais difícil de propósito**: LCK e LPL são muito
 
 ### Testes: 78
 - Novos testes cobrem: todo evento com 2+ opções, jovem titular evoluindo mais que jovem no banco, prodígio crescendo ~+10 por ano, frequência das explosões e o potencial como teto. O teste de estresse com 3.000 carreiras roda sem erros e sem nenhuma decisão de opção única.
+
+---
+
+## Playtest 3 (out/2026): titular no tier 1 e janela da pré-temporada
+
+### O que o Angelo pediu
+1. No tier 1 não faz sentido um reserva que joga de vez em quando: ou o jogador vai para ser titular, ou vai como titular e depois é rebaixado para o academy daquele time.
+2. As janelas da pré-temporada (3→1) estavam aparecendo pouco.
+
+### Por que a janela sumia
+Com mais eventos por carreira (playtest 2), quando um evento caía na pré-temporada ele **substituía** a janela de transferências. No modo Normal só existe a janela 3→1, então muitos anos passavam sem janela.
+
+### O que mudou
+- **Tier 1 só com titulares** (regras em [conceito.md](conceito.md)), com a decisão "Rebaixado para o academy" (3 cards: descer para o academy + 2 times).
+- **Evento + janela:** na pré-temporada, o evento vem primeiro e a janela aparece logo depois, sem simular splits no meio.
+- **Perder espaço por evento** dura só o próximo split.
+- **Régua de titular** um pouco mais exigente (até 2 pontos abaixo da força do time).
+- **Subida meteórica para quem tem perfil precoce:** no perfil normal e no tardio, o crescimento aos 16–17 ficou um pouco menor.
+
+### Calibração (Brasil, 3.000 carreiras)
+
+| Modo | Não vingam | Sólidos | Craques | Lendas | Titular no tier 1 aos 18 |
+|---|---|---|---|---|---|
+| Normal | 31% | 40% | 23% | 6% | 25% |
+| Intensa | 29% | 40% | 25% | 7% | 47% |
+| Expressa | 36% | 37% | 22% | 4% | 24% |
+
+Aposentadoria média aos ~29 anos.
+
+### Testes: 82
+- Novos testes cobrem: nenhum reserva jogando no tier 1, propostas de tier 1 só para titular, evento da pré-temporada seguido da janela, e a decisão de rebaixamento com o academy do próprio time. O teste de estresse com 3.000 carreiras roda sem erros.
+
+### Ajustes no mesmo PR (feedback durante o playtest 3)
+- **"De volta ao academy" depois de ir ao Worlds:** a Gen.G se reforçou na pré-temporada e o titular de OVR 89 ficou "abaixo da régua". Agora existe o **titular estabelecido**: quem foi titular do time no split anterior só perde a vaga se ficar mais de 5 pontos abaixo da força do time.
+- **Menos lesões:** a chance passou a ser por split jogado (0,7%), então dá ~0,2 lesão por carreira em qualquer modo. Antes era 4% por decisão, até ~1,4 por carreira no Intensa. A tendinite da maratona de solo queue caiu de 30% para 20%.
+- **Calibração (normal):** 29% não vingam · 43% sólidos · 20% craques · 7% lendas. As lendas a mais vêm de títulos: o titular estabelecido fica mais tempo nos times grandes.
+- **83 testes.**

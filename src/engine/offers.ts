@@ -54,6 +54,8 @@ function interest(playerOvr: number, age: number, candidate: OfferTeam): { role:
   if (team.ambitiousSince !== null) weight *= 1.8
   // Times de base (tier 3) querem jovens; veterano só no tier 1 e 2.
   const youth = tier >= 3 && age >= 24 ? 0.4 : 1
+  // Tier 1 só contrata titular (quem ainda não tem nível vai para o academy do time).
+  if (tier === 1 && role !== 'starter') return { role, weight: 0 }
   // Importado ocupa uma das 2 vagas de estrangeiro: só vale a pena se for titular.
   const importFactor = candidate.importFactor ?? 1
   if (importFactor < 1 && role !== 'starter') return { role, weight: 0 }
@@ -128,7 +130,12 @@ export function guaranteedOffers(
     // Plano B: times da própria região (sem vaga de importado), ordenados pelo encaixe.
     const roleScore: Record<SquadRole, number> = { starter: 2, reserve: 1, bench: 0 }
     const fallback = pool
-      .filter((p) => (p.candidate.importFactor ?? 1) >= 1 && !offers.some((o) => o.teamId === p.candidate.team.id))
+      .filter(
+        (p) =>
+          (p.candidate.importFactor ?? 1) >= 1 &&
+          (p.candidate.tier > 1 || p.role === 'starter') &&
+          !offers.some((o) => o.teamId === p.candidate.team.id),
+      )
       .map((p) => ({ p, fit: roleScore[p.role] * 100 - p.candidate.tier * 10 - Math.abs(playerOvr - p.candidate.team.rating) }))
       .sort((a, b) => b.fit - a.fit || a.p.candidate.team.id.localeCompare(b.p.candidate.team.id))
     while (offers.length < count && fallback.length > 0) {

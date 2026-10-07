@@ -73,6 +73,9 @@ function optionTitle(option: DecisionOption, career: CareerState): string {
   if (option.type === 'join' && option.teamId === currentParent) {
     return `Subir para ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
   }
+  if (option.type === 'join' && career.teamId && CATALOG.teams[option.teamId]?.parentId === career.teamId) {
+    return `Descer para ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
+  }
   if (option.type === 'wait') return option.label
   if (option.type === 'join') return `Assinar com ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`
   if (option.type === 'stay') return `Ficar na ${CATALOG.teams[option.teamId]?.shortName ?? option.teamId}`

@@ -123,8 +123,9 @@ describe('times', () => {
 describe('jogador', () => {
   it('o papel depende da diferença para a força do time', () => {
     expect(squadRoleFor(80, 78)).toBe('starter')
-    expect(squadRoleFor(75, 78)).toBe('starter')
-    expect(squadRoleFor(73, 78)).toBe('reserve')
+    expect(squadRoleFor(76, 78)).toBe('starter')
+    expect(squadRoleFor(75, 78)).toBe('reserve')
+    expect(squadRoleFor(72, 78)).toBe('reserve')
     expect(squadRoleFor(65, 78)).toBe('bench')
     expect(shiftRole('starter', -1)).toBe('reserve')
     expect(shiftRole('bench', -1)).toBe('bench')
@@ -136,11 +137,11 @@ describe('jogador', () => {
     expect(marketValue(80, 30)).toBeLessThan(marketValue(80, 22))
   })
 
-  const prospect = (ovr: number, potential: number) => ({
+  const prospect = (ovr: number, potential: number, profile: 'early' | 'normal' = 'normal') => ({
     ...createPlayer(createRng('pot'), { nick: 'x', role: 'top', nationality: 'BR', startYear: 2027 }).value,
     ovr,
     potential,
-    profile: 'normal' as const,
+    profile,
   })
 
   it('a evolução respeita o potencial', () => {
@@ -154,11 +155,11 @@ describe('jogador', () => {
   })
 
   it('jovem titular evolui mais que jovem no banco, e quem está longe do potencial cresce rápido', () => {
-    const average = (ovr: number, potential: number, squad: 'starter' | 'bench') => {
-      let rng = createRng(`media-${ovr}-${potential}-${squad}`)
+    const average = (ovr: number, potential: number, squad: 'starter' | 'bench', profile: 'early' | 'normal' = 'normal') => {
+      let rng = createRng(`media-${ovr}-${potential}-${squad}-${profile}`)
       let total = 0
       for (let i = 0; i < 2000; i += 1) {
-        const roll = rollSplitDevelopment(rng, prospect(ovr, potential), 17, squad)
+        const roll = rollSplitDevelopment(rng, prospect(ovr, potential, profile), 17, squad)
         rng = roll.rng
         total += roll.value.delta
       }
@@ -166,8 +167,9 @@ describe('jogador', () => {
     }
     expect(average(60, 85, 'starter')).toBeGreaterThan(average(60, 85, 'bench'))
     expect(average(60, 90, 'starter')).toBeGreaterThan(average(60, 70, 'starter'))
-    // Um prodígio titular ganha, em média, mais de 3 de OVR por split (≈ +10 por ano).
-    expect(average(60, 90, 'starter')).toBeGreaterThan(3)
+    // Um prodígio (perfil precoce) titular ganha, em média, mais de 3 de OVR por split (≈ +10 por ano).
+    expect(average(60, 90, 'starter', 'early')).toBeGreaterThan(3)
+    expect(average(60, 90, 'starter', 'early')).toBeGreaterThan(average(60, 90, 'starter', 'normal'))
   })
 
   it('jovem titular com espaço para crescer às vezes explode', () => {
